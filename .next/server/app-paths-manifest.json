@@ -1,0 +1,8 @@
+{
+  "/page": "app/page.js",
+  "/auth/page": "app/auth/page.js",
+  "/partido/[id]/page": "app/partido/[id]/page.js",
+  "/perfil/page": "app/perfil/page.js",
+  "/notificaciones/page": "app/notificaciones/page.js",
+  "/buscar/page": "app/buscar/page.js"
+}
