@@ -470,6 +470,9 @@ video {
 .-right-4{
   right: -1rem;
 }
+.-top-1{
+  top: -0.25rem;
+}
 .bottom-0{
   bottom: 0px;
 }
@@ -581,6 +584,12 @@ video {
 .mt-5{
   margin-top: 1.25rem;
 }
+.mt-6{
+  margin-top: 1.5rem;
+}
+.mt-auto{
+  margin-top: auto;
+}
 .block{
   display: block;
 }
@@ -607,6 +616,9 @@ video {
 }
 .h-10{
   height: 2.5rem;
+}
+.h-11{
+  height: 2.75rem;
 }
 .h-12{
   height: 3rem;
@@ -653,6 +665,9 @@ video {
 .h-9{
   height: 2.25rem;
 }
+.h-\[340px\]{
+  height: 340px;
+}
 .h-\[76px\]{
   height: 76px;
 }
@@ -667,6 +682,9 @@ video {
 }
 .max-h-\[80vh\]{
   max-height: 80vh;
+}
+.max-h-\[85vh\]{
+  max-height: 85vh;
 }
 .min-h-screen{
   min-height: 100vh;
@@ -706,6 +724,9 @@ video {
 }
 .w-36{
   width: 9rem;
+}
+.w-4{
+  width: 1rem;
 }
 .w-40{
   width: 10rem;
@@ -758,9 +779,6 @@ video {
 .flex-1{
   flex: 1 1 0%;
 }
-.flex-shrink{
-  flex-shrink: 1;
-}
 .flex-shrink-0{
   flex-shrink: 0;
 }
@@ -779,6 +797,14 @@ video {
 .translate-x-5{
   --tw-translate-x: 1.25rem;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+@keyframes spin{
+  to{
+    transform: rotate(360deg);
+  }
+}
+.animate-spin{
+  animation: spin 1s linear infinite;
 }
 .resize-none{
   resize: none;
@@ -871,6 +897,9 @@ video {
 .self-end{
   align-self: flex-end;
 }
+.self-center{
+  align-self: center;
+}
 .overflow-hidden{
   overflow: hidden;
 }
@@ -909,6 +938,9 @@ video {
 }
 .border{
   border-width: 1px;
+}
+.border-0{
+  border-width: 0px;
 }
 .border-2{
   border-width: 2px;
@@ -1034,6 +1066,9 @@ video {
 }
 .bg-ink\/40{
   background-color: rgb(15 23 42 / 0.4);
+}
+.bg-ink\/50{
+  background-color: rgb(15 23 42 / 0.5);
 }
 .bg-line{
   --tw-bg-opacity: 1;
@@ -1382,6 +1417,9 @@ video {
 .text-\[9\.5px\]{
   font-size: 9.5px;
 }
+.text-\[9px\]{
+  font-size: 9px;
+}
 .text-base{
   font-size: 1rem;
   line-height: 1.5rem;
@@ -1638,7 +1676,7 @@ body {
   --tw-text-opacity: 1;
   color: rgb(21 113 53 / var(--tw-text-opacity, 1));
 }
-.dark .chip-recreativo { background-color: rgba(30, 158, 74, 0.16); }
+.dark .chip-recreativo { color: #34D399; background-color: rgba(30, 158, 74, 0.16); }
 .chip-intermedio{
   --tw-bg-opacity: 1;
   background-color: rgb(255 251 235 / var(--tw-bg-opacity, 1));
@@ -1717,7 +1755,7 @@ body {
 /* Se activa agregando la clase "dark" al <html> (ver ThemeContext).
    Reescribe los colores de las clases de Tailwind ya usadas en toda
    la app, así no hace falta tocar cada pantalla una por una. */
-.dark body { background-color: #1A1C20; }
+.dark body { background-color: #1A1C20; color: #F3F4F6; }
 .dark .bg-bg { background-color: #202226; }
 .dark .bg-white { background-color: #2B2E33; }
 .dark .bg-neutral-50 { background-color: #26282C; }
@@ -1727,6 +1765,9 @@ body {
 .dark .border-dashed.border-line { border-color: #454952; }
 .dark .text-ink { color: #F3F4F6; }
 .dark .text-inksoft { color: #9CA3AF; }
+.dark .text-brand-dark { color: #34D399; }
+.dark .text-neutral-500,
+.dark .text-neutral-600 { color: #A6ABB3; }
 .dark .bg-brand-pale { background-color: rgba(30, 158, 74, 0.16); }
 .dark input,
 .dark textarea,
@@ -1735,6 +1776,10 @@ body {
   color: #F3F4F6;
   border-color: #3A3E45;
 }
+.dark .input { background: #2B2E33; color: #F3F4F6; border-color: #3A3E45 !important; }
+.dark .edit-input { background: #2B2E33; color: #F3F4F6; border-color: #3A3E45 !important; }
+.dark .filter-input { background: #2B2E33; color: #F3F4F6; border-color: #3A3E45 !important; }
+.dark .stepper-btn { background: #2B2E33; color: #34D399; border-color: #3A3E45 !important; }
 .dark ::-moz-placeholder { color: #6B7280; }
 .dark ::placeholder { color: #6B7280; }
 .dark .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); }

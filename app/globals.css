@@ -85,7 +85,7 @@ body {
 /* Se activa agregando la clase "dark" al <html> (ver ThemeContext).
    Reescribe los colores de las clases de Tailwind ya usadas en toda
    la app, así no hace falta tocar cada pantalla una por una. */
-.dark body { background-color: #1A1C20; }
+.dark body { background-color: #1A1C20; color: #F3F4F6; }
 .dark .bg-bg { background-color: #202226; }
 .dark .bg-white { background-color: #2B2E33; }
 .dark .bg-neutral-50 { background-color: #26282C; }
@@ -95,6 +95,9 @@ body {
 .dark .border-dashed.border-line { border-color: #454952; }
 .dark .text-ink { color: #F3F4F6; }
 .dark .text-inksoft { color: #9CA3AF; }
+.dark .text-brand-dark { color: #34D399; }
+.dark .text-neutral-500,
+.dark .text-neutral-600 { color: #A6ABB3; }
 .dark .bg-brand-pale { background-color: rgba(30, 158, 74, 0.16); }
 .dark input,
 .dark textarea,
@@ -103,5 +106,9 @@ body {
   color: #F3F4F6;
   border-color: #3A3E45;
 }
+.dark .input { background: #2B2E33; color: #F3F4F6; border-color: #3A3E45 !important; }
+.dark .edit-input { background: #2B2E33; color: #F3F4F6; border-color: #3A3E45 !important; }
+.dark .filter-input { background: #2B2E33; color: #F3F4F6; border-color: #3A3E45 !important; }
+.dark .stepper-btn { background: #2B2E33; color: #34D399; border-color: #3A3E45 !important; }
 .dark ::placeholder { color: #6B7280; }
 .dark .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); }

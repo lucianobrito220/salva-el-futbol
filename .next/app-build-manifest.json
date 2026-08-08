@@ -11,6 +11,16 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
+    "/buscar/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/buscar/page.js"
+    ],
+    "/p/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/p/[id]/page.js"
+    ],
     "/perfil/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -20,21 +30,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/auth/page.js"
-    ],
-    "/publicar/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/publicar/page.js"
-    ],
-    "/buscar/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/buscar/page.js"
-    ],
-    "/notificaciones/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/notificaciones/page.js"
     ],
     "/partido/[id]/page": [
       "static/chunks/webpack.js",

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import Avatar from '@/components/Avatar';
 import RainAlert from '@/components/RainAlert';
+import MapModal from '@/components/MapModal';
 
 export default function MatchDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +29,7 @@ export default function MatchDetailPage() {
   const [contactPhone, setContactPhone] = useState<string | null>(null);
   const [toast, setToast] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   const [editing, setEditing] = useState(false);
   const [editDraft, setEditDraft] = useState<Partial<Match>>({});
@@ -368,11 +370,15 @@ export default function MatchDetailPage() {
                 }
               />
             </div>
-            {match.location_address && (
-              <div className="mb-4 flex items-center gap-2 rounded-xl border border-line bg-white px-3.5 py-3 text-sm">
+            {(match.location_address || match.court) && (
+              <button
+                onClick={() => setShowMap(true)}
+                className="press-fx mb-4 flex w-full items-center gap-2 rounded-xl border border-line bg-white px-3.5 py-3 text-left text-sm"
+              >
                 <MapPin size={16} className="flex-shrink-0 text-brand-dark" />
-                <span>{match.location_address}</span>
-              </div>
+                <span className="flex-1">{match.location_address || `${match.court}, ${match.zone}`}</span>
+                <span className="text-xs font-bold text-brand-dark">Ver mapa</span>
+              </button>
             )}
             {match.description && (
               <div className="mb-4 rounded-xl border border-line bg-white px-3.5 py-3 text-sm text-inksoft">
@@ -668,6 +674,14 @@ export default function MatchDetailPage() {
             </button>
           </div>
         </div>
+      )}
+
+      {showMap && match && (
+        <MapModal
+          query={match.location_address || `${match.court}, ${match.zone}, ${match.city}`}
+          label={match.court}
+          onClose={() => setShowMap(false)}
+        />
       )}
 
       {toast && (

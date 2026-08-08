@@ -4,6 +4,7 @@ import { ChevronLeft } from 'lucide-react';
 import { getPublicServerClient } from '@/lib/supabase/publicServer';
 import PitchPattern from '@/components/PitchPattern';
 import PlayerSilhouette from '@/components/PlayerSilhouette';
+import LocationMapButton from '@/components/LocationMapButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -105,10 +106,12 @@ export default async function PublicMatchPage({ params }: { params: { id: string
           <InfoCard label="Estado" value={statusLabel} />
         </div>
 
-        {match.location_address && (
-          <div className="mb-4 rounded-xl border border-line bg-white px-3.5 py-3 text-sm">
-            📍 {match.location_address}
-          </div>
+        {(match.location_address || match.court) && (
+          <LocationMapButton
+            query={match.location_address || `${match.court}, ${match.zone}, ${match.city}`}
+            label={match.court}
+            display={match.location_address || `${match.court}, ${match.zone}`}
+          />
         )}
         {match.description && (
           <div className="mb-5 rounded-xl border border-line bg-white px-3.5 py-3 text-sm text-inksoft">
