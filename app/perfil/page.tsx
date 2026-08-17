@@ -9,13 +9,15 @@ import { Match } from '@/lib/types';
 import SplashLoading from '@/components/SplashLoading';
 import InstallAppButton from '@/components/InstallAppButton';
 import { useTheme } from '@/context/ThemeContext';
-import { Bell, Camera, Pencil, LogOut, Check, Award, Shield, Moon } from 'lucide-react';
+import { Bell, Camera, Pencil, LogOut, Check, Award, Shield, Moon, HelpCircle, FileText, ChevronRight, ChevronDown, ChevronUp, Activity, Trophy, Gift, Share2, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
 
 export default function PerfilPage() {
   const router = useRouter();
   const { session, profile, loading, signOut, refreshProfile } = useAuth();
   const { dark, toggle } = useTheme();
   const [mine, setMine] = useState<Match[]>([]);
+  const [joined, setJoined] = useState<Match[]>([]);
   const [pushStatus, setPushStatus] = useState<string>('');
   const [phone, setPhone] = useState('');
   const [phoneSaved, setPhoneSaved] = useState(false);
@@ -26,10 +28,13 @@ export default function PerfilPage() {
   const [ageDraft, setAgeDraft] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [isActivityExpanded, setIsActivityExpanded] = useState(false);
+  const [togglingReferee, setTogglingReferee] = useState(false);
+  const [showRefConfirm, setShowRefConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!loading && !session) router.replace('/auth?next=/perfil');
+    // Guest access allowed, handled in render
   }, [loading, session, router]);
 
   useEffect(() => {
@@ -40,6 +45,16 @@ export default function PerfilPage() {
       .eq('organizer_id', session.user.id)
       .order('match_date', { ascending: false })
       .then(({ data }) => setMine((data as Match[]) || []));
+
+    supabase
+      .from('join_requests')
+      .select('match:matches(*)')
+      .eq('player_id', session.user.id)
+      .eq('status', 'accepted')
+      .then(({ data }) => {
+        const matches = ((data as any[]) || []).map((r) => r.match).filter(Boolean) as Match[];
+        setJoined(matches);
+      });
 
     supabase
       .from('profiles')
@@ -118,11 +133,80 @@ export default function PerfilPage() {
     setUploadingPhoto(false);
   }
 
-  if (loading || !session || !profile) return <SplashLoading />;
+  async function toggleRefereeStatus() {
+    if (!session || !profile) return;
+    
+    const newValue = !profile.is_referee;
+    const actionText = newValue ? 'activar' : 'desactivar';
+    // We will now show a custom modal instead of window.confirm
+    setShowRefConfirm(true);
+  }
+
+  async function executeToggleReferee() {
+    if (!session || !profile) return;
+    const newValue = !profile.is_referee;
+    setShowRefConfirm(false);
+
+    setTogglingReferee(true);
+    const now = new Date().toISOString();
+    const { error } = await supabase
+      .from('profiles')
+      .update({ is_referee: newValue, referee_updated_at: now })
+      .eq('id', session.user.id);
+      
+    if (!error) {
+      await refreshProfile();
+    } else {
+      console.error("Referee toggle error:", error);
+      alert(`Error al actualizar estado: ${error.message || 'Desconocido'}`);
+    }
+    setTogglingReferee(false);
+  }
+
+  function getRefereeCooldownHours(): number {
+    if (!profile?.referee_updated_at) return 0;
+    const lastUpdate = new Date(profile.referee_updated_at).getTime();
+    if (isNaN(lastUpdate)) return 0;
+    const now = new Date().getTime();
+    const hoursPassed = (now - lastUpdate) / (1000 * 60 * 60);
+    return Math.max(0, 24 - hoursPassed);
+  }
+
+  const refereeCooldown = getRefereeCooldownHours();
+  const canToggleReferee = refereeCooldown <= 0;
+
+  if (loading) return <SplashLoading />;
+  
+  if (!session || !profile) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-5 text-center bg-bg pb-24">
+        <h2 className="mb-2 font-display text-2xl font-bold">Iniciá sesión</h2>
+        <p className="text-sm text-inksoft">Necesitás una cuenta para ver y editar tu perfil.</p>
+        <Link href="/auth?next=/perfil" className="mt-6 rounded-xl bg-brand px-6 py-3 font-bold text-white shadow-lg">
+          Iniciar sesión o registrarse
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="pb-10">
-      <div className="border-b border-line bg-brand-dark px-5 pb-5 pt-8 text-center text-white">
+      <div className="relative border-b border-line bg-brand-dark px-5 pb-5 pt-14 text-center text-white">
+        <button 
+          onClick={() => {
+            if (navigator.share) {
+              navigator.share({
+                title: 'Salvá el Fútbol',
+                text: '¡Descargate Salvá el Fútbol y no te pierdas ningún partido!',
+                url: window.location.origin
+              }).catch(() => {});
+            }
+          }}
+          className="absolute right-5 top-5 press-fx text-white/80 hover:text-white"
+          aria-label="Compartir app"
+        >
+          <Share2 size={22} />
+        </button>
         <div className="relative mx-auto mb-3 h-[76px] w-[76px]">
           {profile.avatar_url ? (
             <img
@@ -199,8 +283,49 @@ export default function PerfilPage() {
                 <Shield size={12} /> Organizador confiable
               </span>
             )}
+            {profile.is_referee && (
+              <span className="flex items-center gap-1 rounded-full bg-yellow-500/80 px-2.5 py-1 text-[10.5px] font-bold text-white">
+                <Award size={12} /> Árbitro
+              </span>
+            )}
           </div>
         )}
+      </div>
+
+      {/* SALVAPUNTOS (FASE 3) */}
+      <div className="px-5 pt-6">
+        <Link href="/perfil/salvapuntos" className="press-fx relative flex flex-1 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-dark to-brand p-5 shadow-lg">
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-1">
+              <Gift size={16} className="text-yellow-400" />
+              <h3 className="font-display text-sm font-extrabold text-white uppercase tracking-wider">SalvaPuntos</h3>
+            </div>
+            <span className="text-4xl font-black text-white">{profile.salvapuntos || 0}</span>
+          </div>
+          <Gift size={80} className="absolute -bottom-4 -right-4 text-white/10" strokeWidth={1.5} />
+        </Link>
+      </div>
+
+      {/* DISCIPLINA (FASE 3) */}
+      <div className="px-5 pt-6">
+        <h2 className="mb-3 font-display text-[15.5px] font-extrabold">Disciplina</h2>
+        <div className="overflow-hidden rounded-2xl border border-line bg-white">
+          <div className="flex items-center justify-between border-b border-line px-4 py-3 text-sm">
+            <span className="flex items-center gap-2"><div className="w-3 h-4 bg-yellow-400 rounded-sm"></div> Tarjetas Amarillas</span>
+            <span className="font-bold">{profile.yellow_cards || 0}</span>
+          </div>
+          <div className="flex items-center justify-between border-b border-line px-4 py-3 text-sm">
+            <span className="flex items-center gap-2"><div className="w-3 h-4 bg-red-500 rounded-sm"></div> Tarjetas Rojas</span>
+            <span className="font-bold">{profile.red_cards || 0}</span>
+          </div>
+          {profile.suspended_until && new Date(profile.suspended_until) > new Date() && (
+            <div className="flex items-center justify-between px-4 py-3 text-sm bg-red-50 text-red-700">
+              <span className="font-bold">Suspendido hasta</span>
+              <span className="font-bold">{new Date(profile.suspended_until).toLocaleDateString()}</span>
+            </div>
+          )}
+        </div>
+        <p className="mt-2 text-[11px] text-inksoft">Acumular tarjetas rojas o faltar sin avisar puede derivar en suspensiones.</p>
       </div>
 
       <div className="px-5 pt-5">
@@ -251,23 +376,125 @@ export default function PerfilPage() {
       </div>
 
       <div className="px-5 pt-6">
-        <h2 className="mb-3 font-display text-[15.5px] font-extrabold">Mis partidos organizados</h2>
-        <div className="overflow-hidden rounded-2xl border border-line bg-white">
-          {mine.length === 0 ? (
-            <p className="p-4 text-sm text-inksoft">Todavía no organizaste partidos.</p>
-          ) : (
-            mine.map((m) => (
+        <button 
+          onClick={() => setIsActivityExpanded(!isActivityExpanded)}
+          className="press-fx flex w-full items-center justify-between font-display text-[15.5px] font-extrabold"
+        >
+          <span className="flex items-center gap-1.5"><Activity size={16} className="text-brand-dark" /> Mi actividad</span>
+          {isActivityExpanded ? <ChevronUp size={20} className="text-inksoft" /> : <ChevronDown size={20} className="text-inksoft" />}
+        </button>
+        
+        {isActivityExpanded && (
+          <div className="mt-3">
+            {(() => {
+              const now = new Date();
+              const combined = [
+                ...mine.map((m) => ({ match: m, role: 'Organizaste' as const })),
+                ...joined.map((m) => ({ match: m, role: 'Jugaste' as const })),
+              ];
+              const upcoming = combined
+                .filter((a) => new Date(`${a.match.match_date}T${a.match.match_time}`) >= now)
+                .sort((a, b) => `${a.match.match_date}${a.match.match_time}`.localeCompare(`${b.match.match_date}${b.match.match_time}`));
+              const past = combined
+                .filter((a) => new Date(`${a.match.match_date}T${a.match.match_time}`) < now)
+                .sort((a, b) => `${b.match.match_date}${b.match.match_time}`.localeCompare(`${a.match.match_date}${a.match.match_time}`));
+
+              if (combined.length === 0) {
+                return (
+                  <div className="rounded-2xl border border-line bg-white p-4">
+                    <p className="text-sm text-inksoft">Todavía no organizaste ni jugaste ningún partido.</p>
+                  </div>
+                );
+              }
+
+              return (
+                <>
+                  {upcoming.length > 0 && (
+                    <>
+                      <p className="mb-1.5 text-xs font-bold text-inksoft">Próximos</p>
+                      <div className="mb-4 overflow-hidden rounded-2xl border border-line bg-white">
+                        {upcoming.map((a) => (
+                          <ActivityRow key={`${a.role}-${a.match.id}`} activity={a} onClick={() => router.push(`/partido/${a.match.id}`)} />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  {past.length > 0 && (
+                    <>
+                      <p className="mb-1.5 text-xs font-bold text-inksoft">Jugados</p>
+                      <div className="overflow-hidden rounded-2xl border border-line bg-white">
+                        {past.map((a) => (
+                          <ActivityRow key={`${a.role}-${a.match.id}`} activity={a} onClick={() => router.push(`/partido/${a.match.id}`)} />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </>
+              );
+            })()}
+          </div>
+        )}
+      </div>
+
+      {showRefConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
+            <div className="mb-4 flex items-center justify-center text-yellow-500">
+              <AlertCircle size={48} />
+            </div>
+            <h3 className="mb-2 text-center font-display text-xl font-bold">¿Estás seguro?</h3>
+            <p className="mb-6 text-center text-sm text-inksoft">
+              ¿Querés {profile.is_referee ? 'desactivar' : 'activar'} tu modo Árbitro?
+              <br/><br/>
+              <span className="font-bold text-ink">Tené en cuenta que una vez realizado el cambio, deberás esperar 24 horas para poder volver a modificarlo.</span> Esto evita que haya perfiles de prueba inactivos.
+            </p>
+            <div className="flex gap-3">
               <button
-                key={m.id}
-                onClick={() => router.push(`/partido/${m.id}`)}
-                className="press-fx flex w-full items-center justify-between border-b border-line px-4 py-3 text-left text-sm last:border-0"
+                onClick={() => setShowRefConfirm(false)}
+                className="press-fx flex-1 rounded-xl bg-neutral-100 py-3.5 font-bold text-ink hover:bg-neutral-200"
               >
-                <span>{m.zone} · {m.match_time.slice(0, 5)}</span>
-                <span className="rounded-full bg-brand-pale px-2.5 py-1 text-[11px] font-bold text-brand-dark">
-                  {m.status === 'open' ? `Faltan ${m.missing_players}` : m.status}
-                </span>
+                No, cancelar
               </button>
-            ))
+              <button
+                onClick={executeToggleReferee}
+                className="press-fx flex-1 rounded-xl bg-yellow-500 py-3.5 font-bold text-yellow-950 shadow-md"
+              >
+                Sí, confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="px-5 pt-6">
+        <h2 className="mb-3 font-display text-[15.5px] font-extrabold">Modo Árbitro</h2>
+        <div className="overflow-hidden rounded-2xl border border-line bg-white p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <div className="font-bold text-ink">Soy Árbitro Oficial</div>
+              <div className="text-xs text-inksoft max-w-[200px]">Activá esto para acceder a la bolsa de trabajo y arbitrar partidos.</div>
+            </div>
+            <button
+              type="button"
+              disabled={!canToggleReferee || togglingReferee}
+              onClick={toggleRefereeStatus}
+              className={`relative h-7 w-12 rounded-full transition-colors ${profile.is_referee ? 'bg-brand' : 'bg-neutral-200'} ${!canToggleReferee ? 'opacity-50' : ''}`}
+            >
+              <span className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition-transform ${profile.is_referee ? 'translate-x-5' : 'translate-x-0'}`} />
+            </button>
+          </div>
+          {!canToggleReferee && (
+            <div className="mt-2 text-xs font-bold text-yellow-600 bg-yellow-50 p-2 rounded-lg">
+              Podrás volver a cambiar de rol en {Math.ceil(refereeCooldown)} hora(s) (por seguridad).
+            </div>
+          )}
+          {profile.is_referee && (
+            <button
+              onClick={() => router.push('/')}
+              className="mt-3 press-fx flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3 text-sm font-bold text-white shadow-sm"
+            >
+              Ir al Inicio (Bolsa de Árbitros)
+            </button>
           )}
         </div>
       </div>
@@ -295,11 +522,54 @@ export default function PerfilPage() {
       </div>
 
       <div className="px-5 pt-6">
+        <div className="overflow-hidden rounded-2xl border border-line bg-white">
+          <button
+            onClick={() => router.push('/ayuda')}
+            className="press-fx flex w-full items-center justify-between border-b border-line px-4 py-3.5 text-left text-sm font-semibold"
+          >
+            <span className="flex items-center gap-2"><HelpCircle size={16} className="text-brand-dark" /> Centro de ayuda</span>
+            <ChevronRight size={16} className="text-inksoft" />
+          </button>
+          <button
+            onClick={() => router.push('/terminos')}
+            className="press-fx flex w-full items-center justify-between px-4 py-3.5 text-left text-sm font-semibold"
+          >
+            <span className="flex items-center gap-2"><FileText size={16} className="text-brand-dark" /> Términos y condiciones</span>
+            <ChevronRight size={16} className="text-inksoft" />
+          </button>
+        </div>
+      </div>
+
+      <div className="px-5 pt-6">
         <button onClick={() => signOut()} className="press-fx flex w-full items-center justify-center gap-2 rounded-2xl border border-line py-3.5 text-sm font-bold text-red-600">
           <LogOut size={16} /> Cerrar sesión
         </button>
       </div>
     </div>
+  );
+}
+
+function ActivityRow({
+  activity,
+  onClick,
+}: {
+  activity: { match: Match; role: 'Organizaste' | 'Jugaste' };
+  onClick: () => void;
+}) {
+  const { match, role } = activity;
+  const statusLabel =
+    match.status === 'complete' ? 'Completo' : match.status === 'cancelled' ? 'Cancelado' : match.match_type === 'equipo_rival' ? 'Equipo rival' : `Faltan ${match.missing_players}`;
+  return (
+    <button
+      onClick={onClick}
+      className="press-fx flex w-full items-center justify-between border-b border-line px-4 py-3 text-left text-sm last:border-0"
+    >
+      <span>
+        <span className="mr-1.5 rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-bold text-inksoft">{role}</span>
+        {match.zone} · {match.match_date} {match.match_time.slice(0, 5)}
+      </span>
+      <span className="rounded-full bg-brand-pale px-2.5 py-1 text-[11px] font-bold text-brand-dark">{statusLabel}</span>
+    </button>
   );
 }
 

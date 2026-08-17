@@ -5,6 +5,7 @@ import { getPublicServerClient } from '@/lib/supabase/publicServer';
 import PitchPattern from '@/components/PitchPattern';
 import PlayerSilhouette from '@/components/PlayerSilhouette';
 import LocationMapButton from '@/components/LocationMapButton';
+import WeatherWidget from '@/components/WeatherWidget';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,27 +56,32 @@ export default async function PublicMatchPage({ params }: { params: { id: string
 
   return (
     <div className="mx-auto min-h-screen max-w-[440px] bg-bg pb-10 shadow-2xl">
-      <div className="relative overflow-hidden px-6 pb-10 pt-10 text-white">
-        <PitchPattern className="absolute inset-0 h-full w-full" />
-        <PlayerSilhouette className="pointer-events-none absolute -right-4 bottom-0 h-40 w-40" />
-        <div className="relative">
+      <div 
+        className={`relative overflow-hidden px-6 pb-10 pt-10 text-white ${match.zone === 'Torneo' ? 'bg-cover bg-center' : ''}`}
+        style={match.zone === 'Torneo' ? { backgroundImage: `url("${match.description?.split('\n').find((l: string) => l.startsWith('IMAGEN:'))?.replace('IMAGEN: ', '') || 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8058?auto=format&fit=crop&q=80&w=800'}")` } : undefined}
+      >
+        {match.zone === 'Torneo' && <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-900/60 to-black/40"></div>}
+        {match.zone !== 'Torneo' && <PitchPattern className="absolute inset-0 h-full w-full" />}
+        {match.zone !== 'Torneo' && <PlayerSilhouette className="pointer-events-none absolute -right-4 bottom-0 h-40 w-40" />}
+        
+        <div className="relative z-10">
           <div className="mb-4 flex items-center gap-3">
             <Link
               href="/"
-              className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white"
+              className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white backdrop-blur-md"
             >
               <ChevronLeft size={20} />
             </Link>
             <div className="flex items-center gap-2">
-              <img src="/brand/logo.png" alt="Salvá el Fútbol" className="h-8 w-8 rounded-full" />
-              <span className="font-display text-sm font-extrabold">Salvá el Fútbol</span>
+              <img src="/brand/logo.png" alt="Salvá el Fútbol" className="h-8 w-8 rounded-full shadow-md" />
+              <span className="font-display text-sm font-extrabold shadow-black drop-shadow-md">Salvá el Fútbol</span>
             </div>
           </div>
-          <h1 className="mb-1 font-display text-2xl font-extrabold">
-            {match.zone}, {match.city}
+          <h1 className="mb-1 font-display text-2xl font-extrabold shadow-black drop-shadow-lg">
+            {match.zone === 'Torneo' ? (match.description?.split('\n').find((l: string) => l.startsWith('TORNEO:'))?.replace('TORNEO: ', '') || 'Torneo Local') : `${match.zone}, ${match.city}`}
           </h1>
-          <p className="text-white/80">
-            {match.match_date} · {match.match_time.slice(0, 5)} hs
+          <p className="text-white/90 shadow-black drop-shadow-md font-medium">
+            {match.zone === 'Torneo' ? `${match.court} · ${match.city}` : `${match.match_date} · ${match.match_time.slice(0, 5)} hs`}
           </p>
         </div>
       </div>
@@ -106,11 +112,19 @@ export default async function PublicMatchPage({ params }: { params: { id: string
           <InfoCard label="Estado" value={statusLabel} />
         </div>
 
+        {match.status === 'open' && match.zone !== 'Torneo' && (
+          <WeatherWidget 
+            date={match.match_date} 
+            lat={match.location_address ? parseFloat(match.location_address.split('|')[1] || '0') || undefined : undefined}
+            lon={match.location_address ? parseFloat(match.location_address.split('|')[2] || '0') || undefined : undefined}
+          />
+        )}
+
         {(match.location_address || match.court) && (
           <LocationMapButton
-            query={match.location_address || `${match.court}, ${match.zone}, ${match.city}`}
+            query={match.location_address ? match.location_address.split('|')[0] : `${match.court}, ${match.zone}, ${match.city}`}
             label={match.court}
-            display={match.location_address || `${match.court}, ${match.zone}`}
+            display={match.location_address ? match.location_address.split('|')[0] : `${match.court}, ${match.zone}`}
           />
         )}
         {match.description && (

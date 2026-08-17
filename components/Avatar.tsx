@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import ImageLightbox from '@/components/ImageLightbox';
+import Image from 'next/image';
 
 export default function Avatar({
   name,
@@ -24,11 +25,11 @@ export default function Avatar({
             setOpen(true);
           }
         }}
-        className="press-fx flex-shrink-0 overflow-hidden rounded-full"
+        className="press-fx relative flex-shrink-0 overflow-hidden rounded-full"
         style={{ width: size, height: size }}
       >
         {url ? (
-          <img src={url} alt={name} className="h-full w-full object-cover" />
+          <Image src={url} alt={name} fill className="object-cover" sizes={`${size}px`} />
         ) : (
           <div
             className="flex h-full w-full items-center justify-center rounded-full bg-brand-pale font-display font-bold text-brand-dark"

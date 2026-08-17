@@ -7,32 +7,49 @@ import { useAuth } from '@/context/AuthContext';
 import { Match, JoinRequest, Message, Level } from '@/lib/types';
 import SuccessCheck from '@/components/SuccessCheck';
 import SplashLoading from '@/components/SplashLoading';
+import dynamic from 'next/dynamic';
 import {
   ChevronLeft, Check, X, Send, MessageCircle, Pencil,
-  Flag, Star, UserPlus, Repeat, MapPin,
+  Flag, Star, UserPlus, Repeat, MapPin, Gift
 } from 'lucide-react';
+import QRCode from 'react-qr-code';
 import Avatar from '@/components/Avatar';
-import RainAlert from '@/components/RainAlert';
-import MapModal from '@/components/MapModal';
+import WeatherWidget from '@/components/WeatherWidget';
+import MatchChat from './components/MatchChat';
+
+const MapModal = dynamic(() => import('@/components/MapModal'), { ssr: false });
+const AddressAutocomplete = dynamic(() => import('@/components/AddressAutocomplete'), { ssr: false });
 
 export default function MatchDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { session, loading } = useAuth();
+  const { session, profile, loading } = useAuth();
 
   const [match, setMatch] = useState<Match | null>(null);
   const [organizerProfile, setOrganizerProfile] = useState<{ name: string; avatar_url: string | null; age: number | null } | null>(null);
   const [requests, setRequests] = useState<JoinRequest[]>([]);
   const [myRequest, setMyRequest] = useState<JoinRequest | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [chatInput, setChatInput] = useState('');
-  const [contactPhone, setContactPhone] = useState<string | null>(null);
   const [toast, setToast] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [showMap, setShowMap] = useState(false);
+  const [activeTab, setActiveTab] = useState<'info' | 'jugadores' | 'chat'>('info');
+
+  const PROMOS = [
+    '2x1 en Cerveza Imperial',
+    '15% OFF en Hamburguesas',
+    'Papas Fritas Gratis con tu pinta',
+    '3x2 en Tragos',
+    'Descuento 10% en próxima cancha'
+  ];
+  const promoIndex = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % PROMOS.length;
+  const matchPromo = PROMOS[promoIndex];
+  const qrValue = `SALVA-FUTBOL-${id.substring(0,8).toUpperCase()}`;
 
   const [editing, setEditing] = useState(false);
   const [editDraft, setEditDraft] = useState<Partial<Match>>({});
+  const [torneoData, setTorneoData] = useState<any>({
+    nombre: '', categoria: '', fechas: '', aforo: '', contacto: '', tipo: '', imagenBase64: '', descrExtra: ''
+  });
   const [saving, setSaving] = useState(false);
 
   const [reportTarget, setReportTarget] = useState<{ id: string; name: string } | null>(null);
@@ -55,7 +72,7 @@ export default function MatchDetailPage() {
   });
 
   useEffect(() => {
-    if (!loading && !session) router.replace(`/auth?next=/partido/${id}`);
+    // Only redirect if they explicitly try to join, see requestJoin
   }, [loading, session, router, id]);
 
   async function loadAll() {
@@ -106,26 +123,7 @@ export default function MatchDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, id]);
 
-  useEffect(() => {
-    if (!chatUnlocked || !id) return;
 
-    async function loadMessages() {
-      const { data } = await supabase.from('messages').select('*').eq('match_id', id).order('created_at');
-      setMessages((data as Message[]) || []);
-    }
-    loadMessages();
-
-    const channel = supabase
-      .channel(`chat-${id}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `match_id=eq.${id}` }, (payload) => {
-        setMessages((prev) => [...prev, payload.new as Message]);
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [chatUnlocked, id]);
 
   function showToast(msg: string) {
     setToast(msg);
@@ -133,11 +131,38 @@ export default function MatchDetailPage() {
   }
 
   async function requestJoin() {
-    if (!session) return;
-    const { error } = await supabase.from('join_requests').insert({ match_id: id, player_id: session.user.id });
-    if (error) {
-      showToast('No se pudo enviar la solicitud.');
+    if (!match) return;
+    if (!session) {
+      router.push(`/auth?next=/partido/${id}`);
       return;
+    }
+    const isRefereeMode = profile?.is_referee && match.needs_referee;
+    const { error } = await supabase.from('join_requests').insert({ match_id: id, player_id: session.user.id, is_referee_request: isRefereeMode || false });
+    if (error) {
+      console.error('Error in requestJoin:', error);
+      showToast(`Error: ${error.message || error.details || 'Desconocido'}`);
+      return;
+    }
+    if (match.match_type === 'equipo_rival') {
+      await fetch('/api/notify/direct', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: match.organizer_id,
+          matchId: id,
+          body: `⚔️ ¡${profile?.name || 'Un usuario'} postuló a su equipo para jugar contra ustedes en ${match.court}!`
+        })
+      }).catch(console.error);
+    } else if (isRefereeMode) {
+      await fetch('/api/notify/direct', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: match.organizer_id,
+          matchId: id,
+          body: `🏁 ¡${profile?.name || 'Un árbitro'} se postuló como árbitro oficial para tu partido en ${match.court}!`
+        })
+      }).catch(console.error);
     }
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 1100);
@@ -152,13 +177,46 @@ export default function MatchDetailPage() {
   async function respond(reqId: string, accept: boolean) {
     if (accept) {
       await supabase.from('join_requests').update({ status: 'accepted' }).eq('id', reqId);
-      if (match) {
-        await supabase
-          .from('matches')
-          .update({ missing_players: Math.max(0, match.missing_players - 1) })
-          .eq('id', match.id);
+      const req = requests.find((r) => r.id === reqId);
+      if (match && req) {
+        if (req.is_referee_request) {
+          await supabase.from('matches').update({ referee_id: req.player_id, needs_referee: false }).eq('id', match.id);
+          showToast('Árbitro confirmado ✓');
+          await fetch('/api/notify/direct', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: req.player_id,
+              matchId: id,
+              body: `🏁 ¡Felicidades! Fuiste aceptado como Árbitro Oficial para el partido en ${match.court}.`
+            })
+          }).catch(console.error);
+        } else if (match.match_type === 'equipo_rival') {
+          await supabase.from('matches').update({ status: 'complete', missing_players: 0 }).eq('id', match.id);
+          
+          const otherPending = requests.filter(r => r.id !== reqId && r.status === 'pending');
+          if (otherPending.length > 0) {
+            await supabase.from('join_requests').update({ status: 'rejected' }).in('id', otherPending.map(r => r.id));
+          }
+
+          showToast('¡Rival confirmado! Partido cerrado ✓');
+          await fetch('/api/notify/direct', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: req.player_id,
+              matchId: id,
+              body: `⚔️ ¡Felicidades! Aceptaron el reto de tu equipo para jugar en ${match.court}.`
+            })
+          }).catch(console.error);
+        } else {
+          await supabase
+            .from('matches')
+            .update({ missing_players: Math.max(0, match.missing_players - 1) })
+            .eq('id', match.id);
+          showToast('Jugador confirmado ✓');
+        }
       }
-      showToast('Jugador confirmado ✓');
     } else {
       await supabase.from('join_requests').update({ status: 'rejected' }).eq('id', reqId);
       showToast('Solicitud rechazada');
@@ -173,38 +231,54 @@ export default function MatchDetailPage() {
     showToast('Partido cancelado');
   }
 
-  async function sendMessage() {
-    if (!chatInput.trim() || !session) return;
-    await supabase.from('messages').insert({ match_id: id, sender_id: session.user.id, body: chatInput.trim() });
-    setChatInput('');
-  }
 
-  async function loadWhatsApp() {
-    const { data, error } = await supabase.rpc('get_contact_phone', { p_match_id: id });
-    if (error || !data) {
-      showToast('El contacto se habilita cuando el organizador acepta al jugador.');
-      return;
-    }
-    setContactPhone(data as string);
-  }
 
   function startEdit() {
     if (!match) return;
     setEditDraft({
       zone: match.zone,
       court: match.court,
-      location_address: match.location_address || '',
+      location_address: match.location_address ? match.location_address.split('|')[0] : '',
       match_date: match.match_date,
       match_time: match.match_time.slice(0, 5),
       price: match.price,
       level: match.level,
+      gender: match.gender,
       description: match.description || '',
     });
+    if (match.zone === 'Torneo') {
+      const d = match.description || '';
+      const getLine = (prefix: string) => d.split('\n').find(l => l.startsWith(prefix))?.replace(prefix, '') || '';
+      setTorneoData({
+        nombre: getLine('TORNEO: '),
+        categoria: getLine('CATEGORÍA: '),
+        fechas: getLine('FECHAS: '),
+        aforo: getLine('AFORO: ').replace(' equipos', ''),
+        contacto: getLine('CONTACTO (WhatsApp): '),
+        tipo: getLine('TIPO: '),
+        imagenBase64: getLine('IMAGEN: '),
+        descrExtra: d.includes('---') ? d.split('---')[1].trim() : ''
+      });
+    }
     setEditing(true);
   }
   async function saveEdit() {
     if (!match) return;
     setSaving(true);
+    let finalDesc = editDraft.description || '';
+    if (match.zone === 'Torneo') {
+      finalDesc = `${torneoData.imagenBase64 ? `IMAGEN: ${torneoData.imagenBase64}\n` : ''}TIPO: ${torneoData.tipo || 'Inscripción de equipos'}
+TORNEO: ${torneoData.nombre}
+GÉNERO: ${editDraft.gender}
+NIVEL: ${editDraft.level}
+CATEGORÍA: ${torneoData.categoria}
+FECHAS: ${torneoData.fechas}
+AFORO: ${torneoData.aforo} equipos
+COSTO INSCRIPCIÓN: $${editDraft.price}
+CONTACTO (WhatsApp): ${torneoData.contacto}
+---
+${torneoData.descrExtra}`.trim();
+    }
     await supabase
       .from('matches')
       .update({
@@ -215,12 +289,13 @@ export default function MatchDetailPage() {
         match_time: editDraft.match_time,
         price: editDraft.price,
         level: editDraft.level,
-        description: editDraft.description || null,
+        gender: editDraft.gender,
+        description: finalDesc,
       })
       .eq('id', match.id);
     setSaving(false);
     setEditing(false);
-    showToast('Partido actualizado ✓');
+    showToast('Actualizado ✓');
   }
 
   const [repeating, setRepeating] = useState(false);
@@ -302,26 +377,60 @@ export default function MatchDetailPage() {
     showToast('¡Gracias por calificar!');
   }
 
-  if (loading || !session || !match) return <SplashLoading />;
+  if (loading || !match) return <SplashLoading />;
 
   const pending = requests.filter((r) => r.status === 'pending');
   const accepted = requests.filter((r) => r.status === 'accepted');
 
   return (
-    <div className="pb-10">
+    <div className="pb-32">
       {showSuccess && <SuccessCheck message="¡Solicitud enviada!" />}
 
-      <div className="flex items-center gap-2 border-b border-line bg-white px-5 py-4">
-        <button onClick={() => router.back()} className="press-fx text-ink">
-          <ChevronLeft size={24} />
-        </button>
-        <div>
-          <div className="font-display text-[15px] font-bold">{match.zone} · {match.match_time.slice(0, 5)}</div>
-          <div className="text-[11px] text-inksoft">{match.court} · {match.city}</div>
+      {match.zone === 'Torneo' ? (
+        <div 
+          className="relative h-48 w-full bg-cover bg-center"
+          style={{ backgroundImage: `url("${match.description?.split('\n').find((l: string) => l.startsWith('IMAGEN:'))?.replace('IMAGEN: ', '') || 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8058?auto=format&fit=crop&q=80&w=800'}")` }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-900/40 to-black/40"></div>
+          <div className="absolute top-4 left-4 z-10">
+            <button onClick={() => router.back()} className="press-fx flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md">
+              <ChevronLeft size={24} />
+            </button>
+          </div>
+          <div className="absolute bottom-5 left-5 right-5 text-white z-10">
+            <div className="mb-1 inline-flex items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md">
+              🏆 Torneo Local
+            </div>
+            <div className="font-display text-[22px] font-extrabold leading-tight shadow-black drop-shadow-lg">
+              {match.description?.split('\n').find((l: string) => l.startsWith('TORNEO:'))?.replace('TORNEO: ', '') || 'Torneo Relámpago'}
+            </div>
+            <div className="text-xs font-medium opacity-90 drop-shadow-md mt-1">
+              {match.court} · {match.city}
+            </div>
+          </div>
         </div>
+      ) : (
+        <div className="flex items-center gap-2 border-b border-line bg-white px-5 py-4">
+          <button onClick={() => router.back()} className="press-fx text-ink">
+            <ChevronLeft size={24} />
+          </button>
+          <div>
+            <div className="font-display text-[15px] font-bold">{match.zone} · {match.match_time.slice(0, 5)}</div>
+            <div className="text-[11px] text-inksoft">{match.court} · {match.city}</div>
+          </div>
+        </div>
+      )}
+
+      <div className="sticky top-[68px] z-20 flex bg-white/90 backdrop-blur-md border-b border-line px-2">
+        <button onClick={() => setActiveTab('info')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'info' ? 'border-brand text-ink' : 'border-transparent text-inksoft hover:text-ink'}`}>Detalles</button>
+        <button onClick={() => setActiveTab('jugadores')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'jugadores' ? 'border-brand text-ink' : 'border-transparent text-inksoft hover:text-ink'}`}>Jugadores</button>
+        {(chatUnlocked || isOrganizer) && (
+          <button onClick={() => setActiveTab('chat')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'chat' ? 'border-brand text-ink' : 'border-transparent text-inksoft hover:text-ink'}`}>Vestuario</button>
+        )}
       </div>
 
       <div className="px-5 py-5">
+        <div style={{ display: activeTab === 'info' ? 'block' : 'none' }}>
         {!isOrganizer && organizerProfile && (
           <div className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-white px-3.5 py-3">
             <Avatar name={organizerProfile.name} url={organizerProfile.avatar_url} size={40} />
@@ -337,9 +446,13 @@ export default function MatchDetailPage() {
 
         <button
           onClick={shareMatch}
-          className="press-fx mb-2.5 flex w-full items-center justify-center gap-2 rounded-2xl border border-line bg-white py-3 text-sm font-bold text-brand-dark"
+          className={`press-fx mb-2.5 flex w-full items-center justify-center gap-2 rounded-2xl border py-3 text-sm font-bold transition-colors ${
+            match.zone === 'Torneo' 
+              ? 'border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100' 
+              : 'border-line bg-white text-brand-dark hover:bg-neutral-50'
+          }`}
         >
-          <UserPlus size={17} /> Invitar a un amigo
+          <UserPlus size={17} /> {match.zone === 'Torneo' ? 'Compartir torneo con amigos' : 'Invitar a un amigo'}
         </button>
 
         {isOrganizer && (
@@ -353,6 +466,7 @@ export default function MatchDetailPage() {
         )}
         {!editing ? (
           <>
+            
             <div className="mb-4 grid grid-cols-2 gap-3 text-sm">
               <Info label="Fecha" value={match.match_date} />
               <Info label="Nivel" value={match.level} />
@@ -376,60 +490,132 @@ export default function MatchDetailPage() {
                 className="press-fx mb-4 flex w-full items-center gap-2 rounded-xl border border-line bg-white px-3.5 py-3 text-left text-sm"
               >
                 <MapPin size={16} className="flex-shrink-0 text-brand-dark" />
-                <span className="flex-1">{match.location_address || `${match.court}, ${match.zone}`}</span>
+                <span className="flex-1 text-sm">{match.location_address ? match.location_address.split('|')[0] : `${match.court}, ${match.zone}`}</span>
                 <span className="text-xs font-bold text-brand-dark">Ver mapa</span>
               </button>
             )}
-            {match.description && (
-              <div className="mb-4 rounded-xl border border-line bg-white px-3.5 py-3 text-sm text-inksoft">
-                {match.description}
-              </div>
+            {(() => {
+              let displayDesc = match.description || '';
+              if (match.zone === 'Torneo' && displayDesc.includes('---')) {
+                displayDesc = displayDesc.split('---')[1].trim();
+              }
+              if (!displayDesc) return null;
+              return (
+                <div className="mb-4 rounded-xl border border-line bg-white px-3.5 py-3 text-sm text-inksoft whitespace-pre-wrap">
+                  {displayDesc}
+                </div>
+              );
+            })()}
+            {match.status === 'open' && match.zone !== 'Torneo' && (
+              <WeatherWidget 
+                date={match.match_date} 
+                lat={match.location_address ? parseFloat(match.location_address.split('|')[1] || '0') || undefined : undefined}
+                lon={match.location_address ? parseFloat(match.location_address.split('|')[2] || '0') || undefined : undefined}
+              />
             )}
-            {match.status === 'open' && <RainAlert date={match.match_date} time={match.match_time} />}
           </>
         ) : (
           <div className="mb-4 space-y-3 rounded-2xl border border-line bg-white p-4">
-            <EditField label="Zona">
-              <input className="edit-input" value={editDraft.zone || ''} onChange={(e) => setEditDraft((d) => ({ ...d, zone: e.target.value }))} />
-            </EditField>
-            <EditField label="Cancha">
-              <input className="edit-input" value={editDraft.court || ''} onChange={(e) => setEditDraft((d) => ({ ...d, court: e.target.value }))} />
-            </EditField>
-            <EditField label="Ubicación (dirección)">
-              <input className="edit-input" value={editDraft.location_address || ''} onChange={(e) => setEditDraft((d) => ({ ...d, location_address: e.target.value }))} />
-            </EditField>
-            <div className="grid grid-cols-2 gap-2">
-              <EditField label="Fecha">
-                <input type="date" className="edit-input" value={editDraft.match_date || ''} onChange={(e) => setEditDraft((d) => ({ ...d, match_date: e.target.value }))} />
-              </EditField>
-              <EditField label="Hora">
-                <input type="time" className="edit-input" value={editDraft.match_time || ''} onChange={(e) => setEditDraft((d) => ({ ...d, match_time: e.target.value }))} />
-              </EditField>
-            </div>
-            <EditField label="Precio">
-              <input type="number" className="edit-input" value={editDraft.price ?? ''} onChange={(e) => setEditDraft((d) => ({ ...d, price: Number(e.target.value) }))} />
-            </EditField>
-            <EditField label="Nivel">
-              <div className="grid grid-cols-3 gap-2">
-                {(['Recreativo', 'Intermedio', 'Competitivo'] as Level[]).map((l) => (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => setEditDraft((d) => ({ ...d, level: l }))}
-                    className={`rounded-xl border px-1 py-2 text-xs font-bold ${editDraft.level === l ? 'border-brand bg-brand-pale text-brand-dark' : 'border-line bg-white text-inksoft'}`}
-                  >
-                    {l}
-                  </button>
-                ))}
-              </div>
-            </EditField>
-            <EditField label="Descripción">
-              <textarea
-                className="edit-input h-20 resize-none"
-                value={editDraft.description || ''}
-                onChange={(e) => setEditDraft((d) => ({ ...d, description: e.target.value }))}
-              />
-            </EditField>
+            {match.zone === 'Torneo' ? (
+              <>
+                <EditField label="Nombre del Torneo">
+                  <input className="edit-input" value={torneoData.nombre || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, nombre: e.target.value }))} />
+                </EditField>
+                <div className="grid grid-cols-2 gap-2">
+                  <EditField label="Categoría">
+                    <input className="edit-input" value={torneoData.categoria || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, categoria: e.target.value }))} />
+                  </EditField>
+                  <EditField label="Fechas">
+                    <input className="edit-input" value={torneoData.fechas || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, fechas: e.target.value }))} />
+                  </EditField>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <EditField label="Aforo (Equipos)">
+                    <input type="number" className="edit-input" value={torneoData.aforo || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, aforo: e.target.value }))} />
+                  </EditField>
+                  <EditField label="Costo Inscripción">
+                    <input type="number" className="edit-input" value={editDraft.price ?? ''} onChange={(e) => setEditDraft((d) => ({ ...d, price: Number(e.target.value) }))} />
+                  </EditField>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <EditField label="Género">
+                    <select className="edit-input" value={editDraft.gender || 'Mixto'} onChange={(e) => setEditDraft((d) => ({ ...d, gender: e.target.value as any }))}>
+                      <option value="Mixto">Mixto</option>
+                      <option value="Masculino">Masculino</option>
+                      <option value="Femenino">Femenino</option>
+                    </select>
+                  </EditField>
+                  <EditField label="Nivel">
+                    <select className="edit-input" value={editDraft.level || 'Competitivo'} onChange={(e) => setEditDraft((d) => ({ ...d, level: e.target.value as any }))}>
+                      <option value="Recreativo">Recreativo</option>
+                      <option value="Intermedio">Intermedio</option>
+                      <option value="Competitivo">Competitivo</option>
+                    </select>
+                  </EditField>
+                </div>
+                <EditField label="Sede (Ubicación)">
+                  <input className="edit-input" value={editDraft.court || ''} onChange={(e) => setEditDraft((d) => ({ ...d, court: e.target.value }))} />
+                </EditField>
+                <EditField label="Contacto (WhatsApp)">
+                  <input className="edit-input" value={torneoData.contacto || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, contacto: e.target.value }))} />
+                </EditField>
+                <EditField label="Descripción adicional">
+                  <textarea
+                    className="edit-input h-20 resize-none"
+                    value={torneoData.descrExtra || ''}
+                    onChange={(e) => setTorneoData((d: any) => ({ ...d, descrExtra: e.target.value }))}
+                  />
+                </EditField>
+              </>
+            ) : (
+              <>
+                <EditField label="Zona">
+                  <input className="edit-input" value={editDraft.zone || ''} onChange={(e) => setEditDraft((d) => ({ ...d, zone: e.target.value }))} />
+                </EditField>
+                <EditField label="Cancha">
+                  <input className="edit-input" value={editDraft.court || ''} onChange={(e) => setEditDraft((d) => ({ ...d, court: e.target.value }))} />
+                </EditField>
+                <EditField label="Ubicación (dirección)">
+                  <AddressAutocomplete
+                    value={editDraft.location_address || ''}
+                    onChange={(v) => setEditDraft((d) => ({ ...d, location_address: v }))}
+                    placeholder="Ej: Av. Aconquija 1200"
+                  />
+                </EditField>
+                <div className="grid grid-cols-2 gap-2">
+                  <EditField label="Fecha">
+                    <input type="date" className="edit-input" value={editDraft.match_date || ''} onChange={(e) => setEditDraft((d) => ({ ...d, match_date: e.target.value }))} />
+                  </EditField>
+                  <EditField label="Hora">
+                    <input type="time" className="edit-input" value={editDraft.match_time || ''} onChange={(e) => setEditDraft((d) => ({ ...d, match_time: e.target.value }))} />
+                  </EditField>
+                </div>
+                <EditField label="Precio">
+                  <input type="number" className="edit-input" value={editDraft.price ?? ''} onChange={(e) => setEditDraft((d) => ({ ...d, price: Number(e.target.value) }))} />
+                </EditField>
+                <EditField label="Nivel">
+                  <div className="grid grid-cols-3 gap-2">
+                    {(['Recreativo', 'Intermedio', 'Competitivo'] as Level[]).map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => setEditDraft((d) => ({ ...d, level: l }))}
+                        className={`rounded-xl border px-1 py-2 text-xs font-bold ${editDraft.level === l ? 'border-brand bg-brand-pale text-brand-dark' : 'border-line bg-white text-inksoft'}`}
+                      >
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                </EditField>
+                <EditField label="Descripción">
+                  <textarea
+                    className="edit-input h-20 resize-none"
+                    value={editDraft.description || ''}
+                    onChange={(e) => setEditDraft((d) => ({ ...d, description: e.target.value }))}
+                  />
+                </EditField>
+              </>
+            )}
             <div className="flex gap-2 pt-1">
               <button onClick={saveEdit} disabled={saving} className="press-fx flex-1 rounded-xl bg-brand py-2.5 text-xs font-bold text-white">
                 {saving ? 'Guardando…' : 'Guardar cambios'}
@@ -446,6 +632,9 @@ export default function MatchDetailPage() {
             <Pencil size={13} /> Editar datos del partido
           </button>
         )}
+        </div>
+
+        <div style={{ display: activeTab === 'jugadores' ? 'block' : 'none' }}>
 
         {!isOrganizer && confirmedPlayers.length > 0 && (
           <div className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-white px-3.5 py-3">
@@ -462,50 +651,70 @@ export default function MatchDetailPage() {
           </div>
         )}
 
-        {!isOrganizer && match.status === 'open' && (
-          <div className="space-y-2">
-            <button
-              onClick={requestJoin}
-              disabled={!!myRequest}
-              className="press-fx w-full rounded-2xl bg-brand py-4 font-display font-bold text-white disabled:opacity-50"
-            >
-              {myRequest ? (myRequest.status === 'accepted' ? 'Ya estás confirmado ✓' : myRequest.status === 'rejected' ? 'Solicitud rechazada' : 'Solicitud enviada ✓') : 'Quiero unirme'}
-            </button>
-            {myRequest?.status === 'pending' && (
-              <button onClick={cancelMyRequest} className="press-fx w-full rounded-2xl border border-line py-2.5 text-xs font-bold text-inksoft">
-                Cancelar mi solicitud
-              </button>
-            )}
-          </div>
-        )}
+
 
         {isOrganizer && (
           <div className="mt-2 rounded-2xl border border-line bg-white p-4">
             <h3 className="mb-3 font-display font-bold">Panel del organizador</h3>
-            {pending.length > 0 && (
-              <>
-                <p className="mb-2 text-xs font-bold text-inksoft">Solicitudes</p>
-                {pending.map((r) => (
-                  <div key={r.id} className="flex items-center justify-between border-b border-line py-2.5 last:border-0">
-                    <div className="flex items-center gap-2.5">
-                      <Avatar name={r.player?.name || 'Jugador'} url={r.player?.avatar_url} size={34} />
-                      <span className="text-sm font-medium">
-                        {r.player?.name || 'Jugador'}
-                        {r.player?.age ? <span className="text-inksoft"> · {r.player.age}</span> : null}
-                      </span>
+            {(() => {
+              const pendingPlayers = pending.filter(r => !r.is_referee_request);
+              const pendingReferees = pending.filter(r => r.is_referee_request);
+              
+              return (
+                <>
+                  {pendingReferees.length > 0 && (
+                    <div className="mb-4">
+                      <div className="mb-2 flex items-center gap-2">
+                        <p className="text-xs font-bold text-yellow-600 uppercase tracking-wide">Árbitros postulados 🏁</p>
+                      </div>
+                      {pendingReferees.map((r) => (
+                        <div key={r.id} className="flex items-center justify-between rounded-xl border border-yellow-300 bg-yellow-50 py-3 px-3 mb-2 shadow-sm">
+                          <div className="flex items-center gap-2.5">
+                            <Avatar name={r.player?.name || 'Árbitro'} url={r.player?.avatar_url} size={38} />
+                            <span className="text-sm font-bold text-yellow-900">
+                              {r.player?.name || 'Árbitro'}
+                              {r.player?.age ? <span className="text-yellow-700/60 font-medium"> · {r.player.age}</span> : null}
+                            </span>
+                          </div>
+                          <div className="flex gap-1.5">
+                            <button onClick={() => respond(r.id, true)} className="press-fx flex items-center gap-1 rounded-lg bg-yellow-500 px-3 py-2 text-xs font-bold text-yellow-950 shadow-sm">
+                              <Check size={14} /> Aceptar
+                            </button>
+                            <button onClick={() => respond(r.id, false)} className="press-fx flex items-center gap-1 rounded-lg bg-white border border-yellow-200 px-3 py-2 text-xs font-bold text-yellow-700">
+                              <X size={14} /> Rechazar
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex gap-1.5">
-                      <button onClick={() => respond(r.id, true)} className="press-fx flex items-center gap-1 rounded-lg bg-brand px-3 py-1.5 text-xs font-bold text-white">
-                        <Check size={14} /> Aceptar
-                      </button>
-                      <button onClick={() => respond(r.id, false)} className="press-fx flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700">
-                        <X size={14} /> Rechazar
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
+                  )}
+                  {pendingPlayers.length > 0 && (
+                    <>
+                      <p className="mb-2 mt-4 text-xs font-bold text-inksoft">{match.match_type === 'equipo_rival' ? 'Equipos/Capitanes postulados' : 'Jugadores postulados'}</p>
+                      {pendingPlayers.map((r) => (
+                        <div key={r.id} className="flex items-center justify-between border-b border-line py-2.5 last:border-0">
+                          <div className="flex items-center gap-2.5">
+                            <Avatar name={r.player?.name || 'Jugador'} url={r.player?.avatar_url} size={34} />
+                            <span className="text-sm font-medium">
+                              {r.player?.name || 'Jugador'}
+                              {r.player?.age ? <span className="text-inksoft"> · {r.player.age}</span> : null}
+                            </span>
+                          </div>
+                          <div className="flex gap-1.5">
+                            <button onClick={() => respond(r.id, true)} className="press-fx flex items-center gap-1 rounded-lg bg-brand px-3 py-1.5 text-xs font-bold text-white">
+                              <Check size={14} /> Aceptar
+                            </button>
+                            <button onClick={() => respond(r.id, false)} className="press-fx flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700">
+                              <X size={14} /> Rechazar
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </>
+              );
+            })()}
             {accepted.length > 0 && (
               <>
                 <p className="mb-2 mt-3 text-xs font-bold text-inksoft">Confirmados</p>
@@ -579,71 +788,34 @@ export default function MatchDetailPage() {
             )}
           </div>
         )}
+        </div>
 
-        {chatUnlocked && (
-          <div className="mt-5 rounded-2xl border border-line bg-white p-4">
-            <h3 className="mb-3 font-display font-bold">Chat</h3>
-            <div className="mb-3 flex max-h-72 flex-col gap-2.5 overflow-y-auto">
-              {messages.map((m, i) => {
-                const isMe = m.sender_id === session.user.id;
-                const sender = participants[m.sender_id];
-                const showName = !isMe && (i === 0 || messages[i - 1].sender_id !== m.sender_id);
-                return (
-                  <div key={m.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                    {showName && (
-                      <div className="mb-0.5 flex items-center gap-1.5 pl-1">
-                        <Avatar name={sender?.name || 'Jugador'} url={sender?.avatar_url} size={16} />
-                        <span className="text-[10.5px] font-bold text-inksoft">{sender?.name || 'Jugador'}</span>
-                      </div>
-                    )}
-                    <div
-                      className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm ${
-                        isMe ? 'bg-brand text-white' : 'border border-line'
-                      }`}
-                    >
-                      {m.body}
-                    </div>
-                  </div>
-                );
-              })}
-              {messages.length === 0 && <p className="text-xs text-inksoft">Todavía no hay mensajes. ¡Saludá!</p>}
-            </div>
-            <div className="flex gap-2">
-              <input
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                placeholder="Escribí un mensaje…"
-                className="flex-1 rounded-full border border-line px-4 py-2.5 text-sm"
-              />
-              <button onClick={sendMessage} className="press-fx flex h-10 w-10 items-center justify-center rounded-full bg-brand text-white">
-                <Send size={16} />
-              </button>
-            </div>
-
-            {!contactPhone ? (
-              <button
-                onClick={loadWhatsApp}
-                className="press-fx mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 text-sm font-bold text-white"
-              >
-                <MessageCircle size={18} /> Contactar por WhatsApp
-              </button>
-            ) : (
-              <a
-                href={`https://wa.me/${contactPhone.replace(/[^0-9]/g, '')}`}
-                target="_blank"
-                rel="noreferrer"
-                className="press-fx mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 text-sm font-bold text-white"
-              >
-                <MessageCircle size={18} /> Abrir WhatsApp
-              </a>
-            )}
-          </div>
-        )}
+        <div style={{ display: activeTab === 'chat' ? 'block' : 'none' }}>
+        <MatchChat matchId={id} chatUnlocked={chatUnlocked} session={session} participants={participants} />
+        </div>
       </div>
 
+      {!isOrganizer && match.status === 'open' && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-line bg-white/95 p-4 pb-safe backdrop-blur-md shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+          <div className="space-y-2 max-w-[600px] mx-auto">
+            <button
+              onClick={requestJoin}
+              disabled={!!myRequest}
+              className={`press-fx w-full rounded-2xl py-4 font-display font-bold text-white disabled:opacity-50 ${profile?.is_referee && match.needs_referee ? 'bg-yellow-500 shadow-lg text-yellow-950' : 'bg-brand'}`}
+            >
+              {myRequest ? (myRequest.status === 'accepted' ? 'Ya estás confirmado ✓' : myRequest.status === 'rejected' ? 'Solicitud rechazada' : 'Solicitud enviada ✓') : (profile?.is_referee && match.needs_referee ? 'Postularme como Árbitro 🏁' : match.match_type === 'equipo_rival' ? 'Postular a mi equipo ⚔️' : 'Quiero unirme')}
+            </button>
+            {myRequest?.status === 'pending' && (
+              <button onClick={cancelMyRequest} className="press-fx w-full rounded-2xl border border-line py-2.5 text-xs font-bold text-inksoft bg-white">
+                Cancelar mi solicitud
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {reportTarget && (
-        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/40" onClick={() => setReportTarget(null)}>
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/40 backdrop-blur-sm" onClick={() => setReportTarget(null)}>
           <div className="w-full max-w-[440px] rounded-t-2xl bg-white p-6 pb-8" onClick={(e) => e.stopPropagation()}>
             <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-line" />
             <h3 className="mb-1 font-display text-base font-bold">Denunciar a {reportTarget.name}</h3>
@@ -662,7 +834,7 @@ export default function MatchDetailPage() {
       )}
 
       {rateTarget && (
-        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/40" onClick={() => setRateTarget(null)}>
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/40 backdrop-blur-sm" onClick={() => setRateTarget(null)}>
           <div className="w-full max-w-[440px] rounded-t-2xl bg-white p-6 pb-8" onClick={(e) => e.stopPropagation()}>
             <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-line" />
             <h3 className="mb-4 font-display text-base font-bold">Calificar a {rateTarget.name}</h3>
@@ -678,7 +850,7 @@ export default function MatchDetailPage() {
 
       {showMap && match && (
         <MapModal
-          query={match.location_address || `${match.court}, ${match.zone}, ${match.city}`}
+          query={match.location_address ? match.location_address.split('|')[0] : `${match.court}, ${match.zone}, ${match.city}`}
           label={match.court}
           onClose={() => setShowMap(false)}
         />
@@ -689,6 +861,8 @@ export default function MatchDetailPage() {
           {toast}
         </div>
       )}
+
+
 
       <style jsx global>{`
         .edit-input {

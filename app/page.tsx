@@ -8,10 +8,16 @@ import { Match } from '@/lib/types';
 import MatchCard from '@/components/MatchCard';
 import MatchCardSkeleton from '@/components/MatchCardSkeleton';
 import SplashLoading from '@/components/SplashLoading';
-import { Search, Megaphone } from 'lucide-react';
+import { Search, Megaphone, Gift, List, Map as MapIcon, RefreshCcw, Bell } from 'lucide-react';
 import PhotoHero from '@/components/PhotoHero';
-import HomeMessageCarousel from '@/components/HomeMessageCarousel';
 import WeatherWidget from '@/components/WeatherWidget';
+import EmptyState from '@/components/EmptyState';
+import PullToRefresh from '@/components/PullToRefresh';
+import Link from 'next/link';
+import dynamic from 'next/dynamic';
+import useSWR from 'swr';
+
+const FeedMap = dynamic(() => import('@/components/MapLayer'), { ssr: false });
 
 const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
@@ -32,89 +38,151 @@ function buildWeek() {
 
 export default function HomePage() {
   const router = useRouter();
-  const { session, loading } = useAuth();
-  const [weekMatches, setWeekMatches] = useState<Match[]>([]);
-  const [matchesLoading, setMatchesLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(today());
-
+  const { session, profile, loading, unreadNotifications } = useAuth();
+  const [selectedDate, setSelectedDate] = useState<string>(today());
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const week = useMemo(buildWeek, []);
 
-  useEffect(() => {
-    // Inicio es público: no hace falta estar logueado para ver los partidos.
-    async function load() {
-      const { data } = await supabase
-        .from('matches')
-        .select('*')
-        .gte('match_date', week[0].iso)
-        .lte('match_date', week[week.length - 1].iso)
-        .eq('status', 'open')
-        .order('match_time', { ascending: true });
-      setWeekMatches((data as Match[]) || []);
-      setMatchesLoading(false);
+  const fetcher = async () => {
+    let query = supabase
+      .from('matches')
+      .select('*')
+      .gte('match_date', week[0].iso)
+      .lte('match_date', week[week.length - 1].iso)
+      .order('match_time', { ascending: true });
+      
+    if (profile?.is_referee && profile.id) {
+      query = query.or(`and(needs_referee.eq.true,referee_id.is.null),organizer_id.eq.${profile.id}`);
+    } else {
+      query = query.eq('status', 'open');
     }
-    load();
 
+    const { data, error } = await query;
+    if (error) throw error;
+    return (data as Match[]) || [];
+  };
+
+  const { data: weekMatches = [], isLoading: matchesLoading, mutate } = useSWR(
+    ['home_matches', profile?.is_referee, week[0].iso],
+    fetcher
+  );
+
+  useEffect(() => {
     // Suscripción en tiempo real: cualquier partido nuevo/actualizado
     // de la semana aparece al instante en todos los celulares conectados.
     const channel = supabase
       .channel('home-matches')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, () => load())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, () => {
+        mutate();
+      })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [mutate]);
 
   if (loading) return <SplashLoading />;
 
-  const matches = weekMatches.filter((m) => m.match_date === selectedDate);
-  const hasMatch = (iso: string) => weekMatches.some((m) => m.match_date === iso);
+  // Los partidos cuyo horario ya pasó no se muestran más.
+  const now = new Date();
+  
+  const isLastMinute = (m: Match) => {
+    const matchDate = new Date(`${m.match_date}T${m.match_time}`);
+    const diffHours = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+    return diffHours > 0 && diffHours <= 2 && m.status === 'open';
+  };
+
+  const matches = weekMatches.filter(
+    (m) => m.match_date === selectedDate && new Date(`${m.match_date}T${m.match_time}`) >= now
+  );
+  
+  const urgentMatches = matches.filter(isLastMinute);
+  const normalMatches = matches.filter(m => !isLastMinute(m));
+
+  const hasMatch = (iso: string) =>
+    weekMatches.some((m) => m.match_date === iso && new Date(`${m.match_date}T${m.match_time}`) >= now);
   const selectedLabel = week.find((d) => d.iso === selectedDate);
   const heading = selectedDate === today() ? 'Partidos de hoy' : `Partidos del ${selectedLabel?.label} ${selectedLabel?.num}`;
 
   return (
-    <div>
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-charcoal-line bg-charcoal px-5 py-4">
-        <div className="flex items-center gap-2">
+    <PullToRefresh onRefresh={async () => { await mutate(); }}>
+      <header className="sticky top-0 z-20 flex items-center justify-center border-b border-line dark:border-charcoal-line bg-white dark:bg-charcoal/90 px-5 py-4 backdrop-blur-xl relative">
+        <div className="flex items-center gap-2 pr-6">
           <img src="/brand/logo.png" alt="Salvá el Fútbol" className="h-8 w-8 rounded-full" />
-          <span className="font-display text-[16px] font-extrabold text-white">Salvá el Fútbol</span>
+          <span className="font-display text-[16px] font-extrabold text-ink dark:text-white">Salvá el Fútbol</span>
         </div>
-        <WeatherWidget />
+        <div className="absolute right-5">
+          <Link href="/notificaciones" className="relative flex items-center justify-center p-1 text-ink dark:text-white transition-transform hover:scale-110 active:scale-95">
+            <Bell size={24} strokeWidth={2} />
+            {unreadNotifications > 0 && (
+              <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-charcoal"></span>
+            )}
+          </Link>
+        </div>
       </header>
 
-      <div className="relative overflow-hidden px-5 pb-7 pt-8 text-white">
+      <div className="relative overflow-hidden px-5 pb-7 pt-0 text-white">
         <PhotoHero />
         <div className="relative">
-          <h1 className="mb-1 font-display text-[24px] font-extrabold">¿Qué necesitás hoy?</h1>
-          <p className="mb-6 text-[13.5px] text-white/75">Conectamos partidos con jugadores en segundos.</p>
-          <div className="flex flex-col gap-2.5">
-            <button
-              onClick={() => router.push('/publicar')}
-              className="press-fx glow-fx flex items-center gap-3 rounded-[18px] bg-brand px-5 py-4 text-left text-white"
-            >
-              <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/20">
-                <Megaphone size={20} strokeWidth={2.2} />
-              </span>
-              <span>
-                <span className="block font-display font-bold">Necesito jugadores</span>
-                <span className="block text-xs opacity-90">Publicá tu partido en 30 segundos</span>
-              </span>
-            </button>
-            <button
-              onClick={() => router.push('/buscar')}
-              className="press-fx lift-fx flex items-center gap-3 rounded-[18px] border border-white/25 bg-white/10 px-5 py-4 text-left backdrop-blur-sm"
-            >
-              <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/20 text-white">
-                <Search size={20} strokeWidth={2.2} />
-              </span>
-              <span>
-                <span className="block font-display font-bold">Quiero jugar</span>
-                <span className="block text-xs text-white/75">Encontrá un partido cerca tuyo</span>
-              </span>
-            </button>
-          </div>
+          {profile?.is_referee ? (
+            <div className="mb-4">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-yellow-400/20 px-3 py-1 text-xs font-bold text-yellow-300 border border-yellow-400/30 mb-2">
+                <span className="text-sm">🧑‍⚖️</span> Modo Árbitro Oficial
+              </div>
+              <h1 className="mb-2 font-display text-[24px] font-extrabold leading-tight shadow-black drop-shadow-md">
+                Bolsa de Árbitros
+              </h1>
+              <p className="text-[13.5px] text-white/90 shadow-black drop-shadow-md">
+                Postulate a los partidos que solicitan arbitraje en tu ciudad y ganá dinero por cada encuentro.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div>
+                <h1 className="mt-2 mb-1 font-display text-[24px] font-extrabold shadow-black drop-shadow-md">¿Qué necesitás hoy?</h1>
+                <p className="mb-6 text-[13.5px] text-white/90 shadow-black drop-shadow-md">Conectamos partidos con jugadores en segundos.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => router.push('/publicar')}
+                  className="press-fx flex items-center gap-3 rounded-[20px] bg-white/10 p-2 pr-4 text-left text-white shadow-sm backdrop-blur-md h-[56px] border border-white/20"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-brand text-white shadow-inner">
+                    <Megaphone size={18} strokeWidth={2.5} />
+                  </div>
+                  <span className="font-display text-[12.5px] font-bold leading-tight drop-shadow-md">Armar<br/>Partido</span>
+                </button>
+                <button
+                  onClick={() => router.push('/buscar')}
+                  className="press-fx flex items-center gap-3 rounded-[20px] bg-white/10 p-2 pr-4 text-left text-white shadow-sm backdrop-blur-md h-[56px] border border-white/20"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-white text-ink shadow-inner">
+                    <Search size={18} strokeWidth={2.5} />
+                  </div>
+                  <span className="font-display text-[12.5px] font-bold leading-tight drop-shadow-md">Sumarme<br/>a uno</span>
+                </button>
+                <button
+                  onClick={() => router.push('/publicar?tipo=equipo_rival')}
+                  className="press-fx flex items-center gap-3 rounded-[20px] bg-white/10 p-2 pr-4 text-left text-white shadow-sm backdrop-blur-md h-[56px] border border-white/20"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-blue-500 text-white text-lg shadow-inner z-10">
+                    🤝
+                  </div>
+                  <span className="font-display text-[12.5px] font-bold leading-tight drop-shadow-md z-10">Buscar<br/>Rival</span>
+                </button>
+                <button
+                  onClick={() => router.push('/torneos')}
+                  className="press-fx flex items-center gap-3 rounded-[20px] bg-white/10 p-2 pr-4 text-left text-white shadow-sm backdrop-blur-md h-[56px] border border-white/20"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-purple-500 text-white text-lg shadow-inner z-10">
+                    🏆
+                  </div>
+                  <span className="font-display text-[12.5px] font-bold leading-tight drop-shadow-md z-10">Explorar<br/>Torneos</span>
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -141,10 +209,30 @@ export default function HomePage() {
         })}
       </div>
 
-      <div className="px-5 pt-6">
-        <div className="mb-3 flex items-baseline justify-between">
-          <h2 className="font-display text-[15.5px] font-extrabold">{heading}</h2>
-          <span className="text-xs text-inksoft">{matches.length} {matches.length === 1 ? 'partido' : 'partidos'}</span>
+
+      <div className="px-5 pt-4">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="font-display text-[15.5px] font-extrabold leading-tight">{heading}</h2>
+            <span className="text-xs text-inksoft font-medium">{matches.length} {matches.length === 1 ? 'partido' : 'partidos'}</span>
+          </div>
+          
+          <div className="flex bg-neutral-100 p-[3px] rounded-xl border border-line">
+            <button 
+              onClick={() => setViewMode('list')} 
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm text-ink' : 'text-inksoft hover:text-ink'}`}
+            >
+              <List size={12} />
+              Lista
+            </button>
+            <button 
+              onClick={() => setViewMode('map')} 
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-colors ${viewMode === 'map' ? 'bg-white shadow-sm text-ink' : 'text-inksoft hover:text-ink'}`}
+            >
+              <MapIcon size={12} />
+              Mapa
+            </button>
+          </div>
         </div>
         {matchesLoading ? (
           <>
@@ -152,22 +240,40 @@ export default function HomePage() {
             <MatchCardSkeleton />
           </>
         ) : matches.length === 0 ? (
-          <div className="fade-slide-up rounded-2xl border border-dashed border-line bg-white p-8 text-center text-sm text-inksoft">
-            Todavía no hay partidos publicados para este día.
-            <br />
-            ¡Sé el primero en publicar uno!
+          <EmptyState icon="ball" title="Todavía no hay partidos para este día" subtitle="¡Sé el primero en publicar uno!" />
+        ) : viewMode === 'map' ? (
+          <div className="fade-in mb-6">
+            <FeedMap matches={matches} />
           </div>
         ) : (
-          <div className="fade-slide-up">
-            {matches.map((m) => (
-              <MatchCard key={m.id} match={m} isMine={!!session && m.organizer_id === session.user.id} />
-            ))}
+          <div>
+            {urgentMatches.length > 0 && (
+              <div className="mb-6">
+                <div className="mb-3 flex items-center gap-1.5 text-[13px] font-bold text-red-600">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-100">🔥</span> Último Minuto
+                </div>
+                {urgentMatches.map((m, i) => (
+                  <div key={m.id} className="fade-slide-up" style={{ animationDelay: `${Math.min(i * 0.05, 0.3)}s` }}>
+                    <MatchCard match={m} isMine={!!session && m.organizer_id === session.user.id} asRefereeMode={!!profile?.is_referee} />
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {normalMatches.length > 0 && (
+              <div>
+                {normalMatches.map((m, i) => (
+                  <div key={m.id} className="fade-slide-up" style={{ animationDelay: `${Math.min(i * 0.05, 0.3)}s` }}>
+                    <MatchCard match={m} isMine={!!session && m.organizer_id === session.user.id} asRefereeMode={!!profile?.is_referee} />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      <div className="h-16" />
-      <HomeMessageCarousel />
-    </div>
+
+    </PullToRefresh>
   );
 }

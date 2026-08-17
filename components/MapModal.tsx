@@ -2,6 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { X, MapPin, AlertCircle } from 'lucide-react';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+const customIcon = L.divIcon({
+  className: 'custom-map-pin',
+  html: `<div style="background-color: #3b82f6; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3);"></div>`,
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+});
 
 interface Props {
   query: string;
@@ -17,11 +27,13 @@ export default function MapModal({ query, label, onClose }: Props) {
     let cancelled = false;
     async function geocode() {
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`);
+        const res = await fetch(
+          `https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&sourceCountry=ARG&maxLocations=1&singleLine=${encodeURIComponent(query)}`
+        );
         const data = await res.json();
         if (cancelled) return;
-        if (data && data[0]) {
-          setCoords({ lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) });
+        if (data && data.candidates && data.candidates.length > 0) {
+          setCoords({ lat: data.candidates[0].location.y, lon: data.candidates[0].location.x });
           setStatus('ready');
         } else {
           setStatus('error');
@@ -36,11 +48,6 @@ export default function MapModal({ query, label, onClose }: Props) {
     };
   }, [query]);
 
-  const delta = 0.006;
-  const embedSrc = coords
-    ? `https://www.openstreetmap.org/export/embed.html?bbox=${coords.lon - delta}%2C${coords.lat - delta}%2C${coords.lon + delta}%2C${coords.lat + delta}&layer=mapnik&marker=${coords.lat}%2C${coords.lon}`
-    : '';
-
   return (
     <div className="fixed inset-0 z-[80] flex flex-col bg-ink/50" onClick={onClose}>
       <div className="mt-auto w-full max-w-[440px] self-center rounded-t-2xl bg-white" onClick={(e) => e.stopPropagation()}>
@@ -54,7 +61,7 @@ export default function MapModal({ query, label, onClose }: Props) {
           </button>
         </div>
 
-        <div className="h-[340px] w-full bg-neutral-100">
+        <div className="h-[340px] w-full bg-neutral-100 relative z-0">
           {status === 'loading' && (
             <div className="flex h-full items-center justify-center text-sm text-inksoft">Ubicando la cancha…</div>
           )}
@@ -64,15 +71,27 @@ export default function MapModal({ query, label, onClose }: Props) {
               No pudimos ubicar esta dirección en el mapa.
             </div>
           )}
-          {status === 'ready' && embedSrc && (
-            <iframe
-              src={embedSrc}
-              className="h-full w-full border-0"
-              loading="lazy"
-              title="Ubicación de la cancha"
-            />
+          {status === 'ready' && coords && (
+            <MapContainer center={[coords.lat, coords.lon]} zoom={15} style={{ height: '100%', width: '100%' }}>
+              <TileLayer
+                url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+                attribution="&copy; Google Maps"
+              />
+              <Marker position={[coords.lat, coords.lon]} icon={customIcon} />
+            </MapContainer>
           )}
         </div>
+
+        {coords && (
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${coords.lat}%2C${coords.lon}`}
+            target="_blank"
+            rel="noreferrer"
+            className="press-fx block border-t border-line px-5 py-3 text-center text-xs font-bold text-brand-dark hover:bg-neutral-50"
+          >
+            Abrir en Google Maps
+          </a>
+        )}
       </div>
     </div>
   );

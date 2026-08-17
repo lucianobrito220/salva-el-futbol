@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
     const { data: match, error: matchError } = await supabaseAdmin
       .from('matches')
-      .select('id, city, zone, match_time, match_date, organizer_id')
+      .select('id, city, zone, court, match_time, match_date, organizer_id')
       .eq('id', matchId)
       .single();
 
@@ -39,9 +39,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ notified: 0 });
     }
 
-    const title = '⚽ Falta jugador cerca tuyo';
-    const timeLabel = match.match_time.slice(0, 5);
-    const body = `Faltan jugadores para hoy ${timeLabel} en ${match.zone}, ${match.city}.`;
+    const title = '¡Urgente!';
+    const body = `Falta un arquero en ${match.court}, ¿te sumás?`;
 
     const rows = candidates.map((c) => ({
       user_id: c.id,

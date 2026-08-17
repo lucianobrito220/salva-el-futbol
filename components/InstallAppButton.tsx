@@ -46,7 +46,7 @@ export default function InstallAppButton() {
       </button>
 
       {showIOSSheet && (
-        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/40" onClick={() => setShowIOSSheet(false)}>
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/40 backdrop-blur-sm" onClick={() => setShowIOSSheet(false)}>
           <div
             className="w-full max-w-[440px] rounded-t-2xl bg-white p-6 pb-[max(24px,env(safe-area-inset-bottom))]"
             onClick={(e) => e.stopPropagation()}

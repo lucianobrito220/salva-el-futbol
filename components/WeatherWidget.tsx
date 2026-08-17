@@ -1,98 +1,153 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Sun, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { CloudRain, Sun, Cloud, CloudLightning, Droplets, Thermometer, Wind, X } from 'lucide-react';
 
-const PHRASES = [
-  'Lindo clima para un fútbol',
-  'Día perfecto para la pelota',
-  'Ideal para pisar la cancha',
-  'Se viene un partidazo',
-  'Clima de gol',
-  'No hay excusa, ¡a jugar!',
-  'Tarde de pelota',
-  'Noche perfecta para un picado',
-  'La cancha te espera',
-  'Buen día para meter un caño',
-];
-
-function iconFor(code: number) {
-  if (code === 0) return Sun;
-  if (code <= 3) return Cloud;
-  if (code === 45 || code === 48) return CloudFog;
-  if (code >= 51 && code <= 67) return CloudRain;
-  if (code >= 71 && code <= 77) return CloudSnow;
-  if (code >= 80 && code <= 82) return CloudRain;
-  if (code >= 95) return CloudLightning;
-  return Cloud;
-}
-
-export default function WeatherWidget() {
-  const [temp, setTemp] = useState<number | null>(null);
-  const [code, setCode] = useState<number | null>(null);
-  const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'unavailable'>('idle');
-  const [phrase] = useState(() => PHRASES[Math.floor(Math.random() * PHRASES.length)]);
-  const [expanded, setExpanded] = useState(false);
+export default function WeatherWidget({ date, lat, lon, compact = false }: { date: string, lat?: number | null, lon?: number | null, compact?: boolean }) {
+  const [weather, setWeather] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (!('geolocation' in navigator)) {
-      setStatus('unavailable');
-      return;
-    }
-    setStatus('loading');
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const { latitude, longitude } = pos.coords;
-          const res = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code`
-          );
-          const data = await res.json();
-          setTemp(Math.round(data.current.temperature_2m));
-          setCode(data.current.weather_code);
-          setStatus('ready');
-        } catch {
-          setStatus('unavailable');
+    setMounted(true);
+    async function fetchWeather() {
+      const queryLat = lat || -26.8241;
+      const queryLon = lon || -65.2226;
+      
+      try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${queryLat}&longitude=${queryLon}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max&timezone=America%2FArgentina%2FTucuman&start_date=${date}&end_date=${date}`);
+        const data = await res.json();
+        
+        if (data.daily && data.daily.time && data.daily.time.length > 0) {
+          setWeather({
+            tempMax: data.daily.temperature_2m_max[0],
+            tempMin: data.daily.temperature_2m_min[0],
+            rainProb: data.daily.precipitation_probability_max[0],
+            wind: data.daily.windspeed_10m_max[0],
+            code: data.daily.weathercode[0]
+          });
         }
-      },
-      () => setStatus('unavailable'),
-      { timeout: 6000 }
+      } catch (e) {
+        console.error('Weather fetch error', e);
+      }
+      setLoading(false);
+    }
+    fetchWeather();
+  }, [date, lat, lon]);
+
+  if (loading || !weather) return null;
+
+  let Icon = Sun;
+  let label = 'Despejado';
+  let color = 'text-amber-400';
+  let bg = 'bg-amber-400/10';
+
+  if (weather.code >= 1 && weather.code <= 3) {
+    Icon = Cloud;
+    label = 'Nublado';
+    color = 'text-neutral-400';
+    bg = 'bg-white/10';
+  } else if (weather.code >= 51 && weather.code <= 67) {
+    Icon = CloudRain;
+    label = 'Lluvia';
+    color = 'text-blue-400';
+    bg = 'bg-blue-400/10';
+  } else if (weather.code >= 80 && weather.code <= 99) {
+    Icon = CloudLightning;
+    label = 'Tormenta';
+    color = 'text-purple-400';
+    bg = 'bg-purple-400/10';
+  }
+
+  const modalContent = (showModal && mounted) ? createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-5 backdrop-blur-sm fade-in" onClick={() => setShowModal(false)}>
+      <div className="relative w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl scale-in" onClick={(e) => e.stopPropagation()}>
+        <h3 className="mb-6 text-center font-display text-lg font-bold text-ink">Pronóstico para el {date}</h3>
+        
+        <div className="mb-6 flex flex-col items-center justify-center">
+          <div className={`mb-3 flex h-24 w-24 items-center justify-center rounded-full ${bg} ${color}`}>
+            <Icon size={48} />
+          </div>
+          <div className="text-3xl font-black text-ink">{weather.tempMax}°C</div>
+          <div className="text-sm font-semibold text-inksoft">{label}</div>
+        </div>
+        
+        <div className="mb-6 grid grid-cols-2 gap-3">
+          <div className="flex items-center gap-3 rounded-2xl bg-blue-50 p-3 text-blue-700">
+            <Droplets size={24} className="opacity-70" />
+            <div>
+              <div className="text-[10px] font-bold uppercase opacity-70">Lluvia</div>
+              <div className="font-bold">{weather.rainProb}%</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-2xl bg-orange-50 p-3 text-orange-700">
+            <Thermometer size={24} className="opacity-70" />
+            <div>
+              <div className="text-[10px] font-bold uppercase opacity-70">Mínima</div>
+              <div className="font-bold">{weather.tempMin}°C</div>
+            </div>
+          </div>
+          <div className="col-span-2 flex items-center gap-3 rounded-2xl bg-neutral-50 p-3 text-ink">
+            <Wind size={24} className="text-inksoft" />
+            <div>
+              <div className="text-[10px] font-bold uppercase text-inksoft">Viento (Ráfagas)</div>
+              <div className="font-bold">{weather.wind} km/h</div>
+            </div>
+          </div>
+        </div>
+
+        <button 
+          onClick={() => setShowModal(false)}
+          className="press-fx flex w-full items-center justify-center gap-2 rounded-xl bg-neutral-100 py-3 font-bold text-ink hover:bg-neutral-200"
+        >
+          <X size={18} />
+          Cerrar
+        </button>
+      </div>
+    </div>,
+    document.body
+  ) : null;
+
+  if (compact) {
+    return (
+      <>
+        <button 
+          onClick={() => setShowModal(true)}
+          className="press-fx flex items-center gap-1.5 px-2 py-1 transition-opacity hover:opacity-80"
+        >
+          <Icon size={16} className={color} />
+          <span className="text-[13px] font-bold text-ink dark:text-white">{weather.tempMax}°</span>
+        </button>
+        {modalContent}
+      </>
     );
-  }, []);
-
-  if (status !== 'ready' || temp === null || code === null) return null;
-
-  const Icon = iconFor(code);
+  }
 
   return (
     <>
-      <button
-        onClick={() => setExpanded(true)}
-        className="press-fx flex max-w-[170px] items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1.5 backdrop-blur-sm"
+      <button 
+        onClick={() => setShowModal(true)}
+        className="press-fx mb-4 flex w-full items-center justify-between rounded-2xl border border-line bg-white p-3 shadow-sm transition-colors hover:bg-neutral-50"
       >
-        <Icon size={14} className="flex-shrink-0 text-brand" />
-        <span className="truncate text-[10.5px] font-semibold text-white">{phrase}</span>
-        <span className="flex-shrink-0 text-xs font-bold text-white">· {temp}°</span>
-      </button>
-
-      {expanded && (
-        <div
-          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 backdrop-blur-md"
-          onClick={() => setExpanded(false)}
-        >
-          <div
-            className="pop-in mx-8 flex flex-col items-center gap-2 rounded-3xl bg-white/95 px-10 py-9 text-center shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Icon size={48} className="text-brand" />
-            <p className="mt-1 font-display text-lg font-extrabold text-ink">{phrase}</p>
-            <p className="font-display text-4xl font-extrabold text-brand-dark">{temp}°</p>
-            <button onClick={() => setExpanded(false)} className="mt-3 text-xs font-bold text-inksoft underline">
-              Cerrar
-            </button>
+        <div className="flex items-center gap-3">
+          <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full ${bg} ${color}`}>
+            <Icon size={18} />
+          </div>
+          <div className="text-left">
+            <h4 className="text-[13px] font-bold text-ink leading-tight">Clima {label}</h4>
+            <p className="text-[11px] text-inksoft">{weather.tempMax}° máximo</p>
           </div>
         </div>
-      )}
+        <div className="flex items-center gap-2">
+          <div className="text-right">
+            <div className="text-sm font-black text-blue-600 leading-tight">{weather.rainProb}%</div>
+            <div className="text-[9px] font-bold uppercase tracking-wider text-inksoft">Lluvia</div>
+          </div>
+        </div>
+      </button>
+      {modalContent}
     </>
   );
 }

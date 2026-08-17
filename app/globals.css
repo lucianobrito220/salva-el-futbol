@@ -81,6 +81,14 @@ body {
   animation: fade-slide-up 0.25s ease-out;
 }
 
+@keyframes page-transition-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-transition {
+  animation: page-transition-in 0.28s ease-out;
+}
+
 /* ---------- Modo oscuro ---------- */
 /* Se activa agregando la clase "dark" al <html> (ver ThemeContext).
    Reescribe los colores de las clases de Tailwind ya usadas en toda
@@ -88,7 +96,15 @@ body {
 .dark body { background-color: #1A1C20; color: #F3F4F6; }
 .dark .bg-bg { background-color: #202226; }
 .dark .bg-white { background-color: #2B2E33; }
+.dark .bg-white\/95 { background-color: rgba(43, 46, 51, 0.95); }
+.dark .bg-white\/85 { background-color: rgba(43, 46, 51, 0.85); }
+.dark .bg-white\/10 { background-color: rgba(255, 255, 255, 0.06); }
+.dark .to-white { --tw-gradient-to: #2B2E33; }
+.dark .from-brand-pale\/70 { --tw-gradient-from: rgba(30, 158, 74, 0.16); }
+.dark .from-amber-50 { --tw-gradient-from: rgba(217, 119, 6, 0.14); }
+.dark .from-red-50 { --tw-gradient-from: rgba(220, 38, 38, 0.14); }
 .dark .bg-neutral-50 { background-color: #26282C; }
+.dark .hover\:bg-neutral-50:hover { background-color: #33363B; }
 .dark .bg-neutral-100 { background-color: #2F3237; }
 .dark .bg-neutral-200 { background-color: #1A1C20; }
 .dark .border-line { border-color: #3A3E45; }
@@ -112,3 +128,48 @@ body {
 .dark .stepper-btn { background: #2B2E33; color: #34D399; border-color: #3A3E45 !important; }
 .dark ::placeholder { color: #6B7280; }
 .dark .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); }
+
+/* ---------- Animated Border (Loop) ---------- */
+@keyframes border-loop {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.animated-border-btn {
+  position: relative;
+  z-index: 0;
+}
+.animated-border-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px; /* Border thickness */
+  background: linear-gradient(90deg, #c084fc, transparent, #c084fc);
+  background-size: 200% auto;
+  animation: border-loop 2.5s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.animated-border-blue {
+  position: relative;
+  z-index: 0;
+}
+.animated-border-blue::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(90deg, #3b82f6, transparent, #3b82f6);
+  background-size: 200% auto;
+  animation: border-loop 2.5s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: -1;
+}

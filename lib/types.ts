@@ -20,6 +20,12 @@ export interface Profile {
   respect: number;
   reports_count: number;
   member_since: string;
+  salvapuntos?: number;
+  yellow_cards?: number;
+  red_cards?: number;
+  suspended_until?: string | null;
+  is_referee?: boolean;
+  referee_updated_at?: string | null;
 }
 
 export interface Match {
@@ -39,6 +45,8 @@ export interface Match {
   level: Level;
   price: number;
   status: MatchStatus;
+  needs_referee?: boolean;
+  referee_id?: string | null;
   reminder_sent?: boolean;
   created_at: string;
   organizer?: { name: string; rating: number } | null;
@@ -50,6 +58,7 @@ export interface JoinRequest {
   player_id: string;
   status: RequestStatus;
   created_at: string;
+  is_referee_request?: boolean;
   player?: { name: string; avatar_url: string | null; age: number | null } | null;
 }
 
@@ -69,4 +78,40 @@ export interface AppNotification {
   match_id: string | null;
   read: boolean;
   created_at: string;
+}
+
+export interface Team {
+  id: string;
+  name: string;
+  logo_url: string | null;
+  cover_url: string | null;
+  captain_id: string;
+  wins: number;
+  losses: number;
+  draws: number;
+  created_at: string;
+}
+
+export interface TeamMember {
+  team_id: string;
+  user_id: string;
+  joined_at: string;
+  profile?: Profile;
+}
+
+export interface Tournament {
+  id: string;
+  name: string;
+  organizer_id: string;
+  status: 'abierto' | 'en_curso' | 'finalizado';
+  created_at: string;
+}
+
+export interface TournamentTeam {
+  tournament_id: string;
+  team_id: string;
+  points: number;
+  goals_for: number;
+  goals_against: number;
+  team?: Team;
 }

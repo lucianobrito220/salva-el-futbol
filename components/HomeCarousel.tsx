@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import { Match } from '@/lib/types';
 import { AlertCircle, TrendingUp, MapPin, Trophy } from 'lucide-react';
+import CountUp from '@/components/CountUp';
 
 interface ZoneCount {
   zone: string;
@@ -162,7 +163,7 @@ export default function HomeCarousel() {
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div>
-      <b className="block font-display text-xl">{value}</b>
+      <b className="block font-display text-xl"><CountUp value={value} /></b>
       <span className="text-[10px] opacity-80">{label}</span>
     </div>
   );

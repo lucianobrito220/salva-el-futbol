@@ -30,7 +30,8 @@ export async function GET(req: NextRequest) {
   }
 
   const due = matches.filter((m) => {
-    const dt = new Date(`${m.match_date}T${m.match_time}`);
+    // Tratamos el horario local del partido como UTC-3 para comparar bien con now (UTC)
+    const dt = new Date(`${m.match_date}T${m.match_time}-03:00`);
     return dt >= windowStart && dt <= windowEnd;
   });
 

@@ -6,14 +6,17 @@ import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { AppNotification } from '@/lib/types';
 import { Bell } from 'lucide-react';
+import EmptyState from '@/components/EmptyState';
+
+import Link from 'next/link';
 
 export default function NotificacionesPage() {
   const router = useRouter();
-  const { session, loading } = useAuth();
+  const { session, loading, clearUnreadNotifications } = useAuth();
   const [items, setItems] = useState<AppNotification[]>([]);
 
   useEffect(() => {
-    if (!loading && !session) router.replace('/auth?next=/notificaciones');
+    // Guest access allowed, handled in render
   }, [loading, session, router]);
 
   useEffect(() => {
@@ -27,6 +30,14 @@ export default function NotificacionesPage() {
         .order('created_at', { ascending: false })
         .limit(50);
       setItems((data as AppNotification[]) || []);
+
+      // Mark all as read locally and in DB
+      clearUnreadNotifications();
+      await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('user_id', session!.user.id)
+        .eq('read', false);
     }
     load();
 
@@ -49,12 +60,29 @@ export default function NotificacionesPage() {
     if (n.match_id) router.push(`/partido/${n.match_id}`);
   }
 
-  if (loading || !session) return null;
+  if (loading) return null;
+  
+  if (!session) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-5 text-center bg-bg pb-24">
+        <Bell size={48} className="mb-4 text-inksoft opacity-20" />
+        <h2 className="mb-2 font-display text-xl font-bold">Iniciá sesión</h2>
+        <p className="text-sm text-inksoft">Necesitás una cuenta para ver tus notificaciones.</p>
+        <Link href="/auth?next=/notificaciones" className="mt-6 rounded-xl bg-brand px-6 py-3 font-bold text-white shadow-lg">
+          Iniciar sesión
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="pb-10 pt-6">
-      <h2 className="mb-3 px-5 font-display text-[15.5px] font-extrabold">Notificaciones</h2>
-      {items.length === 0 && <p className="px-5 text-sm text-inksoft">Todavía no tenés notificaciones.</p>}
+    <div className="pb-10 pt-4">
+      <h2 className="mb-3 px-5 font-display text-[15.5px] font-extrabold text-center">Notificaciones</h2>
+      {items.length === 0 && (
+        <div className="px-5">
+          <EmptyState icon="bell" title="Todavía no tenés notificaciones" subtitle="Te vamos a avisar cuando algo pase con tus partidos." />
+        </div>
+      )}
       {items.map((n) => (
         <button
           key={n.id}

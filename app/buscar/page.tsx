@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase/client';
 import { Match, Level, Gender } from '@/lib/types';
@@ -8,13 +9,18 @@ import MatchCard from '@/components/MatchCard';
 import MatchCardSkeleton from '@/components/MatchCardSkeleton';
 import SplashLoading from '@/components/SplashLoading';
 import PhotoHero from '@/components/PhotoHero';
-import { MapPin, Search, SlidersHorizontal, X, Loader2 } from 'lucide-react';
+import EmptyState from '@/components/EmptyState';
+import BottomNav from '@/components/BottomNav';
+import { MapPin, Search, SlidersHorizontal, X, Loader2, Users, Trophy } from 'lucide-react';
+import useSWRInfinite from 'swr/infinite';
+import Link from 'next/link';
+
+const PAGE_SIZE = 15;
 
 export default function BuscarPage() {
+  const router = useRouter();
   const { session, loading } = useAuth();
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [matchesLoading, setMatchesLoading] = useState(true);
-
+  
   const [citySearch, setCitySearch] = useState('');
   const [locating, setLocating] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -24,51 +30,80 @@ export default function BuscarPage() {
   const [level, setLevel] = useState<Level | ''>('');
   const [gender, setGender] = useState<Gender | ''>('');
   const [sort, setSort] = useState<'soon' | 'urgent'>('soon');
+  
+  // Filtros rápidos
+  const [distanceFilter, setDistanceFilter] = useState('');
+  const [courtFormat, setCourtFormat] = useState('');
+  const [positionNeeded, setPositionNeeded] = useState('');
+
+  // Debounced states to prevent spamming the DB
+  const [debouncedCity, setDebouncedCity] = useState(citySearch);
+  const [debouncedZone, setDebouncedZone] = useState(zone);
 
   useEffect(() => {
-    // Buscar es público: no hace falta estar logueado para ver los partidos.
-    async function load() {
-      const { data } = await supabase
-        .from('matches')
-        .select('*')
-        .eq('status', 'open')
-        .order('match_date', { ascending: true })
-        .order('match_time', { ascending: true });
-      setMatches((data as Match[]) || []);
-      setMatchesLoading(false);
-    }
-    load();
+    const t = setTimeout(() => setDebouncedCity(citySearch), 500);
+    return () => clearTimeout(t);
+  }, [citySearch]);
 
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedZone(zone), 500);
+    return () => clearTimeout(t);
+  }, [zone]);
+
+  const getKey = (pageIndex: number, previousPageData: Match[] | null) => {
+    if (previousPageData && !previousPageData.length) return null; // reached the end
+    return ['buscar_matches', debouncedCity, debouncedZone, date, level, gender, courtFormat, sort, pageIndex];
+  };
+
+  const fetcher = async ([_, city, zn, dt, lvl, gen, format, srt, page]: any) => {
+    let query = supabase.from('matches').select('*').eq('status', 'open');
+
+    // Server-side filtering
+    if (city) query = query.ilike('city', `%${city}%`);
+    if (zn) query = query.ilike('zone', `%${zn}%`);
+    if (dt) query = query.eq('match_date', dt);
+    else query = query.gte('match_date', new Date().toISOString().slice(0, 10)); // Solo hoy en adelante
+    
+    if (lvl) query = query.eq('level', lvl);
+    if (gen) query = query.eq('gender', gen);
+    if (format) query = query.eq('team_format', format);
+
+    if (srt === 'urgent') {
+      query = query.order('missing_players', { ascending: false });
+    } else {
+      query = query.order('match_date', { ascending: true }).order('match_time', { ascending: true });
+    }
+
+    query = query.range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+    const { data, error } = await query;
+    if (error) throw error;
+    
+    // Client-side precise time filter for matches happening today
+    const now = new Date();
+    return (data as Match[]).filter(m => {
+      const matchDt = new Date(`${m.match_date}T${m.match_time}-03:00`);
+      return matchDt >= now;
+    });
+  };
+
+  const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite<Match[]>(getKey, fetcher);
+
+  const matches = data ? data.flat() : [];
+  const isLoadingInitialData = !data && !error;
+  const isLoadingMore = isLoadingInitialData || (size > 0 && data && typeof data[size - 1] === "undefined");
+  const isEmpty = data?.[0]?.length === 0;
+  const isReachingEnd = isEmpty || (data && data[data.length - 1]?.length < PAGE_SIZE);
+
+  useEffect(() => {
     const channel = supabase
       .channel('search-matches')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, () => load())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, () => {
+        mutate();
+      })
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  const zones = useMemo(() => [...new Set(matches.map((m) => m.zone))], [matches]);
-  const dates = useMemo(() => [...new Set(matches.map((m) => m.match_date))], [matches]);
-
-  const filtered = matches
-    .filter(
-      (m) =>
-        (!citySearch || m.city.toLowerCase().includes(citySearch.toLowerCase())) &&
-        (!zone || m.zone === zone) &&
-        (!date || m.match_date === date) &&
-        (!level || m.level === level) &&
-        (!gender || m.gender === gender)
-    )
-    .sort((a, b) => {
-      if (sort === 'urgent') {
-        if (a.missing_players !== b.missing_players) return a.missing_players - b.missing_players;
-      }
-      const da = `${a.match_date}T${a.match_time}`;
-      const db = `${b.match_date}T${b.match_time}`;
-      return da.localeCompare(db);
-    });
+    return () => { supabase.removeChannel(channel); };
+  }, [mutate]);
 
   const activeFilterCount = [zone, date, level, gender].filter(Boolean).length + (sort === 'urgent' ? 1 : 0);
 
@@ -79,15 +114,11 @@ export default function BuscarPage() {
       async (pos) => {
         try {
           const { latitude, longitude } = pos.coords;
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-          );
-          const data = await res.json();
-          const city = data?.address?.city || data?.address?.town || data?.address?.village || data?.address?.county;
-          if (city) setCitySearch(city);
-        } catch {
-          // Si falla, no pasa nada — el usuario puede escribir la ciudad a mano.
-        } finally {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          const resData = await res.json();
+          const c = resData?.address?.city || resData?.address?.town || resData?.address?.village || resData?.address?.county;
+          if (c) setCitySearch(c);
+        } catch {} finally {
           setLocating(false);
         }
       },
@@ -102,6 +133,9 @@ export default function BuscarPage() {
     setLevel('');
     setGender('');
     setSort('soon');
+    setDistanceFilter('');
+    setCourtFormat('');
+    setPositionNeeded('');
   }
 
   if (loading) return <SplashLoading />;
@@ -110,19 +144,27 @@ export default function BuscarPage() {
     <div>
       <div className="relative overflow-hidden px-5 pb-5 pt-6 text-white">
         <PhotoHero />
-        <div className="relative">
-          <h1 className="mb-1 font-display text-lg font-extrabold">Buscar partidos</h1>
-          <p className="text-xs text-white/75">Encontrá un lugar cerca tuyo, hoy mismo.</p>
+        <div className="relative z-10 px-5 pt-8 text-center">
+          <h1 className="mb-1 font-display text-lg font-extrabold shadow-black drop-shadow-md">Buscar partidos</h1>
+          <p className="mb-4 text-sm text-white/90 shadow-black drop-shadow-md">Sumate a jugar con otros equipos.</p>
+        </div>
+        <div className="relative z-10 mt-4 flex gap-3 px-2">
+          <Link href="/equipos" className="press-fx flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/20 py-2.5 text-sm font-bold backdrop-blur-md border border-white/30">
+            <Users size={16} /> Equipos
+          </Link>
+          <Link href="/torneos" className="press-fx flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/20 py-2.5 text-sm font-bold backdrop-blur-md border border-white/30">
+            <Trophy size={16} /> Torneos
+          </Link>
         </div>
       </div>
 
-      {/* Barra de búsqueda: ubicación + ciudad + filtros */}
-      <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-line bg-white px-5 py-3">
+      <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-line bg-white/85 px-5 py-3 backdrop-blur-md">
         <button
           onClick={useMyLocation}
           disabled={locating}
           className="press-fx flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-neutral-100 text-ink"
           title="Usar mi ubicación"
+          aria-label="Usar mi ubicación"
         >
           {locating ? <Loader2 size={18} className="animate-spin" /> : <MapPin size={18} />}
         </button>
@@ -138,6 +180,7 @@ export default function BuscarPage() {
         <button
           onClick={() => setShowFilters(true)}
           className="press-fx relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-neutral-100 text-ink"
+          aria-label="Abrir filtros"
         >
           <SlidersHorizontal size={18} />
           {activeFilterCount > 0 && (
@@ -148,40 +191,91 @@ export default function BuscarPage() {
         </button>
       </div>
 
-      <div className="px-5 pt-5">
+      {/* Filtros rápidos horizontales */}
+      <div className="flex gap-2 overflow-x-auto border-b border-line bg-white px-5 py-3 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <style dangerouslySetInnerHTML={{__html: `::-webkit-scrollbar { display: none; }`}} />
+        
+        {/* Distancia */}
+        <button
+          onClick={() => setDistanceFilter(distanceFilter === '< 5km' ? '' : '< 5km')}
+          className={`press-fx flex flex-shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-semibold snap-start transition-colors ${
+            distanceFilter === '< 5km' ? 'border-brand bg-brand-pale text-brand-dark' : 'border-line bg-neutral-50 text-inksoft hover:bg-neutral-100'
+          }`}
+        >
+          📍 {'< 5km'}
+        </button>
+        <button
+          onClick={() => setDistanceFilter(distanceFilter === '< 10km' ? '' : '< 10km')}
+          className={`press-fx flex flex-shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-semibold snap-start transition-colors ${
+            distanceFilter === '< 10km' ? 'border-brand bg-brand-pale text-brand-dark' : 'border-line bg-neutral-50 text-inksoft hover:bg-neutral-100'
+          }`}
+        >
+          📍 {'< 10km'}
+        </button>
+
+        {/* Cancha */}
+        {['F5', 'F7', 'F11'].map((format) => (
+          <button
+            key={format}
+            onClick={() => setCourtFormat(courtFormat === format ? '' : format)}
+            className={`press-fx flex flex-shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-semibold snap-start transition-colors ${
+              courtFormat === format ? 'border-brand bg-brand-pale text-brand-dark' : 'border-line bg-neutral-50 text-inksoft hover:bg-neutral-100'
+            }`}
+          >
+            🏟️ {format}
+          </button>
+        ))}
+      </div>
+
+      <div className="px-5 pt-5 pb-10">
         <div className="mb-3 flex items-baseline justify-between">
           <h2 className="font-display text-[15.5px] font-extrabold">Partidos disponibles</h2>
-          <span className="text-xs text-inksoft">{filtered.length} {filtered.length === 1 ? 'partido' : 'partidos'}</span>
+          {!isLoadingInitialData && (
+            <span className="text-xs text-inksoft">
+              {isEmpty ? '0 partidos' : `${matches.length}${!isReachingEnd ? '+' : ''} partidos`}
+            </span>
+          )}
         </div>
-        {matchesLoading ? (
+        {isLoadingInitialData ? (
           <>
             <MatchCardSkeleton />
             <MatchCardSkeleton />
             <MatchCardSkeleton />
           </>
-        ) : filtered.length === 0 ? (
-          <div className="fade-slide-up rounded-2xl border border-dashed border-line bg-white p-8 text-center text-sm text-inksoft">
-            No encontramos partidos con esos filtros.
-          </div>
+        ) : isEmpty ? (
+          <EmptyState icon="whistle" title="No encontramos partidos con esos filtros" subtitle="Probá ampliar la búsqueda o cambiar la ciudad." />
         ) : (
-          <div className="fade-slide-up">
-            {filtered.map((m) => (
-              <MatchCard key={m.id} match={m} isMine={!!session && m.organizer_id === session.user.id} />
+          <div>
+            {matches.map((m, i) => (
+              <div key={`${m.id}-${i}`} className="fade-slide-up" style={{ animationDelay: `${Math.min((i % PAGE_SIZE) * 0.05, 0.3)}s` }}>
+                <MatchCard match={m} isMine={!!session && m.organizer_id === session.user.id} />
+              </div>
             ))}
+            
+            {!isReachingEnd && (
+              <button
+                onClick={() => setSize(size + 1)}
+                disabled={isLoadingMore}
+                className="mt-4 w-full press-fx rounded-xl border border-line bg-neutral-50 py-3 text-sm font-bold text-inksoft hover:bg-neutral-100 disabled:opacity-50"
+              >
+                {isLoadingMore ? <Loader2 size={18} className="mx-auto animate-spin" /> : 'Cargar más partidos'}
+              </button>
+            )}
           </div>
         )}
       </div>
 
-      {/* Hoja de filtros */}
+      <BottomNav />
+
       {showFilters && (
-        <div className="fixed inset-0 z-[80] flex items-end justify-center bg-ink/40" onClick={() => setShowFilters(false)}>
+        <div className="fixed inset-0 z-[80] flex items-end justify-center bg-ink/40 backdrop-blur-sm" onClick={() => setShowFilters(false)}>
           <div
             className="w-full max-w-[440px] rounded-t-2xl bg-white p-6 pb-8 max-h-[85vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-display text-base font-bold">Filtros</h3>
-              <button onClick={() => setShowFilters(false)} className="press-fx text-inksoft">
+              <button onClick={() => setShowFilters(false)} className="press-fx text-inksoft" aria-label="Cerrar filtros">
                 <X size={20} />
               </button>
             </div>
@@ -189,17 +283,22 @@ export default function BuscarPage() {
             <div className="space-y-4">
               <div>
                 <label className="mb-1.5 block text-xs font-bold">Zona</label>
-                <select className="filter-input" value={zone} onChange={(e) => setZone(e.target.value)}>
-                  <option value="">Todas</option>
-                  {zones.map((z) => <option key={z} value={z}>{z}</option>)}
-                </select>
+                <input 
+                  type="text" 
+                  className="filter-input" 
+                  value={zone} 
+                  onChange={(e) => setZone(e.target.value)} 
+                  placeholder="Ej: Barrio Sur" 
+                />
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-bold">Fecha</label>
-                <select className="filter-input" value={date} onChange={(e) => setDate(e.target.value)}>
-                  <option value="">Todas</option>
-                  {dates.map((d) => <option key={d} value={d}>{d}</option>)}
-                </select>
+                <input 
+                  type="date" 
+                  className="filter-input" 
+                  value={date} 
+                  onChange={(e) => setDate(e.target.value)} 
+                />
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-bold">Nivel</label>
@@ -261,7 +360,7 @@ export default function BuscarPage() {
                 Limpiar
               </button>
               <button onClick={() => setShowFilters(false)} className="press-fx flex-1 rounded-xl bg-brand py-3 text-sm font-bold text-white">
-                Ver {filtered.length} {filtered.length === 1 ? 'partido' : 'partidos'}
+                Aplicar filtros
               </button>
             </div>
           </div>

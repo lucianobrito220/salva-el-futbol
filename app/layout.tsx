@@ -3,7 +3,9 @@ import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import BottomNav from '@/components/BottomNav';
+import Sidebar from '@/components/Sidebar';
 import AppSplash from '@/components/AppSplash';
+import PageTransition from '@/components/PageTransition';
 
 export const metadata: Metadata = {
   title: 'Salvá el Fútbol',
@@ -25,8 +27,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <ThemeProvider>
             <AppSplash>
-              <div className="mx-auto min-h-screen max-w-[440px] bg-bg pb-24 shadow-2xl sm:my-6 sm:min-h-[calc(100vh-48px)] sm:rounded-3xl overflow-hidden">
-                {children}
+              <div className="mx-auto min-h-screen max-w-[440px] bg-bg pb-24 shadow-2xl sm:my-6 sm:min-h-[calc(100vh-48px)] sm:rounded-3xl overflow-hidden relative">
+                <Sidebar />
+                <PageTransition>{children}</PageTransition>
                 <BottomNav />
               </div>
             </AppSplash>
