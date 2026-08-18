@@ -189,9 +189,8 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
   return (
     <div className="fixed inset-0 z-[80] flex flex-col bg-black/60 backdrop-blur-sm fade-in" onClick={onClose}>
       <div
-        className="mt-auto w-full max-w-[500px] self-center rounded-t-3xl bg-white shadow-2xl overflow-hidden"
+        className="mt-auto w-full max-w-[500px] self-center rounded-t-3xl bg-white shadow-2xl"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxHeight: '92vh' }}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-line px-5 py-4">
@@ -228,7 +227,7 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
         </div>
 
         {/* Map */}
-        <div className="h-[340px] shrink-0 w-full bg-neutral-100 relative">
+        <div className="h-[340px] shrink-0 w-full bg-neutral-100 relative z-0">
           {loading && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-sm">
               <div className="flex flex-col items-center gap-2">
@@ -240,7 +239,7 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
           <MapContainer
             center={[center.lat, center.lon]}
             zoom={14}
-            style={{ height: '100%', width: '100%', zIndex: 0 }}
+            style={{ height: '100%', width: '100%' }}
             ref={mapRef}
           >
             <TileLayer
