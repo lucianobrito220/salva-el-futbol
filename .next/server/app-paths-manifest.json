@@ -1,7 +1,6 @@
 {
   "/page": "app/page.js",
-  "/mis-partidos/page": "app/mis-partidos/page.js",
-  "/torneos/page": "app/torneos/page.js",
-  "/publicar/page": "app/publicar/page.js",
-  "/partido/[id]/page": "app/partido/[id]/page.js"
+  "/notificaciones/page": "app/notificaciones/page.js",
+  "/equipos/crear/page": "app/equipos/crear/page.js",
+  "/publicar/page": "app/publicar/page.js"
 }

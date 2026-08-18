@@ -118,8 +118,11 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
     setLoading(true);
     try {
       // Overpass API: buscar canchas de fútbol en un radio de 15km
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 second timeout for mobile
+
       const query = `
-        [out:json][timeout:25];
+        [out:json][timeout:5];
         (
           node["leisure"="pitch"](around:15000,${lat},${lon});
           way["leisure"="pitch"](around:15000,${lat},${lon});
@@ -128,19 +131,20 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
           node["sport"~"soccer|football|futbol"](around:15000,${lat},${lon});
           way["sport"~"soccer|football|futbol"](around:15000,${lat},${lon});
         );
-        out center 80;
+        out center 50;
       `;
       const res = await fetch('https://overpass-api.de/api/interpreter', {
         method: 'POST',
         body: `data=${encodeURIComponent(query)}`,
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
+      
       const data = await res.json();
 
-      if (!data.elements) {
-        setCourts([]);
-        setLoading(false);
-        return;
+      if (!data || !data.elements) {
+        throw new Error("No elements in response");
       }
 
       let counter = 1;
