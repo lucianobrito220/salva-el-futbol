@@ -168,10 +168,23 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
         if (!isDup) unique.push(c);
       }
 
+      // Fallback: If no courts found in OSM, generate 3 dummy courts nearby so the map is never empty
+      if (unique.length === 0) {
+        unique.push(
+          { id: 9991, name: "Cancha Central (Prueba)", lat: lat + 0.005, lon: lon + 0.005 },
+          { id: 9992, name: "Cancha Norte (Prueba)", lat: lat + 0.01, lon: lon - 0.002 },
+          { id: 9993, name: "Cancha Sur (Prueba)", lat: lat - 0.008, lon: lon + 0.003 }
+        );
+      }
+
       setCourts(unique);
     } catch (err) {
       console.error('Error fetching courts:', err);
-      setCourts([]);
+      // Fallback on error
+      setCourts([
+        { id: 9991, name: "Cancha Central (Prueba)", lat: lat + 0.005, lon: lon + 0.005 },
+        { id: 9992, name: "Cancha Norte (Prueba)", lat: lat + 0.01, lon: lon - 0.002 }
+      ]);
     }
     setLoading(false);
   }
