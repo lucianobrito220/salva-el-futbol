@@ -24,6 +24,10 @@ export default function TorneoDashboardPage() {
   const [allTeams, setAllTeams] = useState<any[]>([]);
   const [adding, setAdding] = useState(false);
 
+  const [showSettings, setShowSettings] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [saving, setSaving] = useState(false);
+
   useEffect(() => {
     if (!loading && session && params.id) {
       fetchTournament();
@@ -125,6 +129,22 @@ export default function TorneoDashboardPage() {
     setAdding(false);
   }
 
+  async function saveTournamentSettings() {
+    if (!editName.trim()) return;
+    setSaving(true);
+    await supabase.from('tournaments').update({ name: editName.trim() }).eq('id', params.id);
+    setSaving(false);
+    setShowSettings(false);
+    fetchTournament();
+  }
+
+  async function deleteTournament() {
+    if (!confirm('¿Estás seguro de que querés eliminar este torneo? Esta acción no se puede deshacer.')) return;
+    await supabase.from('tournament_teams').delete().eq('tournament_id', params.id);
+    await supabase.from('tournaments').delete().eq('id', params.id);
+    router.push('/torneos');
+  }
+
   if (loading || fetching) return <SplashLoading />;
 
   if (!tournament) {
@@ -181,6 +201,41 @@ export default function TorneoDashboardPage() {
         </div>
       )}
 
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-5 backdrop-blur-sm fade-in">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl scale-in">
+            <h3 className="mb-4 text-center font-display text-lg font-bold">Configuración del Torneo</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-bold text-ink">Nombre del torneo</label>
+                <input
+                  className="w-full rounded-xl border-[1.5px] border-line px-4 py-3 text-sm font-medium"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                />
+              </div>
+              <button
+                onClick={saveTournamentSettings}
+                disabled={saving}
+                className="press-fx w-full rounded-xl bg-brand py-3 text-sm font-bold text-white shadow-md disabled:opacity-50"
+              >
+                {saving ? 'Guardando…' : 'Guardar cambios'}
+              </button>
+              <div className="my-3 h-px w-full bg-line" />
+              <button
+                onClick={deleteTournament}
+                className="press-fx w-full rounded-xl border border-red-200 bg-red-50 py-3 text-sm font-bold text-red-600"
+              >
+                Eliminar torneo
+              </button>
+            </div>
+            <button onClick={() => setShowSettings(false)} className="mt-4 w-full py-3 text-sm font-bold text-inksoft">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
       <header className="sticky top-0 z-20 flex items-center justify-between border-b border-line bg-white px-5 py-4">
         <div className="flex items-center gap-3">
           <button onClick={() => router.back()} className="press-fx text-ink">
@@ -189,7 +244,7 @@ export default function TorneoDashboardPage() {
           <h1 className="font-display text-lg font-extrabold text-ink truncate w-48">{tournament.name}</h1>
         </div>
         {isOrganizer && (
-          <button className="text-inksoft press-fx">
+          <button onClick={() => { setEditName(tournament.name); setShowSettings(true); }} className="text-inksoft press-fx">
             <Settings size={20} />
           </button>
         )}

@@ -13,6 +13,7 @@ import { MapPin, Check, ArrowLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const AddressAutocomplete = dynamic(() => import('@/components/AddressAutocomplete'), { ssr: false });
+const CourtPickerModal = dynamic(() => import('@/components/CourtPickerModal'), { ssr: false });
 
 const genderStyles: Record<Gender, string> = {
   Masculino: 'border-blue-400 bg-blue-50 text-blue-700',
@@ -157,6 +158,7 @@ function PublicarForm({
   submitting, error, showSuccess, publish
 }: any) {
   const searchParams = useSearchParams();
+  const [showCourtPicker, setShowCourtPicker] = useState(false);
   
   useEffect(() => {
     if (searchParams.get('tipo') === 'equipo_rival') {
@@ -240,6 +242,26 @@ function PublicarForm({
         <Field label="Cancha">
           <input className="input" value={court} onChange={(e) => setCourt(e.target.value)} placeholder="Ej: Complejo La 10" />
         </Field>
+        <button
+          type="button"
+          onClick={() => setShowCourtPicker(true)}
+          className="press-fx flex w-full items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed border-brand/40 bg-brand-pale/50 py-3.5 text-[13px] font-bold text-brand-dark hover:bg-brand-pale transition-colors"
+        >
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand/10"><MapPin size={16} className="text-brand" /></span>
+          Buscar cancha en el mapa 🗺️
+        </button>
+        {showCourtPicker && (
+          <CourtPickerModal
+            cityHint={city}
+            onClose={() => setShowCourtPicker(false)}
+            onSelect={(name, address, lat, lng) => {
+              setCourt(name);
+              if (address) setLocationAddress(address);
+              setLocationCoords({ lat, lng });
+              setShowCourtPicker(false);
+            }}
+          />
+        )}
         <Field label="Ubicación (dirección)">
           <AddressAutocomplete
             value={locationAddress}
@@ -250,10 +272,22 @@ function PublicarForm({
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Fecha">
-            <input type="date" className="input" value={date} onChange={(e) => setDate(e.target.value)} />
+            <input 
+              type="date" 
+              className="input" 
+              value={date} 
+              onChange={(e) => setDate(e.target.value)} 
+              style={{ colorScheme: 'light', minHeight: '48px', appearance: 'none', WebkitAppearance: 'none' }}
+            />
           </Field>
           <Field label="Hora">
-            <input type="time" className="input" value={time} onChange={(e) => setTime(e.target.value)} />
+            <input 
+              type="time" 
+              className="input" 
+              value={time} 
+              onChange={(e) => setTime(e.target.value)} 
+              style={{ colorScheme: 'light', minHeight: '48px', appearance: 'none', WebkitAppearance: 'none' }}
+            />
           </Field>
         </div>
 
@@ -345,6 +379,9 @@ function PublicarForm({
           border: 1.5px solid #e7e9ec;
           padding: 13px 14px;
           font-size: 14.5px;
+          background-color: #ffffff;
+          color: #1a1a2e;
+          -webkit-appearance: none;
         }
         .stepper-btn {
           width: 42px;

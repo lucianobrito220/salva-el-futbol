@@ -122,6 +122,28 @@ export default function HomePage() {
         </div>
       </header>
 
+      {/* Greeting Bar */}
+      {session && profile && (
+        <div className="flex items-center gap-4 bg-white px-5 py-4 border-b border-line">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand text-white text-xl font-black shadow-md">
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt={profile.name} className="h-full w-full rounded-full object-cover" />
+            ) : (
+              profile.name?.charAt(0).toUpperCase() || 'J'
+            )}
+          </div>
+          <div>
+            <h2 className="font-display text-[18px] font-extrabold text-ink leading-tight">
+              ¡Hola, <span className="text-ink">{profile.name?.split(' ')[0] || 'Jugador'}</span>!
+            </h2>
+            <div className="mt-0.5 flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-brand animate-pulse" />
+              <span className="text-[13px] font-medium text-inksoft">Listo para jugar</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="relative overflow-hidden px-5 pb-7 pt-0 text-white">
         <PhotoHero />
         <div className="relative">

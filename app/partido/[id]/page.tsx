@@ -163,6 +163,16 @@ export default function MatchDetailPage() {
           body: `🏁 ¡${profile?.name || 'Un árbitro'} se postuló como árbitro oficial para tu partido en ${match.court}!`
         })
       }).catch(console.error);
+    } else {
+      await fetch('/api/notify/direct', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: match.organizer_id,
+          matchId: id,
+          body: `⚽ ¡${profile?.name || 'Un jugador'} quiere unirse a tu partido en ${match.court}!`
+        })
+      }).catch(console.error);
     }
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 1100);
