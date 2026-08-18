@@ -8,7 +8,7 @@ import { Match } from '@/lib/types';
 import MatchCard from '@/components/MatchCard';
 import MatchCardSkeleton from '@/components/MatchCardSkeleton';
 import SplashLoading from '@/components/SplashLoading';
-import { Search, Megaphone, Gift, List, Map as MapIcon, RefreshCcw, Bell } from 'lucide-react';
+import { Search, Megaphone, Gift, List, Map as MapIcon, RefreshCcw, Bell, ChevronDown } from 'lucide-react';
 import PhotoHero from '@/components/PhotoHero';
 import WeatherWidget from '@/components/WeatherWidget';
 import EmptyState from '@/components/EmptyState';
@@ -124,21 +124,22 @@ export default function HomePage() {
 
       {/* Greeting Bar */}
       {session && profile && (
-        <div className="flex items-center gap-4 bg-white px-5 py-4 border-b border-line">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand text-white text-xl font-black shadow-md">
+        <div className="flex items-center gap-3.5 bg-bg px-5 py-5 border-b border-line/60">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#00d65f] text-white text-[22px] font-bold shadow-sm ring-4 ring-white/50">
             {profile.avatar_url ? (
               <img src={profile.avatar_url} alt={profile.name} className="h-full w-full rounded-full object-cover" />
             ) : (
               profile.name?.charAt(0).toUpperCase() || 'J'
             )}
           </div>
-          <div>
-            <h2 className="font-display text-[18px] font-extrabold text-ink leading-tight">
-              ¡Hola, <span className="text-ink">{profile.name?.split(' ')[0] || 'Jugador'}</span>!
+          <div className="flex flex-col justify-center">
+            <h2 className="font-display text-[22px] font-bold text-[#333333] leading-none tracking-tight mb-1.5">
+              ¡Hola, <span className="text-[#1a1a1a]">{profile.name?.split(' ')[0] || 'Jugador'}</span>!
             </h2>
-            <div className="mt-0.5 flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-brand animate-pulse" />
-              <span className="text-[13px] font-medium text-inksoft">Listo para jugar</span>
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#00d65f] shadow-[0_0_8px_rgba(0,214,95,0.4)]" />
+              <span className="text-[14px] font-medium text-[#8a8a8a]">Listo para jugar</span>
+              <ChevronDown size={16} strokeWidth={2.5} className="text-[#8a8a8a] ml-0.5" />
             </div>
           </div>
         </div>

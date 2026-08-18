@@ -68,9 +68,18 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
   const [searching, setSearching] = useState(false);
   const mapRef = useRef<any>(null);
 
-  // Obtener ubicación del usuario
+  // Inicializar mapa sin bloquear en GPS
   useEffect(() => {
+    if (cityHint) {
+      geocodeCity(cityHint);
+    } else {
+      fetchCourts(center.lat, center.lon);
+    }
+  }, []);
+
+  function requestLocation() {
     if (navigator.geolocation) {
+      setLoading(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const loc = { lat: pos.coords.latitude, lon: pos.coords.longitude };
@@ -79,19 +88,13 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
           fetchCourts(loc.lat, loc.lon);
         },
         () => {
-          // Si no se puede geolocalizar, usar la ciudad como hint
-          if (cityHint) {
-            geocodeCity(cityHint);
-          } else {
-            fetchCourts(center.lat, center.lon);
-          }
+          setLoading(false);
+          alert("No se pudo obtener la ubicación. Verifica los permisos de tu navegador.");
         },
-        { enableHighAccuracy: true, timeout: 5000 }
+        { enableHighAccuracy: false, timeout: 5000 }
       );
-    } else {
-      fetchCourts(center.lat, center.lon);
     }
-  }, []);
+  }
 
   async function geocodeCity(city: string) {
     try {
@@ -225,7 +228,7 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
         </div>
 
         {/* Map */}
-        <div className="h-[340px] w-full bg-neutral-100 relative">
+        <div className="h-[340px] shrink-0 w-full bg-neutral-100 relative">
           {loading && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-sm">
               <div className="flex flex-col items-center gap-2">
@@ -237,7 +240,7 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
           <MapContainer
             center={[center.lat, center.lon]}
             zoom={14}
-            style={{ height: '100%', width: '100%' }}
+            style={{ height: '100%', width: '100%', zIndex: 0 }}
             ref={mapRef}
           >
             <TileLayer
@@ -273,17 +276,12 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
           <span className="text-xs font-medium text-inksoft">
             {loading ? 'Buscando...' : `${courts.length} canchas encontradas`}
           </span>
-          {userPos && (
-            <button
-              onClick={() => {
-                setCenter(userPos);
-                fetchCourts(userPos.lat, userPos.lon);
-              }}
-              className="text-xs font-bold text-brand press-fx"
-            >
-              📍 Mi ubicación
-            </button>
-          )}
+          <button
+            onClick={requestLocation}
+            className="text-xs font-bold text-brand press-fx flex items-center gap-1"
+          >
+            📍 Usar mi GPS
+          </button>
         </div>
       </div>
     </div>
