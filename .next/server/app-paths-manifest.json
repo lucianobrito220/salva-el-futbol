@@ -1,6 +1,6 @@
 {
   "/page": "app/page.js",
+  "/publicar/page": "app/publicar/page.js",
   "/notificaciones/page": "app/notificaciones/page.js",
-  "/equipos/crear/page": "app/equipos/crear/page.js",
-  "/publicar/page": "app/publicar/page.js"
+  "/equipos/crear/page": "app/equipos/crear/page.js"
 }

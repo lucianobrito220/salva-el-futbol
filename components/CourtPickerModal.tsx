@@ -119,32 +119,20 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
     try {
       // Overpass API: buscar canchas de fútbol en un radio de 15km
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 second timeout for mobile
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
-      const query = `
-        [out:json][timeout:5];
-        (
-          node["leisure"="pitch"](around:15000,${lat},${lon});
-          way["leisure"="pitch"](around:15000,${lat},${lon});
-          node["leisure"="sports_centre"](around:15000,${lat},${lon});
-          way["leisure"="sports_centre"](around:15000,${lat},${lon});
-          node["sport"~"soccer|football|futbol"](around:15000,${lat},${lon});
-          way["sport"~"soccer|football|futbol"](around:15000,${lat},${lon});
-        );
-        out center 50;
-      `;
-      const res = await fetch('https://overpass-api.de/api/interpreter', {
+      const res = await fetch('/api/overpass', {
         method: 'POST',
-        body: `data=${encodeURIComponent(query)}`,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lat, lon }),
         signal: controller.signal
       });
       clearTimeout(timeoutId);
       
       const data = await res.json();
 
-      if (!data || !data.elements) {
-        throw new Error("No elements in response");
+      if (!res.ok || !data || !data.elements) {
+        throw new Error("Proxy error or no elements");
       }
 
       let counter = 1;
