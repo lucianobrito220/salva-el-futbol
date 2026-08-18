@@ -31,13 +31,8 @@ const genderText: Record<string, string> = {
   Mixto: 'text-purple-400',
 };
 
-const PITCH_IMAGES = [
-  'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&q=80&w=800',
-  'https://images.unsplash.com/photo-1518605368461-1e1e38ce8058?auto=format&fit=crop&q=80&w=800',
-  'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=800',
-  'https://images.unsplash.com/photo-1431324155629-1a6d0a6eb434?auto=format&fit=crop&q=80&w=800',
-  'https://images.unsplash.com/photo-1551280336-646f90bd6693?auto=format&fit=crop&q=80&w=800'
-];
+
+
 
 export default function MatchCard({ match, isMine, asRefereeMode }: { match: Match; isMine?: boolean; asRefereeMode?: boolean }) {
   const { session } = useAuth();

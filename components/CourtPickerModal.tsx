@@ -117,16 +117,18 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
   async function fetchCourts(lat: number, lon: number) {
     setLoading(true);
     try {
-      // Overpass API: buscar canchas de fútbol en un radio de 10km
+      // Overpass API: buscar canchas de fútbol en un radio de 15km
       const query = `
-        [out:json][timeout:15];
+        [out:json][timeout:25];
         (
-          node["leisure"="pitch"]["sport"~"soccer|football"](around:10000,${lat},${lon});
-          way["leisure"="pitch"]["sport"~"soccer|football"](around:10000,${lat},${lon});
-          node["leisure"="sports_centre"](around:10000,${lat},${lon});
-          way["leisure"="sports_centre"](around:10000,${lat},${lon});
+          node["leisure"="pitch"](around:15000,${lat},${lon});
+          way["leisure"="pitch"](around:15000,${lat},${lon});
+          node["leisure"="sports_centre"](around:15000,${lat},${lon});
+          way["leisure"="sports_centre"](around:15000,${lat},${lon});
+          node["sport"~"soccer|football|futbol"](around:15000,${lat},${lon});
+          way["sport"~"soccer|football|futbol"](around:15000,${lat},${lon});
         );
-        out center 50;
+        out center 80;
       `;
       const res = await fetch('https://overpass-api.de/api/interpreter', {
         method: 'POST',
@@ -135,19 +137,41 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
       });
       const data = await res.json();
 
-      const results: Court[] = data.elements
-        .filter((el: any) => el.tags?.name || el.tags?.['name:es'])
-        .map((el: any) => ({
-          id: el.id,
-          name: el.tags?.name || el.tags?.['name:es'] || 'Cancha sin nombre',
-          lat: el.lat || el.center?.lat,
-          lon: el.lon || el.center?.lon,
-        }))
-        .filter((c: Court) => c.lat && c.lon);
+      if (!data.elements) {
+        setCourts([]);
+        setLoading(false);
+        return;
+      }
 
-      setCourts(results);
+      let counter = 1;
+      const results: Court[] = data.elements
+        .map((el: any) => {
+          const elLat = el.lat || el.center?.lat;
+          const elLon = el.lon || el.center?.lon;
+          if (!elLat || !elLon) return null;
+
+          const name = el.tags?.name 
+            || el.tags?.['name:es'] 
+            || el.tags?.operator 
+            || `Cancha ${counter++}`;
+
+          return { id: el.id, name, lat: elLat, lon: elLon };
+        })
+        .filter(Boolean) as Court[];
+
+      // Remove duplicates by proximity (within 50m)
+      const unique: Court[] = [];
+      for (const c of results) {
+        const isDup = unique.some(u => 
+          Math.abs(u.lat - c.lat) < 0.0005 && Math.abs(u.lon - c.lon) < 0.0005
+        );
+        if (!isDup) unique.push(c);
+      }
+
+      setCourts(unique);
     } catch (err) {
       console.error('Error fetching courts:', err);
+      setCourts([]);
     }
     setLoading(false);
   }

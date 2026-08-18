@@ -98,34 +98,43 @@ export default function TorneoDashboardPage() {
     }
     setAdding(true);
 
-    // Simple round robin first round (just a demo for Phase 2)
-    const t1 = teams[0].team;
-    const t2 = teams[1].team;
+    // Shuffle teams for random pairing
+    const shuffled = [...teams].sort(() => 0.5 - Math.random());
+    const matchesToInsert = [];
 
-    if (t1 && t2) {
-      // Create a match
-      await supabase.from('matches').insert({
-        tournament_id: params.id,
-        organizer_id: session?.user.id,
-        city: 'Local',
-        zone: 'Torneo',
-        court: tournament?.name,
-        match_date: new Date().toISOString().slice(0,10),
-        match_time: '20:00:00',
-        missing_players: 0,
-        match_type: 'equipo_rival',
-        gender: 'Masculino',
-        level: 'Competitivo',
-        price: 0,
-        status: 'open',
-        description: `TORNEO: ${t1.name} vs ${t2.name}`
-      });
-      
-      // Update tournament status
-      await supabase.from('tournaments').update({ status: 'en_curso' }).eq('id', params.id);
-      
-      fetchTournament();
+    // Pair them up
+    for (let i = 0; i < shuffled.length - 1; i += 2) {
+      const t1 = shuffled[i].team;
+      const t2 = shuffled[i + 1].team;
+
+      if (t1 && t2) {
+        matchesToInsert.push({
+          tournament_id: params.id,
+          organizer_id: session?.user.id,
+          city: 'Local',
+          zone: 'Torneo',
+          court: tournament?.name,
+          match_date: new Date().toISOString().slice(0,10),
+          match_time: '20:00:00',
+          missing_players: 0,
+          match_type: 'equipo_rival',
+          gender: 'Masculino',
+          level: 'Competitivo',
+          price: 0,
+          status: 'open',
+          description: `TORNEO: ${t1.name} vs ${t2.name}`
+        });
+      }
     }
+
+    if (matchesToInsert.length > 0) {
+      await supabase.from('matches').insert(matchesToInsert);
+    }
+    
+    // Update tournament status
+    await supabase.from('tournaments').update({ status: 'en_curso' }).eq('id', params.id);
+    
+    fetchTournament();
     setAdding(false);
   }
 

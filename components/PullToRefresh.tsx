@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, ReactNode } from 'react';
+import { useState, useRef, useEffect, ReactNode } from 'react';
 import { Loader2 } from 'lucide-react';
 
 export default function PullToRefresh({ children, onRefresh }: { children: ReactNode, onRefresh: () => Promise<void> }) {
@@ -8,6 +8,11 @@ export default function PullToRefresh({ children, onRefresh }: { children: React
   const [refreshing, setRefreshing] = useState(false);
   const maxPull = 140;
   
+  // Cleanup: ensure scroll behavior is restored if component unmounts mid-pull
+  useEffect(() => {
+    return () => { document.body.style.overscrollBehaviorY = ''; };
+  }, []);
+
   const pullDistance = Math.max(0, currentY - startY);
   const height = Math.min(pullDistance * 0.4, maxPull); // add friction
   const isReady = height >= 60;

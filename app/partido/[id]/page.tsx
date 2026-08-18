@@ -191,6 +191,12 @@ export default function MatchDetailPage() {
       if (match && req) {
         if (req.is_referee_request) {
           await supabase.from('matches').update({ referee_id: req.player_id, needs_referee: false }).eq('id', match.id);
+          
+          const otherPending = requests.filter(r => r.id !== reqId && r.status === 'pending' && r.is_referee_request);
+          if (otherPending.length > 0) {
+            await supabase.from('join_requests').update({ status: 'rejected' }).in('id', otherPending.map(r => r.id));
+          }
+
           showToast('Árbitro confirmado ✓');
           await fetch('/api/notify/direct', {
             method: 'POST',

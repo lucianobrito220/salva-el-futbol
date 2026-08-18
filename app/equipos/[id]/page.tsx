@@ -79,6 +79,10 @@ export default function TeamProfilePage() {
 
   async function handleSaveSettings() {
     if (!team) return;
+    if (!editName.trim()) {
+      alert("El nombre del equipo no puede estar vacío.");
+      return;
+    }
     setSaving(true);
     const { error } = await supabase
       .from('teams')

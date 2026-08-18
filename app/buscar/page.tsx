@@ -79,12 +79,7 @@ export default function BuscarPage() {
     const { data, error } = await query;
     if (error) throw error;
     
-    // Client-side precise time filter for matches happening today
-    const now = new Date();
-    return (data as Match[]).filter(m => {
-      const matchDt = new Date(`${m.match_date}T${m.match_time}-03:00`);
-      return matchDt >= now;
-    });
+    return data as Match[];
   };
 
   const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite<Match[]>(getKey, fetcher);

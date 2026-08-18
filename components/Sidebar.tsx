@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Users, Trophy, Flag, Swords, ShieldPlus, Shield, PlusCircle, Settings, Megaphone, Search, Activity } from 'lucide-react';
+import { Menu, X, Users, Trophy, Flag, Swords, ShieldPlus, Shield, PlusCircle, Settings, Megaphone, Search, Activity, HelpCircle } from 'lucide-react';
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -64,7 +64,7 @@ export default function Sidebar() {
           
           <div className="my-3 h-px w-full bg-line dark:bg-neutral-800" />
           
-          <MenuLink href="/ayuda" icon={Users} label="Quiénes somos" onClick={closeSidebar} />
+          <MenuLink href="/ayuda" icon={HelpCircle} label="Quiénes somos" onClick={closeSidebar} />
           <MenuLink href="/perfil" icon={Settings} label="Configuración" onClick={closeSidebar} />
         </nav>
       </div>

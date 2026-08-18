@@ -30,7 +30,7 @@ export default function EquiposPage() {
       .eq('user_id', session.user.id);
 
     if (!error && memberTeams) {
-      const mappedTeams = memberTeams.map((t: any) => t.teams as Team);
+      const mappedTeams = memberTeams.map((t: any) => t.teams as Team).filter(Boolean);
       setTeams(mappedTeams);
     }
     setFetching(false);
