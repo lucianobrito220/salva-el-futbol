@@ -110,7 +110,7 @@ export default function HomePage() {
 
   return (
     <PullToRefresh onRefresh={async () => { await mutate(); }}>
-      <header className="sticky top-0 z-20 flex items-center justify-center border-b border-line dark:border-charcoal-line bg-white dark:bg-charcoal/90 px-5 py-4 backdrop-blur-xl relative">
+      <header className="sticky top-0 z-20 flex items-center justify-center border-b border-line dark:border-charcoal-line bg-white dark:bg-charcoal/90 px-5 py-4 backdrop-blur-xl relative shadow-card transition-all">
         <div className="flex items-center gap-2 pr-6">
           <img src="/brand/logo.png" alt="Salvá el Fútbol" className="h-8 w-8 rounded-full" />
           <span className="font-display text-[16px] font-extrabold text-ink dark:text-white">Salvá el Fútbol</span>
@@ -136,8 +136,8 @@ export default function HomePage() {
             )}
           </div>
           <div className="flex flex-col justify-center">
-            <h2 className="font-display text-[22px] font-bold text-ink dark:text-white leading-none tracking-tight mb-1.5">
-              ¡Hola, <span className="text-ink font-extrabold dark:text-white">{profile.name?.split(' ')[0] || 'Jugador'}</span>!
+            <h2 className="font-display text-[13px] text-inksoft dark:text-white/60 leading-none tracking-tight mb-1.5">
+              ¡Hola, <span className="text-ink font-semibold dark:text-white">{profile.name?.split(' ')[0] || 'Jugador'}</span>!
             </h2>
             <div className="relative">
               <button 
@@ -155,7 +155,7 @@ export default function HomePage() {
               {showStatusMenu && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowStatusMenu(false)} />
-                  <div className="absolute left-0 top-full mt-2 w-48 z-50 origin-top-left rounded-2xl border border-line bg-white p-1.5 shadow-lg fade-slide-up dark:border-charcoal-line dark:bg-charcoal">
+                  <div className="absolute left-0 top-full mt-2 w-48 z-50 origin-top-left rounded-2xl border border-line bg-white p-1.5 shadow-lg scale-in-sm dark:border-charcoal-line dark:bg-charcoal">
                     <button 
                       onClick={() => { setIsAvailable(true); setShowStatusMenu(false); }}
                       className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-sm font-bold transition-all ${isAvailable ? 'bg-brand/10 text-brand scale-[1.02]' : 'text-inksoft hover:bg-neutral-50 dark:hover:bg-charcoal-light'}`}
@@ -214,14 +214,14 @@ export default function HomePage() {
               key={d.iso}
               onClick={() => setSelectedDate(d.iso)}
               className={`press-fx flex flex-shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 ${
-                active ? 'bg-brand text-white' : 'bg-neutral-50 text-inksoft'
+                active ? 'bg-brand text-white shadow-glow-brand' : 'bg-neutral-50 text-inksoft hover:bg-neutral-100 transition-colors'
               }`}
             >
-              <span className="text-[10px] font-bold uppercase">{d.label}</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider">{d.label}</span>
               <span className="font-display text-sm font-extrabold">{d.num}</span>
               <span
                 className={`h-1.5 w-1.5 rounded-full ${
-                  hasMatch(d.iso) ? (active ? 'bg-white' : 'bg-brand') : 'bg-transparent'
+                  hasMatch(d.iso) ? (active ? 'bg-white count-pulse' : 'bg-brand') : 'bg-transparent'
                 }`}
               />
             </button>
@@ -233,21 +233,21 @@ export default function HomePage() {
       <div className="px-5 pt-4">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="font-display text-[15.5px] font-extrabold leading-tight">{heading}</h2>
+            <h2 className="font-display text-[18px] font-bold leading-tight">{heading}</h2>
             <span className="text-xs text-inksoft font-medium">{matches.length} {matches.length === 1 ? 'partido' : 'partidos'}</span>
           </div>
           
-          <div className="flex bg-neutral-100 p-[3px] rounded-xl border border-line">
+          <div className="flex bg-neutral-100 dark:bg-charcoal p-[3px] rounded-xl border border-line dark:border-charcoal-line">
             <button 
               onClick={() => setViewMode('list')} 
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm text-ink' : 'text-inksoft hover:text-ink'}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${viewMode === 'list' ? 'bg-white dark:bg-charcoal-soft shadow-sm text-ink dark:text-white' : 'text-inksoft dark:text-white/60 hover:text-ink dark:hover:text-white'}`}
             >
               <List size={12} />
               Lista
             </button>
             <button 
               onClick={() => setViewMode('map')} 
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-colors ${viewMode === 'map' ? 'bg-white shadow-sm text-ink' : 'text-inksoft hover:text-ink'}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${viewMode === 'map' ? 'bg-white dark:bg-charcoal-soft shadow-sm text-ink dark:text-white' : 'text-inksoft dark:text-white/60 hover:text-ink dark:hover:text-white'}`}
             >
               <MapIcon size={12} />
               Mapa
@@ -273,7 +273,7 @@ export default function HomePage() {
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-100">🔥</span> Último Minuto
                 </div>
                 {urgentMatches.map((m, i) => (
-                  <div key={m.id} className="fade-slide-up" style={{ animationDelay: `${Math.min(i * 0.05, 0.3)}s` }}>
+                  <div key={m.id} className="slide-up-sm" style={{ animationDelay: `${i * 0.05}s` }}>
                     <MatchCard match={m} isMine={!!session && m.organizer_id === session.user.id} asRefereeMode={!!profile?.is_referee} />
                   </div>
                 ))}
@@ -283,7 +283,7 @@ export default function HomePage() {
             {normalMatches.length > 0 && (
               <div>
                 {normalMatches.map((m, i) => (
-                  <div key={m.id} className="fade-slide-up" style={{ animationDelay: `${Math.min(i * 0.05, 0.3)}s` }}>
+                  <div key={m.id} className="slide-up-sm" style={{ animationDelay: `${i * 0.05}s` }}>
                     <MatchCard match={m} isMine={!!session && m.organizer_id === session.user.id} asRefereeMode={!!profile?.is_referee} />
                   </div>
                 ))}

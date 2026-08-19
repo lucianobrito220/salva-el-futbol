@@ -14,6 +14,7 @@ export default function Avatar({
   size?: number;
 }) {
   const [open, setOpen] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   return (
     <>
@@ -25,14 +26,21 @@ export default function Avatar({
             setOpen(true);
           }
         }}
-        className="press-fx relative flex-shrink-0 overflow-hidden rounded-full"
+        className="press-fx relative flex-shrink-0 overflow-hidden rounded-full ring-2 ring-brand/20"
         style={{ width: size, height: size }}
       >
         {url ? (
-          <Image src={url} alt={name} fill className="object-cover" sizes={`${size}px`} />
+          <Image 
+            src={url} 
+            alt={name} 
+            fill 
+            className={`object-cover transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`} 
+            sizes={`${size}px`}
+            onLoad={() => setLoaded(true)} 
+          />
         ) : (
           <div
-            className="flex h-full w-full items-center justify-center rounded-full bg-brand-pale font-display font-bold text-brand-dark"
+            className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-dark font-display font-bold text-white"
             style={{ fontSize: size * 0.4 }}
           >
             {name.charAt(0)}

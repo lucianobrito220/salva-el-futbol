@@ -68,13 +68,13 @@ export default function EmptyState({
 }) {
   const Illustration = illustrations[icon];
   return (
-    <div className="fade-slide-up flex flex-col items-center gap-3 rounded-3xl bg-gradient-to-b from-neutral-50 to-white px-8 py-12 text-center">
-      <div className="flex flex-col items-center gap-1.5">
+    <div className="slide-up-sm flex flex-col items-center gap-3 rounded-3xl bg-neutral-50/50 px-8 py-12 text-center">
+      <div className={`flex flex-col items-center gap-1.5 ${icon === 'ball' ? 'icon-bounce' : ''}`}>
         <Illustration />
         <span className="text-sm select-none" aria-hidden="true">✨</span>
       </div>
       <div>
-        <p className="text-[15px] font-bold text-ink">{title}</p>
+        <p className="text-[15px] font-semibold text-ink">{title}</p>
         {subtitle && <p className="mt-1 text-[13px] text-inksoft/80">{subtitle}</p>}
       </div>
     </div>

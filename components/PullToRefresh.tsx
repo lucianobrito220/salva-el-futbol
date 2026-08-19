@@ -1,6 +1,5 @@
 'use client';
 import { useState, useRef, useEffect, ReactNode } from 'react';
-import { Loader2 } from 'lucide-react';
 
 export default function PullToRefresh({ children, onRefresh }: { children: ReactNode, onRefresh: () => Promise<void> }) {
   const [startY, setStartY] = useState(0);
@@ -14,7 +13,10 @@ export default function PullToRefresh({ children, onRefresh }: { children: React
   }, []);
 
   const pullDistance = Math.max(0, currentY - startY);
-  const height = Math.min(pullDistance * 0.4, maxPull); // add friction
+  // Smooth elastic feel on the pull distance
+  const height = pullDistance < maxPull 
+    ? pullDistance * 0.4 
+    : (maxPull * 0.4) + (pullDistance - maxPull) * 0.1;
   const isReady = height >= 60;
 
   function handleTouchStart(e: React.TouchEvent) {
@@ -68,9 +70,9 @@ export default function PullToRefresh({ children, onRefresh }: { children: React
           transform: `translateY(${refreshing ? 10 : (startY > 0 ? height - 50 : -50)}px)`
         }}
       >
-        <div className={`flex h-11 w-11 items-center justify-center rounded-full bg-brand shadow-[0_8px_24px_rgba(30,158,74,0.4)] text-white ${refreshing ? 'animate-spin' : ''}`}
+        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white dark:bg-[#25282F] shadow-card"
              style={{ transform: refreshing ? 'none' : `rotate(${Math.min(height * 4, 360)}deg)` }}>
-          <Loader2 size={22} className="text-white" />
+          <div className="h-6 w-6 rounded-full border-2 border-brand border-t-transparent animate-spin" />
         </div>
       </div>
       

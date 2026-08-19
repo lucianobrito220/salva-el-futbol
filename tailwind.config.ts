@@ -25,11 +25,21 @@ const config: Config = {
         bg: '#F4F5F7',
       },
       fontFamily: {
-        display: ['Plus Jakarta Sans', 'sans-serif'],
-        body: ['Plus Jakarta Sans', 'sans-serif'],
+        display: ['Outfit', 'sans-serif'],
+        body: ['Outfit', 'sans-serif'],
       },
       borderRadius: {
         xl2: '18px',
+      },
+      boxShadow: {
+        'card': '0 2px 12px -2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04)',
+        'card-hover': '0 8px 28px -4px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.06)',
+        'glow-brand': '0 4px 20px -4px rgba(30, 158, 74, 0.35)',
+        'glow-brand-lg': '0 8px 32px -4px rgba(30, 158, 74, 0.45)',
+        'inner-brand': 'inset 0 1px 2px rgba(30, 158, 74, 0.1)',
+      },
+      transitionDuration: {
+        DEFAULT: '200ms',
       },
     },
   },

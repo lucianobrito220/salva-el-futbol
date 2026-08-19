@@ -12,11 +12,11 @@ export default function PageTransition({ children }: { children: React.ReactNode
   }, []);
 
   if (!mounted) {
-    return <div className="w-full h-full flex-1 flex flex-col">{children}</div>;
+    return <>{children}</>;
   }
 
   return (
-    <div key={pathname} className="page-transition w-full flex-1 flex flex-col">
+    <div key={pathname} className="page-transition">
       {children}
     </div>
   );

@@ -194,7 +194,7 @@ export default function PerfilPage() {
   return (
     <div className="pb-10">
       {/* Top Background & Gamified Avatar */}
-      <div className="relative rounded-b-[40px] bg-gradient-to-b from-brand-dark to-brand pb-8 pt-14 text-center shadow-lg">
+      <div className="relative rounded-b-[40px] bg-gradient-to-b from-brand-dark to-brand pb-8 pt-14 text-center shadow-lg slide-up-sm stagger-1">
         <button 
           onClick={() => {
             if (navigator.share) {
@@ -205,7 +205,7 @@ export default function PerfilPage() {
               }).catch(() => {});
             }
           }}
-          className="absolute right-5 top-5 press-fx text-white/80 hover:text-white"
+          className="absolute right-5 top-5 press-fx text-white/80 hover:text-white transition"
           aria-label="Compartir app"
         >
           <Share2 size={22} />
@@ -222,13 +222,13 @@ export default function PerfilPage() {
           const strokeDashoffset = 283 - (283 * progress) / 100; // 2 * PI * R (r=45) = ~283
 
           return (
-            <div className="relative mx-auto mb-4 h-28 w-28">
+            <div className="relative mx-auto mb-4 h-28 w-28 scale-in-sm">
               {/* Circular Progress Ring */}
               <svg className="absolute -inset-1 h-[120px] w-[120px] -rotate-90 drop-shadow-md">
                 <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="6" />
                 <circle cx="60" cy="60" r="45" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" 
                   strokeDasharray="283" strokeDashoffset={strokeDashoffset} 
-                  className="transition-all duration-1000 ease-out" />
+                  className="transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)]" />
               </svg>
 
               <div className="absolute inset-0 flex items-center justify-center rounded-full bg-brand-dark p-1">
@@ -236,7 +236,7 @@ export default function PerfilPage() {
               </div>
 
               {/* Rank Badge */}
-              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-3 py-1 shadow-md border border-brand/20">
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-3 py-1 shadow-md border border-brand/20 scale-in-sm">
                 <span className="font-display text-[10px] font-extrabold uppercase text-brand-dark flex items-center gap-1">
                   {rank === 'Leyenda' ? '👑' : rank === 'Titular' ? '⭐' : '🌱'} {rank}
                 </span>
@@ -262,17 +262,17 @@ export default function PerfilPage() {
             <input
               value={nameDraft}
               onChange={(e) => setNameDraft(e.target.value)}
-              className="flex-1 rounded-lg border border-white/30 bg-white/10 px-3 py-1.5 text-center text-sm font-bold text-white placeholder-white/50"
+              className="flex-1 rounded-xl border border-line bg-white/10 px-3 py-1.5 text-center text-sm font-bold text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-brand transition"
               placeholder="Nombre"
             />
             <input
               value={ageDraft}
               onChange={(e) => setAgeDraft(e.target.value.replace(/[^0-9]/g, ''))}
-              className="w-16 rounded-lg border border-white/30 bg-white/10 px-2 py-1.5 text-center text-sm font-bold text-white placeholder-white/50"
+              className="w-16 rounded-xl border border-line bg-white/10 px-2 py-1.5 text-center text-sm font-bold text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-brand transition"
               placeholder="Edad"
               maxLength={2}
             />
-            <button onClick={saveName} disabled={savingProfile} className="press-fx flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white text-brand-dark">
+            <button onClick={saveName} disabled={savingProfile} className="press-fx flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white text-brand-dark shadow-sm">
               <Check size={16} />
             </button>
           </div>
@@ -280,44 +280,45 @@ export default function PerfilPage() {
           <h2 className="flex items-center justify-center gap-1.5 font-display text-lg font-extrabold text-white">
             {profile.name}
             {profile.age ? <span className="font-body text-sm font-medium text-white/70">· {profile.age} años</span> : null}
-            <button onClick={() => setEditing(true)} className="press-fx text-white/70">
+            <button onClick={() => setEditing(true)} className="press-fx text-white/70 transition hover:text-white">
               <Pencil size={13} />
             </button>
           </h2>
         )}
 
         <div className="mt-2 text-[12px] font-bold text-white/90">
-          <Link href="/perfil/salvapuntos" className="hover:underline flex items-center justify-center gap-1.5">
+          <Link href="/perfil/salvapuntos" className="hover:underline flex items-center justify-center gap-1.5 press-fx">
             <Shield size={14} className="text-white" />
-            SalvaPuntos: <span className="text-white font-extrabold bg-white/20 px-2 py-0.5 rounded-full">{profile.salvapuntos || 0}</span>
+            SalvaPuntos: <span className="text-white font-extrabold bg-white/20 px-2 py-0.5 rounded-full count-pulse">{profile.salvapuntos || 0}</span>
           </Link>
         </div>
         <p className="mb-5 mt-3 text-[13px] text-white/70">{profile.position || 'Jugador'} · {profile.city || 'Sin ciudad'}</p>
-        <div className="flex justify-center">
+        
+        <div className="flex justify-center gap-2 px-5 mt-5">
           <Stat label="Jugados" value={profile.played_count} />
           <Stat label="Calificación" value={profile.rating || '—'} />
-          <Stat label="Desde" value={new Date(profile.member_since).getFullYear()} last />
+          <Stat label="Desde" value={new Date(profile.member_since).getFullYear()} />
         </div>
 
         {(profile.played_count >= 5 || mine.filter((m) => m.status !== 'cancelled').length >= 5) && (
-          <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+          <div className="mt-4 flex flex-wrap justify-center gap-1.5 px-4">
             {profile.played_count >= 5 && (
-              <span className="flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[10.5px] font-bold text-white">
+              <span className="flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[10.5px] font-bold text-white shadow-sm scale-in-sm">
                 <Award size={12} /> Jugador regular
               </span>
             )}
             {profile.played_count >= 20 && (
-              <span className="flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[10.5px] font-bold text-white">
+              <span className="flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[10.5px] font-bold text-white shadow-sm scale-in-sm">
                 <Award size={12} /> Veterano
               </span>
             )}
             {mine.filter((m) => m.status !== 'cancelled').length >= 5 && (
-              <span className="flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[10.5px] font-bold text-white">
+              <span className="flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[10.5px] font-bold text-white shadow-sm scale-in-sm">
                 <Shield size={12} /> Organizador confiable
               </span>
             )}
             {profile.is_referee && (
-              <span className="flex items-center gap-1 rounded-full bg-yellow-500/80 px-2.5 py-1 text-[10.5px] font-bold text-white">
+              <span className="flex items-center gap-1 rounded-full bg-yellow-500/80 px-2.5 py-1 text-[10.5px] font-bold text-white shadow-sm scale-in-sm">
                 <Award size={12} /> Árbitro
               </span>
             )}
@@ -326,33 +327,33 @@ export default function PerfilPage() {
       </div>
 
       {/* SALVAPUNTOS (FASE 3) */}
-      <div className="px-5 pt-6">
-        <Link href="/perfil/salvapuntos" className="press-fx relative flex flex-1 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-dark to-brand p-5 shadow-lg">
+      <div className="px-5 pt-6 slide-up-sm stagger-2">
+        <Link href="/perfil/salvapuntos" className="press-fx relative flex flex-1 overflow-hidden shadow-card hover:shadow-card-hover rounded-2xl bg-gradient-to-br from-brand-dark to-brand p-5 transition">
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-1">
               <Gift size={16} className="text-yellow-400" />
               <h3 className="font-display text-sm font-extrabold text-white uppercase tracking-wider">SalvaPuntos</h3>
             </div>
-            <span className="text-4xl font-black text-white">{profile.salvapuntos || 0}</span>
+            <span className="text-4xl font-black text-white count-pulse">{profile.salvapuntos || 0}</span>
           </div>
           <Gift size={80} className="absolute -bottom-4 -right-4 text-white/10" strokeWidth={1.5} />
         </Link>
       </div>
 
       {/* DISCIPLINA (FASE 3) */}
-      <div className="px-5 pt-6">
-        <h2 className="mb-3 font-display text-[15.5px] font-extrabold">Disciplina</h2>
-        <div className="overflow-hidden rounded-2xl border border-line bg-white">
+      <div className="px-5 pt-6 slide-up-sm stagger-3">
+        <h2 className="mb-3 font-display text-[15.5px] font-extrabold text-ink dark:text-white">Disciplina</h2>
+        <div className="overflow-hidden shadow-card hover:shadow-card-hover rounded-2xl bg-white dark:bg-charcoal transition p-2">
           <div className="flex items-center justify-between border-b border-line px-4 py-3 text-sm">
-            <span className="flex items-center gap-2"><div className="w-3 h-4 bg-yellow-400 rounded-sm"></div> Tarjetas Amarillas</span>
-            <span className="font-bold">{profile.yellow_cards || 0}</span>
+            <span className="flex items-center gap-2"><div className="w-3 h-4 bg-yellow-400 rounded-sm shadow-sm"></div> Tarjetas Amarillas</span>
+            <span className="font-bold count-pulse text-ink dark:text-white">{profile.yellow_cards || 0}</span>
           </div>
           <div className="flex items-center justify-between border-b border-line px-4 py-3 text-sm">
-            <span className="flex items-center gap-2"><div className="w-3 h-4 bg-red-500 rounded-sm"></div> Tarjetas Rojas</span>
-            <span className="font-bold">{profile.red_cards || 0}</span>
+            <span className="flex items-center gap-2"><div className="w-3 h-4 bg-red-500 rounded-sm shadow-sm"></div> Tarjetas Rojas</span>
+            <span className="font-bold count-pulse text-ink dark:text-white">{profile.red_cards || 0}</span>
           </div>
           {profile.suspended_until && new Date(profile.suspended_until) > new Date() && (
-            <div className="flex items-center justify-between px-4 py-3 text-sm bg-red-50 text-red-700">
+            <div className="flex items-center justify-between px-4 py-3 text-sm bg-red-50 text-red-700 rounded-xl mt-2">
               <span className="font-bold">Suspendido hasta</span>
               <span className="font-bold">{new Date(profile.suspended_until).toLocaleDateString()}</span>
             </div>
@@ -361,33 +362,33 @@ export default function PerfilPage() {
         <p className="mt-2 text-[11px] text-inksoft">Acumular tarjetas rojas o faltar sin avisar puede derivar en suspensiones.</p>
       </div>
 
-      <div className="px-5 pt-5">
-        <div className="rounded-2xl border border-line bg-white p-4">
-          <h3 className="mb-1 font-display text-sm font-bold">Tu WhatsApp</h3>
+      <div className="px-5 pt-5 slide-up-sm stagger-4">
+        <div className="shadow-card hover:shadow-card-hover rounded-2xl bg-white dark:bg-charcoal p-4 transition">
+          <h3 className="mb-1 font-display text-sm font-bold text-ink dark:text-white">Tu WhatsApp</h3>
           <p className="mb-3 text-[11px] text-inksoft">
             Opcional. No lo validamos por SMS, solo lo guardamos para que otros usuarios te puedan contactar
             por WhatsApp una vez que aceptás o te aceptan en un partido. Nunca se muestra públicamente.
           </p>
           <div className="flex gap-2">
             <input
-              className="flex-1 rounded-xl border border-line px-3.5 py-2.5 text-sm"
+              className="flex-1 rounded-xl border border-line px-3.5 py-2.5 text-sm bg-transparent text-ink dark:text-white focus:outline-none focus:ring-2 focus:ring-brand transition"
               placeholder="+5493815551234"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
             />
-            <button onClick={savePhone} className="press-fx rounded-xl bg-brand px-4 text-sm font-bold text-white">
+            <button onClick={savePhone} className="press-fx rounded-xl bg-brand px-4 text-sm font-bold text-white shadow-md">
               Guardar
             </button>
           </div>
           {phoneMsg && <p className="mt-2 text-xs font-medium text-inksoft">{phoneMsg}</p>}
-          {phoneSaved && !phoneMsg && <p className="mt-2 text-xs font-medium text-brand-dark">WhatsApp cargado ✓</p>}
+          {phoneSaved && !phoneMsg && <p className="mt-2 text-xs font-medium text-brand">WhatsApp cargado ✓</p>}
         </div>
       </div>
 
-      <div className="space-y-2.5 px-5 pt-4">
+      <div className="space-y-2.5 px-5 pt-4 slide-up-sm stagger-5">
         <button
           onClick={handleEnablePush}
-          className="press-fx flex w-full items-center justify-center gap-2 rounded-2xl border border-line bg-white py-3.5 text-sm font-bold text-brand-dark"
+          className="press-fx shadow-card hover:shadow-card-hover flex w-full items-center justify-center gap-2 rounded-2xl bg-white dark:bg-charcoal py-3.5 text-sm font-bold text-brand-dark dark:text-white transition"
         >
           <Bell size={17} /> Activar notificaciones push
         </button>
@@ -395,30 +396,32 @@ export default function PerfilPage() {
 
         <button
           onClick={toggle}
-          className="press-fx flex w-full items-center justify-between rounded-2xl border border-line bg-white px-4 py-3.5 text-sm font-bold"
+          className="press-fx shadow-card hover:shadow-card-hover flex w-full items-center justify-between rounded-2xl bg-white dark:bg-charcoal px-4 py-3.5 text-sm font-bold transition"
         >
-          <span className="flex items-center gap-2 text-brand-dark">
+          <span className="flex items-center gap-2 text-brand-dark dark:text-white">
             <Moon size={17} /> Modo oscuro
           </span>
-          <span className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors ${dark ? 'bg-brand' : 'bg-neutral-200'}`}>
-            <span className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${dark ? 'translate-x-5' : 'translate-x-0'}`} />
+          <span className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors duration-300 ${dark ? 'bg-brand' : 'bg-neutral-200 dark:bg-neutral-700'}`}>
+            <span className={`h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${dark ? 'translate-x-5 scale-100' : 'translate-x-0 scale-95'}`} />
           </span>
         </button>
 
-        <InstallAppButton />
+        <div className="shadow-card hover:shadow-card-hover rounded-2xl transition overflow-hidden">
+          <InstallAppButton />
+        </div>
       </div>
 
-      <div className="px-5 pt-6">
+      <div className="px-5 pt-6 slide-up-sm stagger-6">
         <button 
           onClick={() => setIsActivityExpanded(!isActivityExpanded)}
-          className="press-fx flex w-full items-center justify-between font-display text-[15.5px] font-extrabold"
+          className="press-fx flex w-full items-center justify-between font-display text-[15.5px] font-extrabold text-ink dark:text-white"
         >
-          <span className="flex items-center gap-1.5"><Activity size={16} className="text-brand-dark" /> Mi actividad</span>
-          {isActivityExpanded ? <ChevronUp size={20} className="text-inksoft" /> : <ChevronDown size={20} className="text-inksoft" />}
+          <span className="flex items-center gap-1.5"><Activity size={16} className="text-brand-dark dark:text-brand" /> Mi actividad</span>
+          {isActivityExpanded ? <ChevronUp size={20} className="text-inksoft transition" /> : <ChevronDown size={20} className="text-inksoft transition" />}
         </button>
         
         {isActivityExpanded && (
-          <div className="mt-3">
+          <div className="mt-3 scale-in-sm">
             {(() => {
               const now = new Date();
               const combined = [
@@ -434,7 +437,7 @@ export default function PerfilPage() {
 
               if (combined.length === 0) {
                 return (
-                  <div className="rounded-2xl border border-line bg-white p-4">
+                  <div className="shadow-card rounded-2xl bg-white dark:bg-charcoal p-4 transition">
                     <p className="text-sm text-inksoft">Todavía no organizaste ni jugaste ningún partido.</p>
                   </div>
                 );
@@ -445,7 +448,7 @@ export default function PerfilPage() {
                   {upcoming.length > 0 && (
                     <>
                       <p className="mb-1.5 text-xs font-bold text-inksoft">Próximos</p>
-                      <div className="mb-4 overflow-hidden rounded-2xl border border-line bg-white">
+                      <div className="mb-4 overflow-hidden shadow-card rounded-2xl bg-white dark:bg-charcoal transition p-2">
                         {upcoming.map((a) => (
                           <ActivityRow key={`${a.role}-${a.match.id}`} activity={a} onClick={() => router.push(`/partido/${a.match.id}`)} />
                         ))}
@@ -455,7 +458,7 @@ export default function PerfilPage() {
                   {past.length > 0 && (
                     <>
                       <p className="mb-1.5 text-xs font-bold text-inksoft">Jugados</p>
-                      <div className="overflow-hidden rounded-2xl border border-line bg-white">
+                      <div className="overflow-hidden shadow-card rounded-2xl bg-white dark:bg-charcoal transition p-2">
                         {past.map((a) => (
                           <ActivityRow key={`${a.role}-${a.match.id}`} activity={a} onClick={() => router.push(`/partido/${a.match.id}`)} />
                         ))}
@@ -470,27 +473,27 @@ export default function PerfilPage() {
       </div>
 
       {showRefConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
-            <div className="mb-4 flex items-center justify-center text-yellow-500">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm modal-backdrop-in">
+          <div className="w-full max-w-sm rounded-3xl bg-white dark:bg-charcoal p-6 shadow-2xl modal-enter">
+            <div className="mb-4 flex items-center justify-center text-yellow-500 icon-bounce">
               <AlertCircle size={48} />
             </div>
-            <h3 className="mb-2 text-center font-display text-xl font-bold">¿Estás seguro?</h3>
+            <h3 className="mb-2 text-center font-display text-xl font-bold text-ink dark:text-white">¿Estás seguro?</h3>
             <p className="mb-6 text-center text-sm text-inksoft">
               ¿Querés {profile.is_referee ? 'desactivar' : 'activar'} tu modo Árbitro?
               <br/><br/>
-              <span className="font-bold text-ink">Tené en cuenta que una vez realizado el cambio, deberás esperar 24 horas para poder volver a modificarlo.</span> Esto evita que haya perfiles de prueba inactivos.
+              <span className="font-bold text-ink dark:text-white">Tené en cuenta que una vez realizado el cambio, deberás esperar 24 horas para poder volver a modificarlo.</span> Esto evita que haya perfiles de prueba inactivos.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowRefConfirm(false)}
-                className="press-fx flex-1 rounded-xl bg-neutral-100 py-3.5 font-bold text-ink hover:bg-neutral-200"
+                className="press-fx flex-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 py-3.5 font-bold text-ink dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
               >
                 No, cancelar
               </button>
               <button
                 onClick={executeToggleReferee}
-                className="press-fx flex-1 rounded-xl bg-yellow-500 py-3.5 font-bold text-yellow-950 shadow-md"
+                className="press-fx flex-1 rounded-xl bg-yellow-500 py-3.5 font-bold text-yellow-950 shadow-md hover:bg-yellow-400 transition"
               >
                 Sí, confirmar
               </button>
@@ -499,32 +502,32 @@ export default function PerfilPage() {
         </div>
       )}
 
-      <div className="px-5 pt-6">
-        <h2 className="mb-3 font-display text-[15.5px] font-extrabold">Modo Árbitro</h2>
-        <div className="overflow-hidden rounded-2xl border border-line bg-white p-4">
+      <div className="px-5 pt-6 slide-up-sm stagger-7">
+        <h2 className="mb-3 font-display text-[15.5px] font-extrabold text-ink dark:text-white">Modo Árbitro</h2>
+        <div className="overflow-hidden shadow-card hover:shadow-card-hover rounded-2xl bg-white dark:bg-charcoal p-4 transition">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <div className="font-bold text-ink">Soy Árbitro Oficial</div>
+              <div className="font-bold text-ink dark:text-white">Soy Árbitro Oficial</div>
               <div className="text-xs text-inksoft max-w-[200px]">Activá esto para acceder a la bolsa de trabajo y arbitrar partidos.</div>
             </div>
             <button
               type="button"
               disabled={!canToggleReferee || togglingReferee}
               onClick={toggleRefereeStatus}
-              className={`relative h-7 w-12 rounded-full transition-colors ${profile.is_referee ? 'bg-brand' : 'bg-neutral-200'} ${!canToggleReferee ? 'opacity-50' : ''}`}
+              className={`relative h-7 w-12 rounded-full transition-colors duration-300 ${profile.is_referee ? 'bg-brand' : 'bg-neutral-200 dark:bg-neutral-700'} ${!canToggleReferee ? 'opacity-50' : ''}`}
             >
-              <span className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition-transform ${profile.is_referee ? 'translate-x-5' : 'translate-x-0'}`} />
+              <span className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${profile.is_referee ? 'translate-x-5 scale-100' : 'translate-x-0 scale-95'}`} />
             </button>
           </div>
           {!canToggleReferee && (
-            <div className="mt-2 text-xs font-bold text-yellow-600 bg-yellow-50 p-2 rounded-lg">
+            <div className="mt-2 text-xs font-bold text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400 p-2 rounded-lg">
               Podrás volver a cambiar de rol en {Math.ceil(refereeCooldown)} hora(s) (por seguridad).
             </div>
           )}
           {profile.is_referee && (
             <button
               onClick={() => router.push('/')}
-              className="mt-3 press-fx flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3 text-sm font-bold text-white shadow-sm"
+              className="mt-3 press-fx flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3 text-sm font-bold text-white shadow-sm hover:shadow-md transition"
             >
               Ir al Inicio (Bolsa de Árbitros)
             </button>
@@ -532,9 +535,9 @@ export default function PerfilPage() {
         </div>
       </div>
 
-      <div className="px-5 pt-6">
-        <h2 className="mb-3 font-display text-[15.5px] font-extrabold">Reputación</h2>
-        <div className="overflow-hidden rounded-2xl border border-line bg-white">
+      <div className="px-5 pt-6 slide-up-sm stagger-8">
+        <h2 className="mb-3 font-display text-[15.5px] font-extrabold text-ink dark:text-white">Reputación</h2>
+        <div className="overflow-hidden shadow-card hover:shadow-card-hover rounded-2xl bg-white dark:bg-charcoal transition p-2">
           <RepRow label="Puntualidad" value={profile.punctuality} />
           <RepRow label="Asistencia" value={profile.attendance} />
           <RepRow label="Respeto" value={profile.respect} />
@@ -542,39 +545,39 @@ export default function PerfilPage() {
         <p className="mt-2 text-[11px] text-inksoft">La reputación se basa en puntualidad, asistencia y respeto — nunca en nivel futbolístico.</p>
       </div>
 
-      <div className="px-5 pt-6">
+      <div className="px-5 pt-6 slide-up-sm stagger-8">
         <a
           href="https://link.mercadopago.com.ar/salvaelfutbol"
           target="_blank"
           rel="noreferrer"
-          className="press-fx flex w-full items-center justify-center gap-2 rounded-2xl bg-[#00B1EA] py-3.5 text-sm font-bold text-white"
+          className="press-fx shadow-card hover:shadow-card-hover flex w-full items-center justify-center gap-2 rounded-2xl bg-[#00B1EA] py-3.5 text-sm font-bold text-white transition hover:-translate-y-0.5"
         >
           ¿Te salvamos el fútbol? ¡Tiranos un centro! 😉
         </a>
         <p className="mt-2 text-center text-[11px] text-inksoft">Te lleva a Mercado Pago, fuera de la app.</p>
       </div>
 
-      <div className="px-5 pt-6">
-        <div className="overflow-hidden rounded-2xl border border-line bg-white">
+      <div className="px-5 pt-6 slide-up-sm stagger-8">
+        <div className="overflow-hidden shadow-card hover:shadow-card-hover rounded-2xl bg-white dark:bg-charcoal transition">
           <button
             onClick={() => router.push('/ayuda')}
-            className="press-fx flex w-full items-center justify-between border-b border-line px-4 py-3.5 text-left text-sm font-semibold"
+            className="press-fx lift-fx flex w-full items-center justify-between border-b border-line px-4 py-3.5 text-left text-sm font-semibold text-inksoft hover:text-brand transition"
           >
-            <span className="flex items-center gap-2"><HelpCircle size={16} className="text-brand-dark" /> Centro de ayuda</span>
-            <ChevronRight size={16} className="text-inksoft" />
+            <span className="flex items-center gap-2"><HelpCircle size={16} className="text-brand-dark dark:text-brand" /> Centro de ayuda</span>
+            <ChevronRight size={16} />
           </button>
           <button
             onClick={() => router.push('/terminos')}
-            className="press-fx flex w-full items-center justify-between px-4 py-3.5 text-left text-sm font-semibold"
+            className="press-fx lift-fx flex w-full items-center justify-between px-4 py-3.5 text-left text-sm font-semibold text-inksoft hover:text-brand transition"
           >
-            <span className="flex items-center gap-2"><FileText size={16} className="text-brand-dark" /> Términos y condiciones</span>
-            <ChevronRight size={16} className="text-inksoft" />
+            <span className="flex items-center gap-2"><FileText size={16} className="text-brand-dark dark:text-brand" /> Términos y condiciones</span>
+            <ChevronRight size={16} />
           </button>
         </div>
       </div>
 
-      <div className="px-5 pt-6">
-        <button onClick={() => signOut()} className="press-fx flex w-full items-center justify-center gap-2 rounded-2xl border border-line py-3.5 text-sm font-bold text-red-600">
+      <div className="px-5 pt-6 slide-up-sm stagger-8">
+        <button onClick={() => signOut()} className="press-fx shadow-card hover:shadow-card-hover flex w-full items-center justify-center gap-2 rounded-2xl bg-white dark:bg-charcoal py-3.5 text-sm font-bold text-red-600 transition">
           <LogOut size={16} /> Cerrar sesión
         </button>
       </div>
@@ -595,30 +598,31 @@ function ActivityRow({
   return (
     <button
       onClick={onClick}
-      className="press-fx flex w-full items-center justify-between border-b border-line px-4 py-3 text-left text-sm last:border-0"
+      className="press-fx flex w-full items-center justify-between border-b border-line px-4 py-3 text-left text-sm last:border-0 text-ink dark:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800 transition"
     >
       <span>
-        <span className="mr-1.5 rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-bold text-inksoft">{role}</span>
+        <span className="mr-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 text-[10px] font-bold text-inksoft">{role}</span>
         {match.zone} · {match.match_date} {match.match_time.slice(0, 5)}
       </span>
-      <span className="rounded-full bg-brand-pale px-2.5 py-1 text-[11px] font-bold text-brand-dark">{statusLabel}</span>
+      <span className="rounded-full bg-brand-pale dark:bg-brand/20 px-2.5 py-1 text-[11px] font-bold text-brand-dark dark:text-brand">{statusLabel}</span>
     </button>
   );
 }
 
-function Stat({ label, value, last }: { label: string; value: string | number; last?: boolean }) {
+function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className={`px-3 ${!last ? 'border-r border-white/20' : ''}`}>
-      <b className="block font-display text-[17px] text-white">{value}</b>
-      <span className="text-[10.5px] text-white/65">{label}</span>
+    <div className="shadow-card rounded-2xl bg-white dark:bg-charcoal p-3 mx-1 flex-1 transition hover:shadow-card-hover">
+      <b className="block font-display text-[17px] text-brand-dark dark:text-white count-pulse">{value}</b>
+      <span className="text-[10.5px] text-inksoft">{label}</span>
     </div>
   );
 }
+
 function RepRow({ label, value }: { label: string; value: number }) {
   return (
-    <div className="flex items-center justify-between border-b border-line px-4 py-3 text-sm last:border-0">
+    <div className="flex items-center justify-between border-b border-line px-4 py-3 text-sm last:border-0 text-ink dark:text-white">
       <span>{label}</span>
-      <span className="rounded-full bg-brand-pale px-2.5 py-1 text-xs font-bold text-brand-dark">{value ? `${value} ★` : 'Sin datos'}</span>
+      <span className="rounded-full bg-brand-pale dark:bg-brand/20 px-2.5 py-1 text-xs font-bold text-brand-dark dark:text-brand count-pulse">{value ? `${value} ★` : 'Sin datos'}</span>
     </div>
   );
 }

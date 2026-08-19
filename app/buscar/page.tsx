@@ -138,44 +138,44 @@ export default function BuscarPage() {
 
   return (
     <div>
-      <div className="relative overflow-hidden px-5 pb-5 pt-6 text-white">
+      <div className="relative overflow-hidden px-5 pb-5 pt-6 text-white dark:text-neutral-100">
         <PhotoHero />
         <div className="relative z-10 px-5 pt-8 text-center">
           <h1 className="mb-1 font-display text-lg font-extrabold shadow-black drop-shadow-md">Buscar partidos</h1>
-          <p className="mb-4 text-sm text-white/90 shadow-black drop-shadow-md">Sumate a jugar con otros equipos.</p>
+          <p className="mb-4 text-sm text-white/90 dark:text-white/80 shadow-black drop-shadow-md">Sumate a jugar con otros equipos.</p>
         </div>
         <div className="relative z-10 mt-4 flex gap-3 px-2">
-          <Link href="/equipos" className="press-fx flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/20 py-2.5 text-sm font-bold backdrop-blur-md border border-white/30">
+          <Link href="/equipos" className="press-fx lift-fx shadow-card flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/20 dark:bg-black/20 py-2.5 text-sm font-bold backdrop-blur-md border border-white/30 dark:border-white/10">
             <Users size={16} /> Equipos
           </Link>
-          <Link href="/torneos" className="press-fx flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/20 py-2.5 text-sm font-bold backdrop-blur-md border border-white/30">
+          <Link href="/torneos" className="press-fx lift-fx shadow-card flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/20 dark:bg-black/20 py-2.5 text-sm font-bold backdrop-blur-md border border-white/30 dark:border-white/10">
             <Trophy size={16} /> Torneos
           </Link>
         </div>
       </div>
 
-      <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-line bg-white/85 px-5 py-3 backdrop-blur-md">
+      <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-line bg-white/85 px-5 py-3 backdrop-blur-md dark:bg-[#121212]/85">
         <button
           onClick={useMyLocation}
           disabled={locating}
-          className="press-fx flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-neutral-100 text-ink"
+          className="press-fx flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-neutral-100 dark:bg-charcoal text-ink dark:text-neutral-200"
           title="Usar mi ubicación"
           aria-label="Usar mi ubicación"
         >
           {locating ? <Loader2 size={18} className="animate-spin" /> : <MapPin size={18} />}
         </button>
-        <div className="relative flex-1">
+        <div className="relative flex-1 rounded-2xl border border-line bg-white dark:bg-charcoal shadow-card transition-all duration-200 focus-within:ring-2 focus-within:ring-brand/20">
           <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-inksoft" />
           <input
             value={citySearch}
             onChange={(e) => setCitySearch(e.target.value)}
             placeholder="Buscar por ciudad, ej: Yerba Buena"
-            className="w-full rounded-2xl bg-neutral-100 py-2.5 pl-9 pr-3 text-sm"
+            className="w-full bg-transparent py-2.5 pl-9 pr-3 text-sm outline-none dark:text-neutral-100"
           />
         </div>
         <button
           onClick={() => setShowFilters(true)}
-          className="press-fx relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-neutral-100 text-ink"
+          className="press-fx relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-neutral-100 dark:bg-charcoal text-ink dark:text-neutral-200"
           aria-label="Abrir filtros"
         >
           <SlidersHorizontal size={18} />
@@ -188,22 +188,22 @@ export default function BuscarPage() {
       </div>
 
       {/* Filtros rápidos horizontales */}
-      <div className="flex gap-2 overflow-x-auto border-b border-line bg-white px-5 py-3 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <div className="flex gap-2 overflow-x-auto border-b border-line bg-white dark:bg-[#121212] px-5 py-3 snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         <style dangerouslySetInnerHTML={{__html: `::-webkit-scrollbar { display: none; }`}} />
         
         {/* Distancia */}
         <button
           onClick={() => setDistanceFilter(distanceFilter === '< 5km' ? '' : '< 5km')}
-          className={`press-fx flex flex-shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-semibold snap-start transition-colors ${
-            distanceFilter === '< 5km' ? 'border-brand bg-brand-pale text-brand-dark' : 'border-line bg-neutral-50 text-inksoft hover:bg-neutral-100'
+          className={`press-fx flex flex-shrink-0 items-center gap-1.5 snap-start transition-all duration-200 ${
+            distanceFilter === '< 5km' ? 'bg-brand text-white shadow-glow-brand rounded-full px-4 py-2 text-[13px] font-medium' : 'bg-neutral-100 dark:bg-charcoal text-inksoft rounded-full px-4 py-2 text-[13px] font-medium hover:bg-neutral-200 dark:hover:bg-neutral-800'
           }`}
         >
           📍 {'< 5km'}
         </button>
         <button
           onClick={() => setDistanceFilter(distanceFilter === '< 10km' ? '' : '< 10km')}
-          className={`press-fx flex flex-shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-semibold snap-start transition-colors ${
-            distanceFilter === '< 10km' ? 'border-brand bg-brand-pale text-brand-dark' : 'border-line bg-neutral-50 text-inksoft hover:bg-neutral-100'
+          className={`press-fx flex flex-shrink-0 items-center gap-1.5 snap-start transition-all duration-200 ${
+            distanceFilter === '< 10km' ? 'bg-brand text-white shadow-glow-brand rounded-full px-4 py-2 text-[13px] font-medium' : 'bg-neutral-100 dark:bg-charcoal text-inksoft rounded-full px-4 py-2 text-[13px] font-medium hover:bg-neutral-200 dark:hover:bg-neutral-800'
           }`}
         >
           📍 {'< 10km'}
@@ -214,8 +214,8 @@ export default function BuscarPage() {
           <button
             key={format}
             onClick={() => setCourtFormat(courtFormat === format ? '' : format)}
-            className={`press-fx flex flex-shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-semibold snap-start transition-colors ${
-              courtFormat === format ? 'border-brand bg-brand-pale text-brand-dark' : 'border-line bg-neutral-50 text-inksoft hover:bg-neutral-100'
+            className={`press-fx flex flex-shrink-0 items-center gap-1.5 snap-start transition-all duration-200 ${
+              courtFormat === format ? 'bg-brand text-white shadow-glow-brand rounded-full px-4 py-2 text-[13px] font-medium' : 'bg-neutral-100 dark:bg-charcoal text-inksoft rounded-full px-4 py-2 text-[13px] font-medium hover:bg-neutral-200 dark:hover:bg-neutral-800'
             }`}
           >
             🏟️ {format}
@@ -243,7 +243,7 @@ export default function BuscarPage() {
         ) : (
           <div>
             {matches.map((m, i) => (
-              <div key={`${m.id}-${i}`} className="fade-slide-up" style={{ animationDelay: `${Math.min((i % PAGE_SIZE) * 0.05, 0.3)}s` }}>
+              <div key={`${m.id}-${i}`} className="slide-up-sm" style={{ animationDelay: `${i * 0.05}s` }}>
                 <MatchCard match={m} isMine={!!session && m.organizer_id === session.user.id} />
               </div>
             ))}
@@ -264,9 +264,9 @@ export default function BuscarPage() {
       <BottomNav />
 
       {showFilters && (
-        <div className="fixed inset-0 z-[80] flex items-end justify-center bg-ink/40 backdrop-blur-sm" onClick={() => setShowFilters(false)}>
+        <div className="fixed inset-0 z-[80] flex items-end justify-center bg-ink/40 backdrop-blur-sm modal-backdrop-in" onClick={() => setShowFilters(false)}>
           <div
-            className="w-full max-w-[440px] rounded-t-2xl bg-white p-6 pb-8 max-h-[85vh] overflow-y-auto"
+            className="w-full max-w-[440px] rounded-t-2xl bg-white dark:bg-[#121212] p-6 pb-8 max-h-[85vh] overflow-y-auto modal-enter"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
@@ -371,6 +371,11 @@ export default function BuscarPage() {
           padding: 11px 12px;
           font-size: 13.5px;
           background: white;
+        }
+        :global(.dark) .filter-input {
+          background: #252525;
+          border-color: #333;
+          color: white;
         }
       `}</style>
     </div>

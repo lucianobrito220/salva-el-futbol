@@ -161,7 +161,7 @@ export default function MatchCard({ match, isMine, asRefereeMode }: { match: Mat
   return (
     <Link
       href={href}
-      className={`press-fx lift-fx mb-4 block overflow-hidden rounded-[24px] border border-white/10 shadow-lg relative bg-black`}
+      className={`press-fx lift-fx blur-in mb-4 block overflow-hidden rounded-[24px] border border-white/10 shadow-card hover:shadow-card-hover relative bg-black`}
     >
       <div className="absolute inset-0 z-0">
         <Image 
@@ -177,7 +177,7 @@ export default function MatchCard({ match, isMine, asRefereeMode }: { match: Mat
       <div className="relative z-10 flex h-full flex-col p-4">
         {/* Top Badges */}
         <div className="flex justify-between items-start mb-auto pb-8">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2.5">
             {asRefereeMode && (
               <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wider bg-yellow-400 text-yellow-950 shadow-lg border border-yellow-300">
                 <span className="text-[13px]">🏁 🧑‍⚖️</span> SE BUSCA ÁRBITRO
@@ -194,7 +194,7 @@ export default function MatchCard({ match, isMine, asRefereeMode }: { match: Mat
             </span>
           </div>
 
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-end gap-2.5">
             <div className="bg-black/40 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-md border border-white/10 uppercase tracking-wide">
               {displayDate}
             </div>
@@ -207,11 +207,11 @@ export default function MatchCard({ match, isMine, asRefereeMode }: { match: Mat
         </div>
 
         {/* Bottom Content - Glassmorphism Card */}
-        <div className="mt-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 p-4 shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
+        <div className="mt-4 rounded-2xl bg-white/8 backdrop-blur-2xl border border-white/10 p-4 shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
           <div className="flex items-end justify-between mb-3 border-b border-white/10 pb-3">
             <div>
               <div className="flex items-baseline gap-2 mb-1">
-                <span className="font-display text-4xl font-black leading-none text-white drop-shadow-md">{match.match_time.slice(0, 5)}</span>
+                <span className="font-display text-[22px] font-bold leading-none text-white drop-shadow-md">{match.match_time.slice(0, 5)}</span>
                 <span className={`text-[12px] font-extrabold uppercase tracking-widest ${textCol} drop-shadow-sm`}>{match.gender}</span>
               </div>
               <p className="text-[13px] font-medium text-white/80 flex items-center gap-1.5">
@@ -229,7 +229,7 @@ export default function MatchCard({ match, isMine, asRefereeMode }: { match: Mat
 
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-1">
-              <p className="text-[15px] font-bold text-white truncate max-w-[180px] drop-shadow-sm">{match.court}</p>
+              <p className="text-[14px] font-semibold text-white truncate max-w-[180px] drop-shadow-sm">{match.court}</p>
               <div className="flex items-center gap-2">
                 <span className={`text-[11px] font-black uppercase tracking-wider ${textCol} drop-shadow-sm`}>{match.level}</span>
                 <span className="text-white/40 text-[10px]">•</span>

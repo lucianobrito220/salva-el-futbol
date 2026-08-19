@@ -23,11 +23,11 @@ export default function BottomNav() {
   if (activeIndex >= 2) activeIndex += 1; // Saltear el espacio del FAB para el indicador
 
   return (
-    <nav className="fixed bottom-0 left-1/2 z-30 w-full max-w-[440px] -translate-x-1/2 border-t border-line dark:border-white/[0.06] bg-white dark:bg-charcoal pb-[max(8px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+    <nav className="fixed bottom-0 left-1/2 z-30 w-full max-w-[440px] -translate-x-1/2 border-t border-line dark:border-white/[0.06] bg-white dark:bg-charcoal/90 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
       {/* Indicador deslizante (dividimos el ancho en 5 partes, 4 botones + 1 espacio) */}
       {activeIndex >= 0 && pathname !== '/publicar' && (
         <div
-          className="absolute top-0 h-[2px] rounded-full bg-brand transition-all duration-300 ease-out"
+          className="tab-indicator absolute top-0 h-[2px] rounded-full bg-brand transition-all duration-300 ease-out"
           style={{
             width: '20%',
             left: `${activeIndex * 20}%`,
@@ -46,13 +46,13 @@ export default function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`press-fx relative flex flex-col items-center gap-0.5 py-1 text-[10px] font-semibold transition-colors duration-200 w-[20%] ${
+              className={`press-fx relative flex flex-col items-center gap-0.5 py-1 text-[10px] tracking-wide font-semibold transition-colors duration-200 w-[20%] ${
                 isRightSide && i === 2 ? 'ml-[20%]' : '' // Hueco para el FAB
               } ${active ? 'text-brand' : 'text-inksoft dark:text-white/40'}`}
             >
               <span
                 className={`relative flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-200 ${
-                  active ? 'bg-brand/15' : ''
+                  active ? 'bg-brand/15 glow-brand-static icon-bounce' : ''
                 }`}
               >
                 <item.Icon size={20} strokeWidth={active ? 2.4 : 1.8} />
@@ -67,7 +67,7 @@ export default function BottomNav() {
           <Link
             href="/publicar"
             aria-label="Crear o armar partido"
-            className="press-fx flex h-[54px] w-[54px] items-center justify-center rounded-full bg-brand text-white shadow-[0_8px_24px_rgba(30,158,74,0.4)] transition-all hover:bg-brand-dark hover:scale-105 active:scale-95"
+            className="press-fx flex h-[54px] w-[54px] items-center justify-center rounded-full bg-brand text-white shadow-glow-brand-lg count-pulse transition-all hover:bg-brand-dark hover:scale-105 active:scale-95"
           >
             <Plus size={28} strokeWidth={2.5} />
           </Link>

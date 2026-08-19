@@ -2,7 +2,7 @@
 
 export default function SplashLoading() {
   return (
-    <div className="fixed inset-0 z-50 flex min-h-screen flex-col items-center justify-center bg-bg p-4 fade-in">
+    <div className="fixed inset-0 z-50 flex min-h-screen flex-col items-center justify-center bg-bg dark:bg-[#1A1C20] p-4 blur-in">
       <div className="flex flex-col items-center gap-3 text-center">
         <img
           src="/brand/logo.png"
@@ -12,11 +12,10 @@ export default function SplashLoading() {
         <p className="font-display text-base font-bold text-brand-dark">
           Salvá el Fútbol
         </p>
-        <div className="flex items-center justify-center pt-0.5">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-brand" />
-          </span>
+        <div className="flex items-center justify-center gap-1.5 pt-1">
+          <div className="h-2.5 w-2.5 animate-pulse rounded-full bg-brand stagger-1" />
+          <div className="h-2.5 w-2.5 animate-pulse rounded-full bg-brand stagger-2" />
+          <div className="h-2.5 w-2.5 animate-pulse rounded-full bg-brand stagger-3" />
         </div>
       </div>
     </div>
