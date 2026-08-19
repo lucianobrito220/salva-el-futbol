@@ -25,8 +25,8 @@ const config: Config = {
         bg: '#F4F5F7',
       },
       fontFamily: {
-        display: ['Outfit', 'sans-serif'],
-        body: ['Outfit', 'sans-serif'],
+        display: ['Inter', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
       },
       borderRadius: {
         xl2: '18px',

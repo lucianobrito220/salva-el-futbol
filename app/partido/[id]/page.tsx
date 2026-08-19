@@ -278,6 +278,7 @@ export default function MatchDetailPage() {
       });
     }
     setEditing(true);
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   async function saveEdit() {
     if (!match) return;
@@ -815,7 +816,7 @@ ${torneoData.descrExtra}`.trim();
       </div>
 
       {!isOrganizer && match.status === 'open' && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-line dark:border-charcoal-line bg-white/95 dark:bg-charcoal/95 p-4 pb-safe backdrop-blur-md shadow-card-hover">
+        <div className="fixed bottom-[58px] left-0 right-0 z-[90] border-t border-line dark:border-charcoal-line bg-white/95 dark:bg-charcoal/95 p-4 pb-safe backdrop-blur-md shadow-card-hover">
           <div className="space-y-2 max-w-[600px] mx-auto">
             <button
               onClick={requestJoin}
