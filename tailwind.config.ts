@@ -25,8 +25,8 @@ const config: Config = {
         bg: '#F4F5F7',
       },
       fontFamily: {
-        display: ['Inter', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', 'sans-serif'],
+        body: ['"Plus Jakarta Sans"', 'sans-serif'],
       },
       borderRadius: {
         xl2: '18px',
