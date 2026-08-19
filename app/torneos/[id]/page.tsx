@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import SplashLoading from '@/components/SplashLoading';
-import { ArrowLeft, Trophy, Users, Shield, Plus, Share2, Crown, Activity } from 'lucide-react';
+import { ArrowLeft, Trophy, Users, Shield, Plus, Share2, Crown, Activity, Settings } from 'lucide-react';
 import { showToast } from '@/lib/toast';
 import { Tournament, TournamentTeam, Match } from '@/lib/types';
 import Link from 'next/link';
