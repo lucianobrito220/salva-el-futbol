@@ -816,8 +816,8 @@ ${torneoData.descrExtra}`.trim();
       </div>
 
       {!isOrganizer && match.status === 'open' && (
-        <div className="fixed bottom-[58px] left-0 right-0 z-[90] border-t border-line dark:border-charcoal-line bg-white/95 dark:bg-charcoal/95 p-4 pb-safe backdrop-blur-md shadow-card-hover">
-          <div className="space-y-2 max-w-[600px] mx-auto">
+        <div className="fixed bottom-[calc(58px+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 w-full max-w-[440px] z-[90] border-t border-line dark:border-charcoal-line bg-white/95 dark:bg-charcoal/95 p-4 backdrop-blur-md shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+          <div className="space-y-2 mx-auto">
             <button
               onClick={requestJoin}
               disabled={!!myRequest}
