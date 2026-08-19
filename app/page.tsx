@@ -13,6 +13,7 @@ import PhotoHero from '@/components/PhotoHero';
 import WeatherWidget from '@/components/WeatherWidget';
 import EmptyState from '@/components/EmptyState';
 import PullToRefresh from '@/components/PullToRefresh';
+import HomeCarousel3D from '@/components/HomeCarousel3D';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import useSWR from 'swr';
@@ -197,45 +198,10 @@ export default function HomePage() {
             <>
               <div>
                 <h1 className="mt-2 mb-1 font-display text-[24px] font-extrabold shadow-black drop-shadow-md">¿Qué necesitás hoy?</h1>
-                <p className="mb-6 text-[13.5px] text-white/90 shadow-black drop-shadow-md">Conectamos partidos con jugadores en segundos.</p>
+                <p className="text-[13.5px] text-white/90 shadow-black drop-shadow-md">Conectamos partidos con jugadores en segundos.</p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => router.push('/publicar')}
-                  className="press-fx flex items-center gap-3 rounded-[20px] bg-white/10 p-2 pr-4 text-left text-white shadow-sm backdrop-blur-md h-[56px] border border-white/20"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-brand text-white shadow-inner">
-                    <Megaphone size={18} strokeWidth={2.5} />
-                  </div>
-                  <span className="font-display text-[12.5px] font-bold leading-tight drop-shadow-md">Armar<br/>Partido</span>
-                </button>
-                <button
-                  onClick={() => router.push('/buscar')}
-                  className="press-fx flex items-center gap-3 rounded-[20px] bg-white/10 p-2 pr-4 text-left text-white shadow-sm backdrop-blur-md h-[56px] border border-white/20"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-white text-ink shadow-inner">
-                    <Search size={18} strokeWidth={2.5} />
-                  </div>
-                  <span className="font-display text-[12.5px] font-bold leading-tight drop-shadow-md">Sumarme<br/>a uno</span>
-                </button>
-                <button
-                  onClick={() => router.push('/publicar?tipo=equipo_rival')}
-                  className="press-fx flex items-center gap-3 rounded-[20px] bg-white/10 p-2 pr-4 text-left text-white shadow-sm backdrop-blur-md h-[56px] border border-white/20"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-blue-500 text-white text-lg shadow-inner z-10">
-                    🤝
-                  </div>
-                  <span className="font-display text-[12.5px] font-bold leading-tight drop-shadow-md z-10">Buscar<br/>Rival</span>
-                </button>
-                <button
-                  onClick={() => router.push('/torneos')}
-                  className="press-fx flex items-center gap-3 rounded-[20px] bg-white/10 p-2 pr-4 text-left text-white shadow-sm backdrop-blur-md h-[56px] border border-white/20"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-purple-500 text-white text-lg shadow-inner z-10">
-                    🏆
-                  </div>
-                  <span className="font-display text-[12.5px] font-bold leading-tight drop-shadow-md z-10">Explorar<br/>Torneos</span>
-                </button>
+              <div className="-mx-5">
+                <HomeCarousel3D />
               </div>
             </>
           )}
