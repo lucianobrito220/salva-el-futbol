@@ -192,7 +192,8 @@ export default function PerfilPage() {
 
   return (
     <div className="pb-10">
-      <div className="relative border-b border-line bg-brand-dark px-5 pb-5 pt-14 text-center text-white">
+      {/* Top Background & Gamified Avatar */}
+      <div className="relative rounded-b-[40px] bg-gradient-to-b from-brand-dark to-brand pb-8 pt-14 text-center shadow-lg">
         <button 
           onClick={() => {
             if (navigator.share) {
@@ -208,10 +209,7 @@ export default function PerfilPage() {
         >
           <Share2 size={22} />
         </button>
-        <div className="relative mx-auto mb-3 h-[76px] w-[76px]">
-          {profile.avatar_url ? (
-      {/* Top Background & Gamified Avatar */}
-      <div className="relative rounded-b-[40px] bg-gradient-to-b from-brand-dark to-brand pb-8 pt-10 text-center shadow-lg">
+
         {(() => {
           const points = profile.salvapuntos || 0;
           let rank = 'Amateur';
@@ -285,8 +283,6 @@ export default function PerfilPage() {
               <Pencil size={13} />
             </button>
           </h2>
-        )}
-
         )}
 
         <div className="mt-2 text-[12px] font-bold text-white/90">
