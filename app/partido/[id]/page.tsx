@@ -427,22 +427,22 @@ ${torneoData.descrExtra}`.trim();
           </div>
         </div>
       ) : (
-        <div className="flex items-center gap-2 border-b border-line bg-white px-5 py-4">
-          <button onClick={() => router.back()} className="press-fx text-ink">
+        <div className="flex items-center gap-2 border-b border-line bg-white dark:bg-charcoal px-5 py-4">
+          <button onClick={() => router.back()} className="press-fx text-ink dark:text-white">
             <ChevronLeft size={24} />
           </button>
           <div>
-            <div className="font-display text-[15px] font-bold">{match.zone} · {match.match_time.slice(0, 5)}</div>
+            <div className="font-display text-[15px] font-bold text-ink dark:text-white">{match.zone} · {match.match_time.slice(0, 5)}</div>
             <div className="text-[11px] text-inksoft">{match.court} · {match.city}</div>
           </div>
         </div>
       )}
 
-      <div className="sticky top-[68px] z-20 flex bg-white/90 backdrop-blur-md border-b border-line px-2">
-        <button onClick={() => setActiveTab('info')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'info' ? 'border-brand text-ink' : 'border-transparent text-inksoft hover:text-ink'}`}>Detalles</button>
-        <button onClick={() => setActiveTab('jugadores')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'jugadores' ? 'border-brand text-ink' : 'border-transparent text-inksoft hover:text-ink'}`}>Jugadores</button>
+      <div className="sticky top-[68px] z-20 flex bg-white/90 dark:bg-charcoal/90 backdrop-blur-md border-b border-line dark:border-charcoal-line px-2">
+        <button onClick={() => setActiveTab('info')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'info' ? 'border-brand text-ink dark:text-white' : 'border-transparent text-inksoft hover:text-ink dark:hover:text-white'}`}>Detalles</button>
+        <button onClick={() => setActiveTab('jugadores')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'jugadores' ? 'border-brand text-ink dark:text-white' : 'border-transparent text-inksoft hover:text-ink dark:hover:text-white'}`}>Jugadores</button>
         {(chatUnlocked || isOrganizer) && (
-          <button onClick={() => setActiveTab('chat')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'chat' ? 'border-brand text-ink' : 'border-transparent text-inksoft hover:text-ink'}`}>Vestuario</button>
+          <button onClick={() => setActiveTab('chat')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'chat' ? 'border-brand text-ink dark:text-white' : 'border-transparent text-inksoft hover:text-ink dark:hover:text-white'}`}>Vestuario</button>
         )}
       </div>
 

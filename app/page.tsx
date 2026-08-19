@@ -136,8 +136,8 @@ export default function HomePage() {
             )}
           </div>
           <div className="flex flex-col justify-center">
-            <h2 className="font-display text-[22px] font-bold text-[#333333] leading-none tracking-tight mb-1.5">
-              ¡Hola, <span className="text-[#1a1a1a]">{profile.name?.split(' ')[0] || 'Jugador'}</span>!
+            <h2 className="font-display text-[22px] font-bold text-ink dark:text-white leading-none tracking-tight mb-1.5">
+              ¡Hola, <span className="text-ink font-extrabold dark:text-white">{profile.name?.split(' ')[0] || 'Jugador'}</span>!
             </h2>
             <div className="relative">
               <button 

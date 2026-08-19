@@ -26,10 +26,25 @@
       "static/chunks/main-app.js",
       "static/chunks/app/equipos/crear/page.js"
     ],
-    "/_not-found/page": [
+    "/buscar/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/buscar/page.js"
+    ],
+    "/mis-partidos/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/mis-partidos/page.js"
+    ],
+    "/perfil/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/perfil/page.js"
+    ],
+    "/partido/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/partido/[id]/page.js"
     ]
   }
 }
