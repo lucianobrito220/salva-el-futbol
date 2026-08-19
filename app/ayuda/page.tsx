@@ -38,34 +38,37 @@ export default function AyudaPage() {
   const router = useRouter();
   return (
     <div className="pb-10">
-      <div className="flex items-center gap-2 border-b border-line bg-white px-5 py-4">
-        <button onClick={() => router.back()} className="press-fx text-ink">
+      <div className="flex items-center gap-2 border-b border-line dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm px-5 py-4">
+        <button onClick={() => router.back()} className="press-fx text-ink dark:text-white">
           <ChevronLeft size={24} />
         </button>
-        <h1 className="font-display text-base font-bold">Centro de ayuda</h1>
+        <h1 className="font-display text-base font-bold dark:text-white">Centro de ayuda</h1>
       </div>
 
-      <div className="px-5 py-5">
+      <div className="px-5 py-5 dark:bg-neutral-950 min-h-screen">
         <div className="space-y-3">
           {FAQS.map((f, i) => (
-            <details key={i} className="group rounded-2xl border border-line bg-white p-4">
-              <summary className="cursor-pointer list-none font-display text-sm font-bold marker:content-['']">
+            <details key={i} className="group rounded-xl border border-line dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-card transition-all duration-300 overflow-hidden slide-up-sm stagger-1">
+              <summary className="cursor-pointer list-none font-display text-sm font-bold dark:text-white marker:content-[''] flex justify-between items-center">
                 {f.q}
+                <span className="transition group-open:rotate-180 text-inksoft dark:text-neutral-500">
+                  <ChevronLeft size={16} className="-rotate-90" />
+                </span>
               </summary>
-              <p className="mt-2 text-sm text-inksoft">{f.a}</p>
+              <p className="mt-3 text-sm text-inksoft dark:text-neutral-400 animate-in fade-in slide-in-from-top-2 duration-300 leading-relaxed">{f.a}</p>
             </details>
           ))}
         </div>
 
-        <div className="mt-6 rounded-2xl border border-line bg-white p-4 text-center">
-          <p className="mb-3 text-sm text-inksoft">¿No encontraste lo que buscabas?</p>
+        <div className="mt-6 rounded-2xl border border-line dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 text-center shadow-card">
+          <p className="mb-4 text-sm font-medium text-inksoft dark:text-neutral-400">¿No encontraste lo que buscabas?</p>
           <a
             href="https://wa.me/?text=Hola%2C%20tengo%20una%20consulta%20sobre%20Salv%C3%A1%20el%20F%C3%BAtbol"
             target="_blank"
             rel="noreferrer"
-            className="press-fx inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-bold text-white"
+            className="press-fx inline-flex items-center gap-2 rounded-full bg-brand shadow-glow-brand px-6 py-3 text-sm font-bold text-white transition-transform hover:scale-105"
           >
-            <MessageCircle size={16} /> Escribinos por WhatsApp
+            <MessageCircle size={18} /> Escribinos por WhatsApp
           </a>
         </div>
       </div>

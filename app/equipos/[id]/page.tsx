@@ -134,10 +134,10 @@ export default function TeamProfilePage() {
 
   if (!team) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-5 text-center">
-        <Shield size={48} className="mb-4 text-inksoft opacity-20" />
-        <h2 className="mb-2 font-display text-xl font-bold">Equipo no encontrado</h2>
-        <button onClick={() => router.push('/equipos')} className="mt-6 font-bold text-brand">
+      <div className="flex min-h-screen flex-col items-center justify-center p-5 text-center bg-bg dark:bg-bg-dark">
+        <Shield size={48} className="mb-4 text-inksoft dark:text-inksoft-dark opacity-20" />
+        <h2 className="mb-2 font-display text-xl font-bold dark:text-white">Equipo no encontrado</h2>
+        <button onClick={() => router.push('/equipos')} className="mt-6 font-bold text-brand press-fx">
           Volver a mis equipos
         </button>
       </div>
@@ -148,14 +148,14 @@ export default function TeamProfilePage() {
   const isCaptain = session && team.captain_id === session.user.id;
 
   return (
-      <div className="min-h-screen bg-bg pb-24">
-      <div className="relative h-48 w-full bg-brand overflow-hidden">
+      <div className="min-h-screen bg-bg dark:bg-bg-dark pb-24">
+      <div className="relative h-48 w-full bg-gradient-to-br from-[#1E9E4A] via-[#16883b] to-[#10692b] overflow-hidden">
         {team.cover_url && (
-          <img src={team.cover_url} alt="Cover" className="absolute inset-0 h-full w-full object-cover" />
+          <img src={team.cover_url} alt="Cover" className="absolute inset-0 h-full w-full object-cover mix-blend-overlay opacity-60" />
         )}
-        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
-          <button onClick={() => router.back()} className="rounded-full bg-black/30 p-2 text-white backdrop-blur-md">
+          <button onClick={() => router.back()} className="rounded-full bg-black/40 p-2 text-white backdrop-blur-md press-fx">
             <ArrowLeft size={20} />
           </button>
           <div className="flex gap-2">
@@ -170,7 +170,7 @@ export default function TeamProfilePage() {
                 navigator.clipboard.writeText(window.location.href);
                 showToast.success('Enlace copiado al portapapeles');
               }
-            }} className="rounded-full bg-black/30 p-2 text-white backdrop-blur-md press-fx">
+            }} className="rounded-full bg-black/40 p-2 text-white backdrop-blur-md press-fx hover:bg-black/60 transition-colors">
               <Share2 size={20} />
             </button>
             {isCaptain && (
@@ -182,7 +182,7 @@ export default function TeamProfilePage() {
                 setEditDraws(team.draws || 0);
                 setEditLosses(team.losses || 0);
                 setShowSettings(true);
-              }} className="rounded-full bg-black/30 p-2 text-white backdrop-blur-md press-fx">
+              }} className="rounded-full bg-black/40 p-2 text-white backdrop-blur-md press-fx hover:bg-black/60 transition-colors">
                 <Settings size={20} />
               </button>
             )}
@@ -192,56 +192,56 @@ export default function TeamProfilePage() {
 
       {/* SETTINGS MODAL */}
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-5 backdrop-blur-sm fade-in">
-          <div className="my-10 w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl scale-in">
-            <h3 className="mb-4 text-center font-display text-lg font-bold text-ink">Configuración del Equipo</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-5 backdrop-blur-sm modal-backdrop-in">
+          <div className="my-10 w-full max-w-sm rounded-3xl bg-white dark:bg-charcoal p-6 shadow-2xl modal-enter">
+            <h3 className="mb-4 text-center font-display text-lg font-bold text-ink dark:text-white">Configuración del Equipo</h3>
             
             <div className="flex flex-col gap-4">
               <div>
-                <label className="mb-1 block text-xs font-bold text-ink">Nombre del equipo</label>
+                <label className="mb-1 block text-xs font-bold text-ink dark:text-white">Nombre del equipo</label>
                 <input 
                   type="text" 
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
-                  className="w-full rounded-xl border border-line px-3 py-2 text-sm focus:border-brand outline-none"
+                  className="w-full rounded-xl border border-line dark:border-line-dark bg-white dark:bg-bg-dark px-3 py-2 text-sm focus:ring-2 focus:ring-brand outline-none dark:text-white transition-all"
                 />
               </div>
 
               <div className="flex gap-3">
                 <div className="flex-1">
-                  <label className="mb-1 block text-[10px] font-bold text-inksoft uppercase">Victorias</label>
-                  <input type="number" value={editWins} onChange={e => setEditWins(Number(e.target.value))} className="w-full rounded-xl border border-line px-3 py-2 text-sm text-center focus:border-brand outline-none font-bold" />
+                  <label className="mb-1 block text-[10px] font-bold text-inksoft dark:text-inksoft-dark uppercase">Victorias</label>
+                  <input type="number" value={editWins} onChange={e => setEditWins(Number(e.target.value))} className="w-full rounded-xl border border-line dark:border-line-dark bg-white dark:bg-bg-dark px-3 py-2 text-sm text-center focus:ring-2 focus:ring-brand outline-none font-bold dark:text-white transition-all" />
                 </div>
                 <div className="flex-1">
-                  <label className="mb-1 block text-[10px] font-bold text-inksoft uppercase">Empates</label>
-                  <input type="number" value={editDraws} onChange={e => setEditDraws(Number(e.target.value))} className="w-full rounded-xl border border-line px-3 py-2 text-sm text-center focus:border-brand outline-none font-bold" />
+                  <label className="mb-1 block text-[10px] font-bold text-inksoft dark:text-inksoft-dark uppercase">Empates</label>
+                  <input type="number" value={editDraws} onChange={e => setEditDraws(Number(e.target.value))} className="w-full rounded-xl border border-line dark:border-line-dark bg-white dark:bg-bg-dark px-3 py-2 text-sm text-center focus:ring-2 focus:ring-brand outline-none font-bold dark:text-white transition-all" />
                 </div>
                 <div className="flex-1">
-                  <label className="mb-1 block text-[10px] font-bold text-inksoft uppercase">Derrotas</label>
-                  <input type="number" value={editLosses} onChange={e => setEditLosses(Number(e.target.value))} className="w-full rounded-xl border border-line px-3 py-2 text-sm text-center focus:border-brand outline-none font-bold" />
+                  <label className="mb-1 block text-[10px] font-bold text-inksoft dark:text-inksoft-dark uppercase">Derrotas</label>
+                  <input type="number" value={editLosses} onChange={e => setEditLosses(Number(e.target.value))} className="w-full rounded-xl border border-line dark:border-line-dark bg-white dark:bg-bg-dark px-3 py-2 text-sm text-center focus:ring-2 focus:ring-brand outline-none font-bold dark:text-white transition-all" />
                 </div>
               </div>
 
-              <div className="rounded-xl border border-line p-3 bg-neutral-50 flex flex-col gap-2 items-center text-center">
-                <label className="block text-xs font-bold text-ink">Escudo</label>
-                {editLogo && <img src={editLogo} alt="Logo" className="w-16 h-16 rounded-full object-cover shadow" />}
+              <div className="rounded-xl border border-line dark:border-line-dark p-3 bg-neutral-50 dark:bg-bg-dark flex flex-col gap-2 items-center text-center">
+                <label className="block text-xs font-bold text-ink dark:text-white">Escudo</label>
+                {editLogo && <img src={editLogo} alt="Logo" className="w-16 h-16 rounded-full object-cover shadow-sm" />}
                 <button 
                   onClick={() => logoInputRef.current?.click()} 
                   disabled={uploadingLogo}
-                  className="rounded-lg bg-white border border-line px-4 py-2 text-xs font-bold shadow-sm"
+                  className="rounded-lg bg-white dark:bg-charcoal border border-line dark:border-line-dark px-4 py-2 text-xs font-bold shadow-sm press-fx dark:text-white"
                 >
                   {uploadingLogo ? 'Subiendo...' : 'Seleccionar desde Galería'}
                 </button>
                 <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleFileUpload(e, 'logo')} />
               </div>
 
-              <div className="rounded-xl border border-line p-3 bg-neutral-50 flex flex-col gap-2 items-center text-center">
-                <label className="block text-xs font-bold text-ink">Foto de Portada</label>
-                {editCover && <img src={editCover} alt="Cover" className="h-16 w-full rounded-lg object-cover shadow" />}
+              <div className="rounded-xl border border-line dark:border-line-dark p-3 bg-neutral-50 dark:bg-bg-dark flex flex-col gap-2 items-center text-center">
+                <label className="block text-xs font-bold text-ink dark:text-white">Foto de Portada</label>
+                {editCover && <img src={editCover} alt="Cover" className="h-16 w-full rounded-lg object-cover shadow-sm" />}
                 <button 
                   onClick={() => coverInputRef.current?.click()} 
                   disabled={uploadingCover}
-                  className="rounded-lg bg-white border border-line px-4 py-2 text-xs font-bold shadow-sm"
+                  className="rounded-lg bg-white dark:bg-charcoal border border-line dark:border-line-dark px-4 py-2 text-xs font-bold shadow-sm press-fx dark:text-white"
                 >
                   {uploadingCover ? 'Subiendo...' : 'Seleccionar desde Galería'}
                 </button>
@@ -252,14 +252,14 @@ export default function TeamProfilePage() {
             <div className="mt-6 flex gap-3">
               <button 
                 onClick={() => setShowSettings(false)}
-                className="flex-1 rounded-xl bg-neutral-100 py-3 text-sm font-bold text-inksoft"
+                className="flex-1 rounded-xl bg-neutral-100 dark:bg-charcoal-soft py-3 text-sm font-bold text-inksoft dark:text-inksoft-dark press-fx"
               >
                 Cancelar
               </button>
               <button 
                 onClick={handleSaveSettings}
                 disabled={saving}
-                className="flex-1 rounded-xl bg-brand py-3 text-sm font-bold text-white shadow-lg disabled:opacity-50"
+                className="flex-1 rounded-xl bg-brand py-3 text-sm font-bold text-white shadow-glow-brand disabled:opacity-50 press-fx"
               >
                 {saving ? 'Guardando...' : 'Guardar'}
               </button>
@@ -269,17 +269,17 @@ export default function TeamProfilePage() {
       )}
 
       <div className="px-5 relative z-10 -mt-12 mb-6 flex flex-col items-center">
-        <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-bg bg-white shadow-md overflow-hidden">
+        <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-bg dark:border-bg-dark bg-white dark:bg-charcoal shadow-md overflow-hidden scale-in-sm">
           {team.logo_url ? (
             <img src={team.logo_url} alt={team.name} className="h-full w-full object-cover" />
           ) : (
             <Shield size={40} className="text-brand opacity-80" />
           )}
         </div>
-        <h1 className="mt-3 font-display text-2xl font-extrabold text-ink text-center">
+        <h1 className="mt-3 font-display text-2xl font-extrabold text-ink dark:text-white text-center">
           {team.name}
         </h1>
-        <p className="text-sm text-inksoft mt-1 flex items-center gap-1">
+        <p className="text-sm text-inksoft dark:text-inksoft-dark mt-1 flex items-center gap-1">
           <Users size={14} /> {members.length} Jugadores
         </p>
 
@@ -287,50 +287,50 @@ export default function TeamProfilePage() {
           <button
             onClick={handleJoin}
             disabled={joining}
-            className="mt-4 rounded-xl bg-brand px-8 py-3 font-bold text-white shadow-lg disabled:opacity-50 press-fx"
+            className="mt-4 rounded-xl bg-brand px-8 py-3 font-bold text-white shadow-glow-brand disabled:opacity-50 press-fx"
           >
             {joining ? 'Uniéndose...' : 'Unirse al Equipo'}
           </button>
         )}
       </div>
 
-      <div className="px-5 flex gap-3 mb-6">
-        <div className="flex-1 rounded-2xl bg-white p-4 text-center border border-line shadow-sm">
-          <div className="font-display text-2xl font-black text-green-600">{team.wins}</div>
-          <div className="text-[10px] font-bold uppercase tracking-wider text-inksoft">Victorias</div>
+      <div className="px-5 flex gap-3 mb-6 slide-up-sm stagger-1">
+        <div className="flex-1 rounded-2xl bg-white dark:bg-charcoal p-4 text-center border border-line dark:border-line-dark shadow-card">
+          <div className="font-display text-2xl font-black text-green-600 dark:text-green-400">{team.wins}</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-inksoft dark:text-inksoft-dark">Victorias</div>
         </div>
-        <div className="flex-1 rounded-2xl bg-white p-4 text-center border border-line shadow-sm">
-          <div className="font-display text-2xl font-black text-neutral-500">{team.draws}</div>
-          <div className="text-[10px] font-bold uppercase tracking-wider text-inksoft">Empates</div>
+        <div className="flex-1 rounded-2xl bg-white dark:bg-charcoal p-4 text-center border border-line dark:border-line-dark shadow-card">
+          <div className="font-display text-2xl font-black text-neutral-500 dark:text-neutral-400">{team.draws}</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-inksoft dark:text-inksoft-dark">Empates</div>
         </div>
-        <div className="flex-1 rounded-2xl bg-white p-4 text-center border border-line shadow-sm">
-          <div className="font-display text-2xl font-black text-red-500">{team.losses}</div>
-          <div className="text-[10px] font-bold uppercase tracking-wider text-inksoft">Derrotas</div>
+        <div className="flex-1 rounded-2xl bg-white dark:bg-charcoal p-4 text-center border border-line dark:border-line-dark shadow-card">
+          <div className="font-display text-2xl font-black text-red-500 dark:text-red-400">{team.losses}</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-inksoft dark:text-inksoft-dark">Derrotas</div>
         </div>
       </div>
 
       <div className="px-5">
-        <h2 className="font-bold text-ink mb-3">Plantel</h2>
-        <div className="rounded-2xl border border-line bg-white overflow-hidden shadow-sm">
+        <h2 className="font-bold text-ink dark:text-white mb-3">Plantel</h2>
+        <div className="rounded-2xl border border-line dark:border-line-dark bg-white dark:bg-charcoal overflow-hidden shadow-card">
           {members.map((m, i) => (
-            <div key={m.user_id} className={`flex items-center gap-3 p-4 ${i !== members.length - 1 ? 'border-b border-line' : ''}`}>
-              <div className="h-10 w-10 overflow-hidden rounded-full bg-neutral-100 flex items-center justify-center flex-shrink-0">
+            <div key={m.user_id} className={`flex items-center gap-3 p-4 ${i !== members.length - 1 ? 'border-b border-line dark:border-line-dark' : ''} slide-up-sm stagger-${(i % 8) + 1}`}>
+              <div className="h-10 w-10 overflow-hidden rounded-full bg-neutral-100 dark:bg-bg-dark flex items-center justify-center flex-shrink-0">
                 {m.profile?.avatar_url ? (
                   <img src={m.profile.avatar_url} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  <span className="font-bold text-neutral-400">{m.profile?.name.charAt(0)}</span>
+                  <span className="font-bold text-neutral-400 dark:text-neutral-500">{m.profile?.name?.charAt(0) || 'U'}</span>
                 )}
               </div>
               <div className="flex-1">
-                <div className="font-bold text-sm text-ink flex items-center gap-2">
-                  {m.profile?.name} 
+                <div className="font-bold text-sm text-ink dark:text-white flex items-center gap-2">
+                  {m.profile?.name || 'Usuario'} 
                   {team.captain_id === m.user_id && (
-                    <span className="rounded bg-yellow-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-yellow-700">
+                    <span className="rounded bg-yellow-100 dark:bg-yellow-900/30 px-1.5 py-0.5 text-[9px] font-bold uppercase text-yellow-700 dark:text-yellow-500">
                       Capitán
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-inksoft">{m.profile?.position || 'Jugador'}</div>
+                <div className="text-xs text-inksoft dark:text-inksoft-dark">{m.profile?.position || 'Jugador'}</div>
               </div>
             </div>
           ))}

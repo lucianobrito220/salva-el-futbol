@@ -40,11 +40,11 @@ export default function EquiposPage() {
 
   if (!session) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-5 text-center">
-        <Shield size={48} className="mb-4 text-inksoft opacity-20" />
-        <h2 className="mb-2 font-display text-xl font-bold">Iniciá sesión</h2>
-        <p className="text-sm text-inksoft">Necesitás una cuenta para gestionar tus equipos.</p>
-        <Link href="/auth?next=/equipos" className="mt-6 rounded-xl bg-brand px-6 py-3 font-bold text-white shadow-lg">
+      <div className="flex min-h-screen flex-col items-center justify-center p-5 text-center bg-bg dark:bg-bg-dark">
+        <Shield size={48} className="mb-4 text-inksoft dark:text-inksoft-dark opacity-20" />
+        <h2 className="mb-2 font-display text-xl font-bold dark:text-white">Iniciá sesión</h2>
+        <p className="text-sm text-inksoft dark:text-inksoft-dark">Necesitás una cuenta para gestionar tus equipos.</p>
+        <Link href="/auth?next=/equipos" className="mt-6 rounded-xl bg-brand px-6 py-3 font-bold text-white shadow-glow-brand press-fx">
           Iniciar sesión
         </Link>
       </div>
@@ -52,15 +52,15 @@ export default function EquiposPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg pb-24">
-      <header className="sticky top-0 z-20 border-b border-line bg-white px-5 py-4">
-        <h1 className="font-display text-2xl font-extrabold flex items-center gap-2 justify-center">
+    <div className="min-h-screen bg-bg dark:bg-bg-dark pb-24">
+      <header className="sticky top-0 z-20 border-b border-line dark:border-line-dark bg-white dark:bg-bg-dark px-5 py-4 shadow-card">
+        <h1 className="font-display text-2xl font-extrabold flex items-center gap-2 justify-center dark:text-white">
           <Shield size={28} className="text-brand" /> Mis Equipos
         </h1>
       </header>
 
       <div className="p-5">
-        <div className="mb-6 rounded-2xl bg-gradient-to-br from-brand to-green-600 p-5 text-white shadow-lg relative overflow-hidden">
+        <div className="mb-6 rounded-2xl bg-gradient-to-br from-[#1E9E4A] via-[#16883b] to-[#10692b] p-5 text-white shadow-glow-brand relative overflow-hidden">
           <Shield size={120} className="absolute -right-4 -top-4 opacity-10" />
           <h2 className="mb-1 font-display text-lg font-bold relative z-10">Creá tu club oficial</h2>
           <p className="mb-4 text-sm text-white/80 relative z-10 w-4/5">
@@ -74,23 +74,23 @@ export default function EquiposPage() {
           </Link>
         </div>
 
-        <h3 className="mb-3 font-bold text-ink">Equipos a los que pertenecés</h3>
+        <h3 className="mb-3 font-bold text-ink dark:text-white">Equipos a los que pertenecés</h3>
 
         {teams.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-line bg-white/50 p-8 text-center">
-            <Shield size={32} className="mb-3 text-inksoft opacity-50" />
-            <p className="text-sm text-inksoft font-medium">Aún no formás parte de ningún equipo.</p>
+          <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-line dark:border-line-dark bg-white/50 dark:bg-bg-dark/50 p-8 text-center scale-in-sm">
+            <Shield size={32} className="mb-3 text-inksoft dark:text-inksoft-dark opacity-50" />
+            <p className="text-sm text-inksoft dark:text-inksoft-dark font-medium">Aún no formás parte de ningún equipo.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {teams.map((team) => (
+            {teams.map((team, i) => (
               <Link
                 key={team.id}
                 href={`/equipos/${team.id}`}
-                className="flex items-center justify-between rounded-2xl border border-line bg-white p-4 shadow-sm press-fx"
+                className={`flex items-center justify-between rounded-2xl border border-line dark:border-line-dark bg-white dark:bg-charcoal p-4 shadow-card hover:shadow-card-hover transition-all press-fx slide-up-sm stagger-${(i % 8) + 1}`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand">
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand-pale dark:bg-brand/20 text-brand">
                     {team.logo_url ? (
                       <img src={team.logo_url} alt={team.name} className="h-full w-full rounded-full object-cover" />
                     ) : (
@@ -98,13 +98,13 @@ export default function EquiposPage() {
                     )}
                   </div>
                   <div>
-                    <h4 className="font-bold text-ink">{team.name}</h4>
-                    <p className="flex items-center gap-1 text-xs text-inksoft mt-0.5">
+                    <h4 className="font-bold text-ink dark:text-white">{team.name}</h4>
+                    <p className="flex items-center gap-1 text-xs text-inksoft dark:text-inksoft-dark mt-0.5">
                       <Trophy size={12} className="text-yellow-500" /> {team.wins}V - {team.draws}E - {team.losses}D
                     </p>
                   </div>
                 </div>
-                <ChevronRight size={20} className="text-inksoft opacity-50" />
+                <ChevronRight size={20} className="text-inksoft dark:text-inksoft-dark opacity-50" />
               </Link>
             ))}
           </div>

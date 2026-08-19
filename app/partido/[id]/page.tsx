@@ -433,29 +433,31 @@ ${torneoData.descrExtra}`.trim();
           </button>
           <div>
             <div className="font-display text-[15px] font-bold text-ink dark:text-white">{match.zone} · {match.match_time.slice(0, 5)}</div>
-            <div className="text-[11px] text-inksoft">{match.court} · {match.city}</div>
+            <div className="text-[11px] text-inksoft dark:text-gray-400">{match.court} · {match.city}</div>
           </div>
         </div>
       )}
 
-      <div className="sticky top-[68px] z-20 flex bg-white/90 dark:bg-charcoal/90 backdrop-blur-md border-b border-line dark:border-charcoal-line px-2">
-        <button onClick={() => setActiveTab('info')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'info' ? 'border-brand text-ink dark:text-white' : 'border-transparent text-inksoft hover:text-ink dark:hover:text-white'}`}>Detalles</button>
-        <button onClick={() => setActiveTab('jugadores')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'jugadores' ? 'border-brand text-ink dark:text-white' : 'border-transparent text-inksoft hover:text-ink dark:hover:text-white'}`}>Jugadores</button>
-        {(chatUnlocked || isOrganizer) && (
-          <button onClick={() => setActiveTab('chat')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'chat' ? 'border-brand text-ink dark:text-white' : 'border-transparent text-inksoft hover:text-ink dark:hover:text-white'}`}>Vestuario</button>
-        )}
+      <div className="sticky top-[68px] z-20 px-4 py-2 bg-white/90 dark:bg-charcoal/90 backdrop-blur-md border-b border-line dark:border-charcoal-line">
+        <div className="flex bg-neutral-100 dark:bg-charcoal rounded-xl p-1 relative">
+          <button onClick={() => setActiveTab('info')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all z-10 ${activeTab === 'info' ? 'bg-white dark:bg-charcoal-soft shadow-sm text-ink dark:text-white' : 'text-inksoft dark:text-gray-400 hover:text-ink dark:hover:text-white'}`}>Detalles</button>
+          <button onClick={() => setActiveTab('jugadores')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all z-10 ${activeTab === 'jugadores' ? 'bg-white dark:bg-charcoal-soft shadow-sm text-ink dark:text-white' : 'text-inksoft dark:text-gray-400 hover:text-ink dark:hover:text-white'}`}>Jugadores</button>
+          {(chatUnlocked || isOrganizer) && (
+            <button onClick={() => setActiveTab('chat')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all z-10 ${activeTab === 'chat' ? 'bg-white dark:bg-charcoal-soft shadow-sm text-ink dark:text-white' : 'text-inksoft dark:text-gray-400 hover:text-ink dark:hover:text-white'}`}>Vestuario</button>
+          )}
+        </div>
       </div>
 
       <div className="px-5 py-5">
         <div style={{ display: activeTab === 'info' ? 'block' : 'none' }}>
         {!isOrganizer && organizerProfile && (
-          <div className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-white px-3.5 py-3">
+          <div className="mb-4 flex items-center gap-3 rounded-2xl shadow-card bg-white dark:bg-charcoal p-4 transition">
             <Avatar name={organizerProfile.name} url={organizerProfile.avatar_url} size={40} />
             <div>
-              <p className="text-xs text-inksoft">Organiza</p>
-              <p className="text-sm font-semibold">
+              <p className="text-xs text-inksoft dark:text-gray-400">Organiza</p>
+              <p className="text-sm font-semibold dark:text-white">
                 {organizerProfile.name}
-                {organizerProfile.age ? <span className="text-inksoft"> · {organizerProfile.age} años</span> : null}
+                {organizerProfile.age ? <span className="text-inksoft dark:text-gray-400"> · {organizerProfile.age} años</span> : null}
               </p>
             </div>
           </div>
@@ -465,8 +467,8 @@ ${torneoData.descrExtra}`.trim();
           onClick={shareMatch}
           className={`press-fx mb-2.5 flex w-full items-center justify-center gap-2 rounded-2xl border py-3 text-sm font-bold transition-colors ${
             match.zone === 'Torneo' 
-              ? 'border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100' 
-              : 'border-line bg-white text-brand-dark hover:bg-neutral-50'
+              ? 'border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 dark:border-purple-900/50 dark:bg-purple-900/20 dark:text-purple-300' 
+              : 'border-line dark:border-charcoal-line bg-white dark:bg-charcoal text-brand-dark dark:text-brand hover:bg-neutral-50 dark:hover:bg-charcoal-soft'
           }`}
         >
           <UserPlus size={17} /> {match.zone === 'Torneo' ? 'Compartir torneo con amigos' : 'Invitar a un amigo'}
@@ -476,7 +478,7 @@ ${torneoData.descrExtra}`.trim();
           <button
             onClick={repeatNextWeek}
             disabled={repeating}
-            className="press-fx mb-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-brand/40 bg-brand-pale py-3 text-sm font-bold text-brand-dark disabled:opacity-60"
+            className="press-fx mb-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-brand/40 bg-brand-pale dark:bg-brand/10 py-3 text-sm font-bold text-brand-dark dark:text-brand disabled:opacity-60"
           >
             <Repeat size={17} /> {repeating ? 'Creando…' : 'Repetir la semana que viene'}
           </button>
@@ -504,11 +506,11 @@ ${torneoData.descrExtra}`.trim();
             {(match.location_address || match.court) && (
               <button
                 onClick={() => setShowMap(true)}
-                className="press-fx mb-4 flex w-full items-center gap-2 rounded-xl border border-line bg-white px-3.5 py-3 text-left text-sm"
+                className="press-fx mb-4 flex w-full items-center gap-2 rounded-2xl shadow-card bg-white dark:bg-charcoal p-4 transition text-left text-sm"
               >
-                <MapPin size={16} className="flex-shrink-0 text-brand-dark" />
-                <span className="flex-1 text-sm">{match.location_address ? match.location_address.split('|')[0] : `${match.court}, ${match.zone}`}</span>
-                <span className="text-xs font-bold text-brand-dark">Ver mapa</span>
+                <MapPin size={16} className="flex-shrink-0 text-brand-dark dark:text-brand" />
+                <span className="flex-1 text-sm dark:text-white">{match.location_address ? match.location_address.split('|')[0] : `${match.court}, ${match.zone}`}</span>
+                <span className="text-xs font-bold text-brand-dark dark:text-brand">Ver mapa</span>
               </button>
             )}
             {(() => {
@@ -518,7 +520,7 @@ ${torneoData.descrExtra}`.trim();
               }
               if (!displayDesc) return null;
               return (
-                <div className="mb-4 rounded-xl border border-line bg-white px-3.5 py-3 text-sm text-inksoft whitespace-pre-wrap">
+                <div className="mb-4 rounded-2xl shadow-card bg-white dark:bg-charcoal p-4 transition text-sm text-inksoft dark:text-gray-300 whitespace-pre-wrap">
                   {displayDesc}
                 </div>
               );
@@ -532,38 +534,38 @@ ${torneoData.descrExtra}`.trim();
             )}
           </>
         ) : (
-          <div className="mb-4 space-y-3 rounded-2xl border border-line bg-white p-4">
+          <div className="mb-4 space-y-3 rounded-2xl shadow-card bg-white dark:bg-charcoal p-4 transition">
             {match.zone === 'Torneo' ? (
               <>
                 <EditField label="Nombre del Torneo">
-                  <input className="edit-input" value={torneoData.nombre || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, nombre: e.target.value }))} />
+                  <input className="edit-input bg-transparent dark:text-white dark:border-charcoal-line" value={torneoData.nombre || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, nombre: e.target.value }))} />
                 </EditField>
                 <div className="grid grid-cols-2 gap-2">
                   <EditField label="Categoría">
-                    <input className="edit-input" value={torneoData.categoria || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, categoria: e.target.value }))} />
+                    <input className="edit-input bg-transparent dark:text-white dark:border-charcoal-line" value={torneoData.categoria || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, categoria: e.target.value }))} />
                   </EditField>
                   <EditField label="Fechas">
-                    <input className="edit-input" value={torneoData.fechas || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, fechas: e.target.value }))} />
+                    <input className="edit-input bg-transparent dark:text-white dark:border-charcoal-line" value={torneoData.fechas || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, fechas: e.target.value }))} />
                   </EditField>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <EditField label="Aforo (Equipos)">
-                    <input type="number" className="edit-input" value={torneoData.aforo || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, aforo: e.target.value }))} />
+                    <input type="number" className="edit-input bg-transparent dark:text-white dark:border-charcoal-line" value={torneoData.aforo || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, aforo: e.target.value }))} />
                   </EditField>
                   <EditField label="Costo Inscripción">
-                    <input type="number" className="edit-input" value={editDraft.price ?? ''} onChange={(e) => setEditDraft((d) => ({ ...d, price: Number(e.target.value) }))} />
+                    <input type="number" className="edit-input bg-transparent dark:text-white dark:border-charcoal-line" value={editDraft.price ?? ''} onChange={(e) => setEditDraft((d) => ({ ...d, price: Number(e.target.value) }))} />
                   </EditField>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <EditField label="Género">
-                    <select className="edit-input" value={editDraft.gender || 'Mixto'} onChange={(e) => setEditDraft((d) => ({ ...d, gender: e.target.value as any }))}>
+                    <select className="edit-input bg-transparent dark:text-white dark:border-charcoal-line dark:bg-charcoal" value={editDraft.gender || 'Mixto'} onChange={(e) => setEditDraft((d) => ({ ...d, gender: e.target.value as any }))}>
                       <option value="Mixto">Mixto</option>
                       <option value="Masculino">Masculino</option>
                       <option value="Femenino">Femenino</option>
                     </select>
                   </EditField>
                   <EditField label="Nivel">
-                    <select className="edit-input" value={editDraft.level || 'Competitivo'} onChange={(e) => setEditDraft((d) => ({ ...d, level: e.target.value as any }))}>
+                    <select className="edit-input bg-transparent dark:text-white dark:border-charcoal-line dark:bg-charcoal" value={editDraft.level || 'Competitivo'} onChange={(e) => setEditDraft((d) => ({ ...d, level: e.target.value as any }))}>
                       <option value="Recreativo">Recreativo</option>
                       <option value="Intermedio">Intermedio</option>
                       <option value="Competitivo">Competitivo</option>
@@ -571,14 +573,14 @@ ${torneoData.descrExtra}`.trim();
                   </EditField>
                 </div>
                 <EditField label="Sede (Ubicación)">
-                  <input className="edit-input" value={editDraft.court || ''} onChange={(e) => setEditDraft((d) => ({ ...d, court: e.target.value }))} />
+                  <input className="edit-input bg-transparent dark:text-white dark:border-charcoal-line" value={editDraft.court || ''} onChange={(e) => setEditDraft((d) => ({ ...d, court: e.target.value }))} />
                 </EditField>
                 <EditField label="Contacto (WhatsApp)">
-                  <input className="edit-input" value={torneoData.contacto || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, contacto: e.target.value }))} />
+                  <input className="edit-input bg-transparent dark:text-white dark:border-charcoal-line" value={torneoData.contacto || ''} onChange={(e) => setTorneoData((d: any) => ({ ...d, contacto: e.target.value }))} />
                 </EditField>
                 <EditField label="Descripción adicional">
                   <textarea
-                    className="edit-input h-20 resize-none"
+                    className="edit-input bg-transparent dark:text-white dark:border-charcoal-line h-20 resize-none"
                     value={torneoData.descrExtra || ''}
                     onChange={(e) => setTorneoData((d: any) => ({ ...d, descrExtra: e.target.value }))}
                   />
@@ -587,10 +589,10 @@ ${torneoData.descrExtra}`.trim();
             ) : (
               <>
                 <EditField label="Zona">
-                  <input className="edit-input" value={editDraft.zone || ''} onChange={(e) => setEditDraft((d) => ({ ...d, zone: e.target.value }))} />
+                  <input className="edit-input bg-transparent dark:text-white dark:border-charcoal-line" value={editDraft.zone || ''} onChange={(e) => setEditDraft((d) => ({ ...d, zone: e.target.value }))} />
                 </EditField>
                 <EditField label="Cancha">
-                  <input className="edit-input" value={editDraft.court || ''} onChange={(e) => setEditDraft((d) => ({ ...d, court: e.target.value }))} />
+                  <input className="edit-input bg-transparent dark:text-white dark:border-charcoal-line" value={editDraft.court || ''} onChange={(e) => setEditDraft((d) => ({ ...d, court: e.target.value }))} />
                 </EditField>
                 <EditField label="Ubicación (dirección)">
                   <AddressAutocomplete
@@ -601,14 +603,14 @@ ${torneoData.descrExtra}`.trim();
                 </EditField>
                 <div className="grid grid-cols-2 gap-2">
                   <EditField label="Fecha">
-                    <input type="date" className="edit-input" value={editDraft.match_date || ''} onChange={(e) => setEditDraft((d) => ({ ...d, match_date: e.target.value }))} />
+                    <input type="date" className="edit-input bg-transparent dark:text-white dark:border-charcoal-line" value={editDraft.match_date || ''} onChange={(e) => setEditDraft((d) => ({ ...d, match_date: e.target.value }))} />
                   </EditField>
                   <EditField label="Hora">
-                    <input type="time" className="edit-input" value={editDraft.match_time || ''} onChange={(e) => setEditDraft((d) => ({ ...d, match_time: e.target.value }))} />
+                    <input type="time" className="edit-input bg-transparent dark:text-white dark:border-charcoal-line" value={editDraft.match_time || ''} onChange={(e) => setEditDraft((d) => ({ ...d, match_time: e.target.value }))} />
                   </EditField>
                 </div>
                 <EditField label="Precio">
-                  <input type="number" className="edit-input" value={editDraft.price ?? ''} onChange={(e) => setEditDraft((d) => ({ ...d, price: Number(e.target.value) }))} />
+                  <input type="number" className="edit-input bg-transparent dark:text-white dark:border-charcoal-line" value={editDraft.price ?? ''} onChange={(e) => setEditDraft((d) => ({ ...d, price: Number(e.target.value) }))} />
                 </EditField>
                 <EditField label="Nivel">
                   <div className="grid grid-cols-3 gap-2">
@@ -617,7 +619,7 @@ ${torneoData.descrExtra}`.trim();
                         key={l}
                         type="button"
                         onClick={() => setEditDraft((d) => ({ ...d, level: l }))}
-                        className={`rounded-xl border px-1 py-2 text-xs font-bold ${editDraft.level === l ? 'border-brand bg-brand-pale text-brand-dark' : 'border-line bg-white text-inksoft'}`}
+                        className={`rounded-xl border px-1 py-2 text-xs font-bold transition ${editDraft.level === l ? 'border-brand bg-brand-pale dark:bg-brand/10 text-brand-dark dark:text-brand' : 'border-line dark:border-charcoal-line bg-transparent dark:text-gray-300 text-inksoft'}`}
                       >
                         {l}
                       </button>
@@ -626,7 +628,7 @@ ${torneoData.descrExtra}`.trim();
                 </EditField>
                 <EditField label="Descripción">
                   <textarea
-                    className="edit-input h-20 resize-none"
+                    className="edit-input bg-transparent dark:text-white dark:border-charcoal-line h-20 resize-none"
                     value={editDraft.description || ''}
                     onChange={(e) => setEditDraft((d) => ({ ...d, description: e.target.value }))}
                   />
@@ -634,10 +636,10 @@ ${torneoData.descrExtra}`.trim();
               </>
             )}
             <div className="flex gap-2 pt-1">
-              <button onClick={saveEdit} disabled={saving} className="press-fx flex-1 rounded-xl bg-brand py-2.5 text-xs font-bold text-white">
+              <button onClick={saveEdit} disabled={saving} className="press-fx flex-1 rounded-xl bg-brand py-2.5 text-xs font-bold text-white shadow-glow-brand">
                 {saving ? 'Guardando…' : 'Guardar cambios'}
               </button>
-              <button onClick={() => setEditing(false)} className="press-fx rounded-xl border border-line px-4 text-xs font-bold">
+              <button onClick={() => setEditing(false)} className="press-fx rounded-xl border border-line dark:border-charcoal-line px-4 text-xs font-bold dark:text-white">
                 Cancelar
               </button>
             </div>
@@ -645,7 +647,7 @@ ${torneoData.descrExtra}`.trim();
         )}
 
         {isOrganizer && match.status === 'open' && !editing && (
-          <button onClick={startEdit} className="press-fx mb-4 flex items-center gap-1.5 text-xs font-bold text-brand-dark">
+          <button onClick={startEdit} className="press-fx mb-4 flex items-center gap-1.5 text-xs font-bold text-brand-dark dark:text-brand hover:brightness-110 transition">
             <Pencil size={13} /> Editar datos del partido
           </button>
         )}
@@ -654,16 +656,16 @@ ${torneoData.descrExtra}`.trim();
         <div style={{ display: activeTab === 'jugadores' ? 'block' : 'none' }}>
 
         {!isOrganizer && confirmedPlayers.length > 0 && (
-          <div className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-white px-3.5 py-3">
+          <div className="mb-4 flex items-center gap-3 rounded-2xl shadow-card bg-white dark:bg-charcoal p-4 transition">
             <div className="flex -space-x-2">
               {confirmedPlayers.slice(0, 5).map((p) => (
-                <div key={p.id} className="rounded-full ring-2 ring-white">
+                <div key={p.id} className="rounded-full ring-2 ring-white dark:ring-charcoal">
                   <Avatar name={p.player?.name || 'Jugador'} url={p.player?.avatar_url} size={30} />
                 </div>
               ))}
             </div>
-            <p className="text-xs text-inksoft">
-              Ya confirmaron: <span className="font-semibold text-ink">{confirmedPlayers.map((p) => p.player?.name || 'Jugador').join(', ')}</span>
+            <p className="text-xs text-inksoft dark:text-gray-400">
+              Ya confirmaron: <span className="font-semibold text-ink dark:text-white">{confirmedPlayers.map((p) => p.player?.name || 'Jugador').join(', ')}</span>
             </p>
           </div>
         )}
@@ -671,33 +673,33 @@ ${torneoData.descrExtra}`.trim();
 
 
         {isOrganizer && (
-          <div className="mt-2 rounded-2xl border border-line bg-white p-4">
-            <h3 className="mb-3 font-display font-bold">Panel del organizador</h3>
+          <div className="mt-2 rounded-2xl shadow-card bg-white dark:bg-charcoal p-4 transition">
+            <h3 className="mb-3 font-display font-bold dark:text-white">Panel del organizador</h3>
             {(() => {
               const pendingPlayers = pending.filter(r => !r.is_referee_request);
               const pendingReferees = pending.filter(r => r.is_referee_request);
               
               return (
-                <>
+                <div className="space-y-1">
                   {pendingReferees.length > 0 && (
                     <div className="mb-4">
                       <div className="mb-2 flex items-center gap-2">
-                        <p className="text-xs font-bold text-yellow-600 uppercase tracking-wide">Árbitros postulados 🏁</p>
+                        <p className="text-xs font-bold text-yellow-600 dark:text-yellow-500 uppercase tracking-wide">Árbitros postulados 🏁</p>
                       </div>
-                      {pendingReferees.map((r) => (
-                        <div key={r.id} className="flex items-center justify-between rounded-xl border border-yellow-300 bg-yellow-50 py-3 px-3 mb-2 shadow-sm">
+                      {pendingReferees.map((r, i) => (
+                        <div key={r.id} className={`flex items-center justify-between rounded-xl border border-yellow-300 dark:border-yellow-700/50 bg-yellow-50 dark:bg-yellow-900/20 py-3 px-3 mb-2 shadow-sm slide-up-sm stagger-${i + 1}`}>
                           <div className="flex items-center gap-2.5">
                             <Avatar name={r.player?.name || 'Árbitro'} url={r.player?.avatar_url} size={38} />
-                            <span className="text-sm font-bold text-yellow-900">
+                            <span className="text-sm font-bold text-yellow-900 dark:text-yellow-400">
                               {r.player?.name || 'Árbitro'}
-                              {r.player?.age ? <span className="text-yellow-700/60 font-medium"> · {r.player.age}</span> : null}
+                              {r.player?.age ? <span className="text-yellow-700/60 dark:text-yellow-600/80 font-medium"> · {r.player.age}</span> : null}
                             </span>
                           </div>
                           <div className="flex gap-1.5">
-                            <button onClick={() => respond(r.id, true)} className="press-fx flex items-center gap-1 rounded-lg bg-yellow-500 px-3 py-2 text-xs font-bold text-yellow-950 shadow-sm">
+                            <button onClick={() => respond(r.id, true)} className="press-fx flex items-center gap-1 rounded-lg bg-yellow-500 hover:bg-yellow-400 px-3 py-2 text-xs font-bold text-yellow-950 shadow-sm transition">
                               <Check size={14} /> Aceptar
                             </button>
-                            <button onClick={() => respond(r.id, false)} className="press-fx flex items-center gap-1 rounded-lg bg-white border border-yellow-200 px-3 py-2 text-xs font-bold text-yellow-700">
+                            <button onClick={() => respond(r.id, false)} className="press-fx flex items-center gap-1 rounded-lg bg-white dark:bg-transparent border border-yellow-200 dark:border-yellow-700/50 px-3 py-2 text-xs font-bold text-yellow-700 dark:text-yellow-500 transition hover:bg-yellow-100 dark:hover:bg-yellow-900/40">
                               <X size={14} /> Rechazar
                             </button>
                           </div>
@@ -707,21 +709,21 @@ ${torneoData.descrExtra}`.trim();
                   )}
                   {pendingPlayers.length > 0 && (
                     <>
-                      <p className="mb-2 mt-4 text-xs font-bold text-inksoft">{match.match_type === 'equipo_rival' ? 'Equipos/Capitanes postulados' : 'Jugadores postulados'}</p>
-                      {pendingPlayers.map((r) => (
-                        <div key={r.id} className="flex items-center justify-between border-b border-line py-2.5 last:border-0">
+                      <p className="mb-2 mt-4 text-xs font-bold text-inksoft dark:text-gray-400">{match.match_type === 'equipo_rival' ? 'Equipos/Capitanes postulados' : 'Jugadores postulados'}</p>
+                      {pendingPlayers.map((r, i) => (
+                        <div key={r.id} className={`flex items-center justify-between shadow-card rounded-xl p-3 bg-white dark:bg-charcoal border border-line dark:border-charcoal-line mb-2 slide-up-sm stagger-${i + 1}`}>
                           <div className="flex items-center gap-2.5">
                             <Avatar name={r.player?.name || 'Jugador'} url={r.player?.avatar_url} size={34} />
-                            <span className="text-sm font-medium">
+                            <span className="text-sm font-medium dark:text-white">
                               {r.player?.name || 'Jugador'}
-                              {r.player?.age ? <span className="text-inksoft"> · {r.player.age}</span> : null}
+                              {r.player?.age ? <span className="text-inksoft dark:text-gray-400"> · {r.player.age}</span> : null}
                             </span>
                           </div>
                           <div className="flex gap-1.5">
-                            <button onClick={() => respond(r.id, true)} className="press-fx flex items-center gap-1 rounded-lg bg-brand px-3 py-1.5 text-xs font-bold text-white">
+                            <button onClick={() => respond(r.id, true)} className="press-fx flex items-center gap-1 rounded-lg bg-brand hover:brightness-110 px-3 py-1.5 text-xs font-bold text-white transition">
                               <Check size={14} /> Aceptar
                             </button>
-                            <button onClick={() => respond(r.id, false)} className="press-fx flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700">
+                            <button onClick={() => respond(r.id, false)} className="press-fx flex items-center gap-1 rounded-lg bg-red-50 dark:bg-red-900/20 px-3 py-1.5 text-xs font-bold text-red-700 dark:text-red-400 transition hover:bg-red-100 dark:hover:bg-red-900/40">
                               <X size={14} /> Rechazar
                             </button>
                           </div>
@@ -729,37 +731,37 @@ ${torneoData.descrExtra}`.trim();
                       ))}
                     </>
                   )}
-                </>
+                </div>
               );
             })()}
             {accepted.length > 0 && (
-              <>
-                <p className="mb-2 mt-3 text-xs font-bold text-inksoft">Confirmados</p>
-                {accepted.map((r) => (
-                  <div key={r.id} className="flex items-center justify-between py-2 text-sm">
+              <div className="mt-3">
+                <p className="mb-2 text-xs font-bold text-inksoft dark:text-gray-400">Confirmados</p>
+                {accepted.map((r, i) => (
+                  <div key={r.id} className={`flex items-center justify-between py-2.5 px-3 mb-2 shadow-card rounded-xl bg-white dark:bg-charcoal border border-line dark:border-charcoal-line text-sm slide-up-sm stagger-${i + 1}`}>
                     <div className="flex items-center gap-2.5">
                       <Avatar name={r.player?.name || 'Jugador'} url={r.player?.avatar_url} size={34} />
-                      <span>
+                      <span className="font-medium dark:text-white">
                         {r.player?.name || 'Jugador'}
-                        {r.player?.age ? <span className="text-inksoft"> · {r.player.age}</span> : null}
+                        {r.player?.age ? <span className="text-inksoft dark:text-gray-400"> · {r.player.age}</span> : null}
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-bold text-brand-dark">✅</span>
-                      <button onClick={() => setReportTarget({ id: r.player_id, name: r.player?.name || 'Jugador' })} className="press-fx text-inksoft">
+                      <span className="text-xs font-bold text-brand-dark dark:text-brand">✅</span>
+                      <button onClick={() => setReportTarget({ id: r.player_id, name: r.player?.name || 'Jugador' })} className="press-fx text-inksoft dark:text-gray-400 hover:text-red-500 transition">
                         <Flag size={14} />
                       </button>
                     </div>
                   </div>
                 ))}
-              </>
+              </div>
             )}
-            {requests.length === 0 && <p className="text-sm text-inksoft">Todavía no recibiste solicitudes.</p>}
+            {requests.length === 0 && <p className="text-sm text-inksoft dark:text-gray-400">Todavía no recibiste solicitudes.</p>}
 
             {match.status === 'open' && (
               <div className="mt-4 flex gap-2">
-                <button onClick={markComplete} className="press-fx flex-1 rounded-xl border border-line py-2.5 text-xs font-bold">Marcar completo</button>
-                <button onClick={cancelMatch} className="press-fx flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-bold text-red-700">Cancelar partido</button>
+                <button onClick={markComplete} className="press-fx flex-1 rounded-xl border border-line dark:border-charcoal-line py-2.5 text-xs font-bold dark:text-white hover:bg-neutral-50 dark:hover:bg-charcoal-soft transition">Marcar completo</button>
+                <button onClick={cancelMatch} className="press-fx flex-1 rounded-xl bg-red-50 dark:bg-red-900/20 py-2.5 text-xs font-bold text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition">Cancelar partido</button>
               </div>
             )}
           </div>
@@ -768,15 +770,15 @@ ${torneoData.descrExtra}`.trim();
         {!isOrganizer && iAmAccepted && (
           <button
             onClick={() => setReportTarget({ id: match.organizer_id, name: 'el organizador' })}
-            className="press-fx mt-3 flex items-center gap-1.5 text-xs font-bold text-inksoft"
+            className="press-fx mt-3 flex items-center gap-1.5 text-xs font-bold text-inksoft dark:text-gray-400 hover:text-red-500 transition"
           >
             <Flag size={13} /> Denunciar al organizador
           </button>
         )}
 
         {match.status === 'complete' && (
-          <div className="mt-4 rounded-2xl border border-line bg-white p-4">
-            <h3 className="mb-3 flex items-center gap-1.5 font-display font-bold"><Star size={16} className="text-amber-500" /> Calificar</h3>
+          <div className="mt-4 rounded-2xl shadow-card bg-white dark:bg-charcoal p-4 transition">
+            <h3 className="mb-3 flex items-center gap-1.5 font-display font-bold dark:text-white"><Star size={16} className="text-amber-500" /> Calificar</h3>
             {isOrganizer &&
               accepted
                 .filter((r) => !myRatings.includes(r.player_id))
@@ -784,7 +786,7 @@ ${torneoData.descrExtra}`.trim();
                   <button
                     key={r.id}
                     onClick={() => setRateTarget({ id: r.player_id, name: r.player?.name || 'Jugador' })}
-                    className="press-fx mb-2 flex w-full items-center justify-between rounded-xl border border-line px-3.5 py-2.5 text-sm"
+                    className="press-fx mb-2 flex w-full items-center justify-between rounded-xl border border-line dark:border-charcoal-line px-3.5 py-2.5 text-sm dark:text-white hover:bg-neutral-50 dark:hover:bg-charcoal-soft transition"
                   >
                     Calificar a {r.player?.name || 'Jugador'}
                     <Star size={15} className="text-amber-500" />
@@ -793,7 +795,7 @@ ${torneoData.descrExtra}`.trim();
             {!isOrganizer && iAmAccepted && !myRatings.includes(match.organizer_id) && (
               <button
                 onClick={() => setRateTarget({ id: match.organizer_id, name: 'el organizador' })}
-                className="press-fx flex w-full items-center justify-between rounded-xl border border-line px-3.5 py-2.5 text-sm"
+                className="press-fx flex w-full items-center justify-between rounded-xl border border-line dark:border-charcoal-line px-3.5 py-2.5 text-sm dark:text-white hover:bg-neutral-50 dark:hover:bg-charcoal-soft transition"
               >
                 Calificar al organizador
                 <Star size={15} className="text-amber-500" />
@@ -801,7 +803,7 @@ ${torneoData.descrExtra}`.trim();
             )}
             {((isOrganizer && accepted.every((r) => myRatings.includes(r.player_id))) ||
               (!isOrganizer && myRatings.includes(match.organizer_id))) && (
-              <p className="text-sm text-inksoft">Ya calificaste. ¡Gracias!</p>
+              <p className="text-sm text-inksoft dark:text-gray-400">Ya calificaste. ¡Gracias!</p>
             )}
           </div>
         )}
@@ -813,17 +815,17 @@ ${torneoData.descrExtra}`.trim();
       </div>
 
       {!isOrganizer && match.status === 'open' && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-line bg-white/95 p-4 pb-safe backdrop-blur-md shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-line dark:border-charcoal-line bg-white/95 dark:bg-charcoal/95 p-4 pb-safe backdrop-blur-md shadow-card-hover">
           <div className="space-y-2 max-w-[600px] mx-auto">
             <button
               onClick={requestJoin}
               disabled={!!myRequest}
-              className={`press-fx w-full rounded-2xl py-4 font-display font-bold text-white disabled:opacity-50 ${profile?.is_referee && match.needs_referee ? 'bg-yellow-500 shadow-lg text-yellow-950' : 'bg-brand'}`}
+              className={`press-fx w-full rounded-2xl py-4 font-display font-bold text-white transition disabled:opacity-50 ${profile?.is_referee && match.needs_referee ? 'bg-yellow-500 shadow-lg text-yellow-950 hover:bg-yellow-400' : 'bg-brand shadow-glow-brand hover:brightness-110'}`}
             >
               {myRequest ? (myRequest.status === 'accepted' ? 'Ya estás confirmado ✓' : myRequest.status === 'rejected' ? 'Solicitud rechazada' : 'Solicitud enviada ✓') : (profile?.is_referee && match.needs_referee ? 'Postularme como Árbitro 🏁' : match.match_type === 'equipo_rival' ? 'Postular a mi equipo ⚔️' : 'Quiero unirme')}
             </button>
             {myRequest?.status === 'pending' && (
-              <button onClick={cancelMyRequest} className="press-fx w-full rounded-2xl border border-line py-2.5 text-xs font-bold text-inksoft bg-white">
+              <button onClick={cancelMyRequest} className="press-fx w-full rounded-2xl border border-line dark:border-charcoal-line py-2.5 text-xs font-bold text-inksoft dark:text-gray-300 bg-white dark:bg-charcoal hover:bg-neutral-50 dark:hover:bg-charcoal-soft transition">
                 Cancelar mi solicitud
               </button>
             )}
@@ -832,18 +834,18 @@ ${torneoData.descrExtra}`.trim();
       )}
 
       {reportTarget && (
-        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/40 backdrop-blur-sm" onClick={() => setReportTarget(null)}>
-          <div className="w-full max-w-[440px] rounded-t-2xl bg-white p-6 pb-8" onClick={(e) => e.stopPropagation()}>
-            <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-line" />
-            <h3 className="mb-1 font-display text-base font-bold">Denunciar a {reportTarget.name}</h3>
-            <p className="mb-3 text-xs text-inksoft">Contanos qué pasó. Lo revisamos nosotros, no se lo mostramos a nadie más.</p>
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/40 dark:bg-black/60 modal-backdrop-in" onClick={() => setReportTarget(null)}>
+          <div className="w-full max-w-[440px] rounded-t-2xl bg-white dark:bg-charcoal p-6 pb-8 modal-enter" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-line dark:bg-charcoal-line" />
+            <h3 className="mb-1 font-display text-base font-bold dark:text-white">Denunciar a {reportTarget.name}</h3>
+            <p className="mb-3 text-xs text-inksoft dark:text-gray-400">Contanos qué pasó. Lo revisamos nosotros, no se lo mostramos a nadie más.</p>
             <textarea
-              className="edit-input mb-3 h-24 resize-none"
+              className="edit-input bg-transparent dark:text-white dark:border-charcoal-line mb-3 h-24 resize-none"
               placeholder="Ej: no se presentó al partido sin avisar."
               value={reportReason}
               onChange={(e) => setReportReason(e.target.value)}
             />
-            <button onClick={submitReport} disabled={!reportReason.trim()} className="press-fx w-full rounded-xl bg-red-600 py-3 text-sm font-bold text-white disabled:opacity-50">
+            <button onClick={submitReport} disabled={!reportReason.trim()} className="press-fx w-full rounded-xl bg-red-600 py-3 text-sm font-bold text-white disabled:opacity-50 shadow-sm">
               Enviar denuncia
             </button>
           </div>
@@ -851,14 +853,14 @@ ${torneoData.descrExtra}`.trim();
       )}
 
       {rateTarget && (
-        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/40 backdrop-blur-sm" onClick={() => setRateTarget(null)}>
-          <div className="w-full max-w-[440px] rounded-t-2xl bg-white p-6 pb-8" onClick={(e) => e.stopPropagation()}>
-            <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-line" />
-            <h3 className="mb-4 font-display text-base font-bold">Calificar a {rateTarget.name}</h3>
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/40 dark:bg-black/60 modal-backdrop-in" onClick={() => setRateTarget(null)}>
+          <div className="w-full max-w-[440px] rounded-t-2xl bg-white dark:bg-charcoal p-6 pb-8 modal-enter" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-line dark:bg-charcoal-line" />
+            <h3 className="mb-4 font-display text-base font-bold dark:text-white">Calificar a {rateTarget.name}</h3>
             <RatingRow label="Puntualidad" value={rateForm.punctuality} onChange={(v) => setRateForm((f) => ({ ...f, punctuality: v }))} />
             <RatingRow label="Asistencia" value={rateForm.attendance} onChange={(v) => setRateForm((f) => ({ ...f, attendance: v }))} />
             <RatingRow label="Respeto" value={rateForm.respect} onChange={(v) => setRateForm((f) => ({ ...f, respect: v }))} />
-            <button onClick={submitRating} className="press-fx mt-2 w-full rounded-xl bg-brand py-3 text-sm font-bold text-white">
+            <button onClick={submitRating} className="press-fx mt-2 w-full rounded-xl bg-brand py-3 text-sm font-bold text-white shadow-glow-brand">
               Enviar calificación
             </button>
           </div>
@@ -896,16 +898,16 @@ ${torneoData.descrExtra}`.trim();
 
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-line bg-white p-3">
-      <div className="text-[10.5px] font-bold uppercase tracking-wide text-inksoft">{label}</div>
-      <div className="text-sm font-semibold">{value}</div>
+    <div className="rounded-xl border border-line dark:border-charcoal-line bg-white dark:bg-charcoal p-3 shadow-sm transition">
+      <div className="text-[10.5px] font-bold uppercase tracking-wide text-inksoft dark:text-gray-400">{label}</div>
+      <div className="text-sm font-semibold dark:text-white">{value}</div>
     </div>
   );
 }
 function EditField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1 block text-[11px] font-bold text-inksoft">{label}</label>
+      <label className="mb-1 block text-[11px] font-bold text-inksoft dark:text-gray-400">{label}</label>
       {children}
     </div>
   );
@@ -913,11 +915,11 @@ function EditField({ label, children }: { label: string; children: React.ReactNo
 function RatingRow({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
     <div className="mb-3 flex items-center justify-between">
-      <span className="text-sm font-medium">{label}</span>
+      <span className="text-sm font-medium dark:text-white">{label}</span>
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((n) => (
-          <button key={n} onClick={() => onChange(n)} className="press-fx">
-            <Star size={22} className={n <= value ? 'fill-amber-400 text-amber-400' : 'text-line'} />
+          <button key={n} onClick={() => onChange(n)} className="press-fx icon-bounce">
+            <Star size={22} className={n <= value ? 'fill-amber-400 text-amber-400' : 'text-line dark:text-charcoal-line'} />
           </button>
         ))}
       </div>

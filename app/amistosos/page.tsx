@@ -36,23 +36,25 @@ export default function AmistososPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-bg">
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-line bg-white px-5 py-4">
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-line dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-card px-5 py-4">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/')} className="press-fx text-ink">
+          <button onClick={() => router.push('/')} className="press-fx text-ink dark:text-white">
             <ArrowLeft size={22} />
           </button>
-          <h1 className="font-display text-lg font-extrabold">Partidos Amistosos</h1>
+          <h1 className="font-display text-lg font-extrabold dark:text-white">Partidos Amistosos</h1>
         </div>
         <button
           onClick={() => router.push('/publicar')}
-          className="press-fx flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white"
+          className="press-fx flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white shadow-glow-brand"
         >
           <Plus size={20} />
         </button>
       </header>
 
-      <div className="flex-1 px-5 pt-6 pb-24">
-        <p className="mb-4 text-sm text-inksoft">Encuentra o publica partidos informales para jugar hoy o en la semana.</p>
+      <div className="flex-1 px-5 pt-6 pb-24 dark:bg-neutral-950">
+        <div className="mb-6">
+          <p className="text-sm text-inksoft dark:text-neutral-400 leading-relaxed font-medium">Encuentra o publica partidos informales para jugar hoy o en la semana.</p>
+        </div>
         
         {loading ? (
           <>
@@ -62,9 +64,11 @@ export default function AmistososPage() {
         ) : matches.length === 0 ? (
           <EmptyState icon="ball" title="No hay amistosos disponibles" subtitle="¡Sé el primero en crear uno!" />
         ) : (
-          <div className="fade-slide-up">
-            {matches.map((m) => (
-              <MatchCard key={m.id} match={m} />
+          <div className="flex flex-col gap-4">
+            {matches.map((m, index) => (
+              <div key={m.id} className={`slide-up-sm stagger-${Math.min(index + 1, 8)}`}>
+                <MatchCard match={m} />
+              </div>
             ))}
           </div>
         )}

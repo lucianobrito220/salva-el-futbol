@@ -16,12 +16,6 @@ import { showToast } from '@/lib/toast';
 const AddressAutocomplete = dynamic(() => import('@/components/AddressAutocomplete'), { ssr: false });
 const CourtPickerModal = dynamic(() => import('@/components/CourtPickerModal'), { ssr: false });
 
-const genderStyles: Record<Gender, string> = {
-  Masculino: 'border-blue-400 bg-blue-50 text-blue-700',
-  Femenino: 'border-pink-400 bg-pink-50 text-pink-700',
-  Mixto: 'border-purple-400 bg-purple-50 text-purple-700',
-};
-
 export default function PublicarPage() {
   const router = useRouter();
   const { session, profile, loading } = useAuth();
@@ -106,7 +100,7 @@ export default function PublicarPage() {
       <div className="flex min-h-screen flex-col items-center justify-center p-5 text-center bg-bg pb-24">
         <h2 className="mb-2 font-display text-xl font-bold">Iniciá sesión</h2>
         <p className="text-sm text-inksoft">Necesitás una cuenta para armar un partido.</p>
-        <Link href="/auth?next=/publicar" className="mt-6 rounded-xl bg-brand px-6 py-3 font-bold text-white shadow-lg">
+        <Link href="/auth?next=/publicar" className="mt-6 rounded-xl bg-brand px-6 py-3 font-bold text-white shadow-lg press-fx">
           Iniciar sesión
         </Link>
       </div>
@@ -178,13 +172,19 @@ function PublicarForm({
     }
   };
 
+  const cardBase = "shadow-card rounded-2xl bg-white dark:bg-charcoal border p-4 transition press-fx flex items-center justify-center text-center text-[13px] font-bold";
+  const cardInactive = "border-line dark:border-charcoal-line text-inksoft dark:text-neutral-400";
+  const cardActive = "border-brand bg-brand/5 shadow-glow-brand text-brand-dark dark:text-brand";
+
+  const inputClass = "w-full rounded-xl border border-line bg-white p-3.5 text-[15px] text-ink transition-all focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10 dark:border-charcoal-line dark:bg-charcoal dark:text-white";
+
   return (
-    <div className="pb-10 bg-bg min-h-screen">
+    <div className="pb-10 bg-bg dark:bg-black min-h-screen">
       {showSuccess && <SuccessCheck message="¡Partido publicado!" donate />}
       
       {/* Header Visual */}
       <div 
-        className="relative overflow-hidden px-5 pb-6 pt-7 text-white bg-cover bg-center"
+        className="relative overflow-hidden px-5 pb-6 pt-7 text-white bg-cover bg-center shadow-card"
         style={{ backgroundImage: 'url("/brand/publicar-partido-bg.jpg")' }}
       >
         <div className="absolute inset-0 bg-black/60"></div>
@@ -199,45 +199,49 @@ function PublicarForm({
 
       <div className="px-5 pt-6">
         {/* Stepper Progress Bar */}
-        <div className="flex items-center gap-2 mb-8">
-          <div className={`h-1.5 flex-1 rounded-full transition-colors duration-500 ${step >= 1 ? 'bg-brand' : 'bg-line dark:bg-charcoal-line'}`} />
-          <div className={`h-1.5 flex-1 rounded-full transition-colors duration-500 ${step >= 2 ? 'bg-brand' : 'bg-line dark:bg-charcoal-line'}`} />
-          <div className={`h-1.5 flex-1 rounded-full transition-colors duration-500 ${step >= 3 ? 'bg-brand' : 'bg-line dark:bg-charcoal-line'}`} />
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-2 px-1">
+            {[1, 2, 3].map((s) => (
+              <div key={s} className={`h-2 w-2 rounded-full transition-colors duration-500 ${step >= s ? 'bg-brand' : 'bg-neutral-200 dark:bg-charcoal'}`} />
+            ))}
+          </div>
+          <div className="h-1.5 w-full bg-neutral-200 dark:bg-charcoal rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-brand rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${(step / 3) * 100}%` }}
+            />
+          </div>
         </div>
 
         <div className="space-y-5">
           {/* STEP 1: Detalles Básicos */}
           {step === 1 && (
-            <div className="fade-slide-up space-y-5">
+            <div className="slide-up-sm space-y-5">
               <Field label="¿Qué necesitás?">
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setMatchType('jugadores_sueltos')}
-                    className={`rounded-xl border px-2 py-3 text-[13px] font-bold transition-all ${
-                      matchType === 'jugadores_sueltos' ? 'border-brand bg-brand-pale text-brand-dark ring-2 ring-brand/20' : 'border-line bg-white text-inksoft dark:bg-charcoal dark:border-charcoal-line'
-                    }`}
+                    className={`${cardBase} ${matchType === 'jugadores_sueltos' ? cardActive : cardInactive}`}
                   >
                     Jugadores sueltos
                   </button>
                   <button
                     type="button"
                     onClick={() => setMatchType('equipo_rival')}
-                    className={`rounded-xl border px-2 py-3 text-[13px] font-bold transition-all ${
-                      matchType === 'equipo_rival' ? 'border-brand bg-brand-pale text-brand-dark ring-2 ring-brand/20' : 'border-line bg-white text-inksoft dark:bg-charcoal dark:border-charcoal-line'
-                    }`}
+                    className={`${cardBase} ${matchType === 'equipo_rival' ? cardActive : cardInactive}`}
                   >
                     Equipo rival
                   </button>
                 </div>
                 {matchType === 'equipo_rival' && (
-                  <p className="mt-2 text-[11px] text-inksoft">Ya tenés tu equipo armado y buscás otro equipo completo para jugar.</p>
+                  <p className="mt-2 text-[11px] text-inksoft dark:text-neutral-400">Ya tenés tu equipo armado y buscás otro equipo completo para jugar.</p>
                 )}
                 
                 <button
                   type="button"
                   onClick={() => router.push('/publicar-torneo')}
-                  className="mt-3 w-full flex items-center justify-center gap-2 rounded-xl border border-purple-200 bg-purple-50 py-3 text-[13px] font-bold text-purple-700 hover:bg-purple-100 press-fx dark:bg-purple-900/20 dark:border-purple-800 dark:text-purple-300"
+                  className="mt-3 w-full flex items-center justify-center gap-2 rounded-2xl border border-purple-200 bg-purple-50 py-4 text-[13px] font-bold text-purple-700 hover:bg-purple-100 press-fx dark:bg-purple-900/20 dark:border-purple-800 dark:text-purple-300 shadow-card transition-all"
                 >
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-200 text-purple-700 dark:bg-purple-800 dark:text-purple-200">🏆</span>
                   Publicar Torneo
@@ -251,9 +255,7 @@ function PublicarForm({
                       key={f}
                       type="button"
                       onClick={() => setTeamFormat(f)}
-                      className={`rounded-xl border px-1 py-3 text-[13px] font-bold transition-all ${
-                        teamFormat === f ? 'border-brand bg-brand-pale text-brand-dark ring-2 ring-brand/20' : 'border-line bg-white text-inksoft dark:bg-charcoal dark:border-charcoal-line'
-                      }`}
+                      className={`${cardBase} py-3 ${teamFormat === f ? cardActive : cardInactive}`}
                     >
                       {f}
                     </button>
@@ -268,9 +270,7 @@ function PublicarForm({
                       key={g}
                       type="button"
                       onClick={() => setGender(g)}
-                      className={`rounded-xl border px-1 py-3 text-[13px] font-bold transition-all ${
-                        gender === g ? genderStyles[g] : 'border-line bg-white text-inksoft dark:bg-charcoal dark:border-charcoal-line'
-                      }`}
+                      className={`${cardBase} py-3 ${gender === g ? cardActive : cardInactive}`}
                     >
                       {g}
                     </button>
@@ -285,9 +285,7 @@ function PublicarForm({
                       key={l}
                       type="button"
                       onClick={() => setLevel(l)}
-                      className={`rounded-xl border px-1 py-3 text-[12px] font-bold transition-all ${
-                        level === l ? 'border-brand bg-brand-pale text-brand-dark ring-2 ring-brand/20' : 'border-line bg-white text-inksoft dark:bg-charcoal dark:border-charcoal-line'
-                      }`}
+                      className={`${cardBase} py-3 px-1 text-[12px] ${level === l ? cardActive : cardInactive}`}
                     >
                       {l}
                     </button>
@@ -296,10 +294,10 @@ function PublicarForm({
               </Field>
 
               <Field label="Precio por jugador ($)">
-                <input type="number" min={0} className="input text-lg font-bold" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Ej: 3500" />
+                <input type="number" min={0} className={`${inputClass} text-lg font-bold`} value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Ej: 3500" />
               </Field>
 
-              <button onClick={handleNext} className="press-fx mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-ink dark:bg-white text-white dark:text-ink py-4 font-display font-bold shadow-lg">
+              <button onClick={handleNext} className="press-fx mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-ink dark:bg-white text-white dark:text-ink py-4 font-display font-bold shadow-card">
                 Siguiente Paso <ChevronRight size={20} />
               </button>
             </div>
@@ -307,19 +305,19 @@ function PublicarForm({
 
           {/* STEP 2: Ubicación y Fecha */}
           {step === 2 && (
-            <div className="fade-slide-up space-y-5">
+            <div className="slide-up-sm space-y-5">
               <Field label="Ciudad">
-                <input className="input" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Yerba Buena" />
+                <input className={inputClass} value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Yerba Buena" />
               </Field>
               
               <Field label="Nombre del Complejo o Cancha">
-                <input className="input mb-3" value={court} onChange={(e) => setCourt(e.target.value)} placeholder="Ej: Complejo La 10" />
+                <input className={`${inputClass} mb-3`} value={court} onChange={(e) => setCourt(e.target.value)} placeholder="Ej: Complejo La 10" />
                 <button
                   type="button"
                   onClick={() => setShowCourtPicker(true)}
-                  className="press-fx flex w-full items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed border-brand/40 bg-brand-pale/50 py-3.5 text-[13px] font-bold text-brand-dark hover:bg-brand-pale transition-colors"
+                  className="press-fx flex w-full items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed border-brand/40 bg-brand-pale/50 dark:bg-brand/10 dark:border-brand/30 py-3.5 text-[13px] font-bold text-brand-dark dark:text-brand hover:bg-brand-pale transition-colors"
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand/10"><MapPin size={16} className="text-brand" /></span>
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand/10 dark:bg-brand/20"><MapPin size={16} className="text-brand" /></span>
                   Buscar cancha en el mapa 🗺️
                 </button>
               </Field>
@@ -350,28 +348,28 @@ function PublicarForm({
                 <Field label="Fecha">
                   <input 
                     type="date" 
-                    className="input font-bold" 
+                    className={`${inputClass} font-bold`} 
                     value={date} 
                     onChange={(e) => setDate(e.target.value)} 
-                    style={{ colorScheme: 'light', minHeight: '48px', appearance: 'none', WebkitAppearance: 'none' }}
+                    style={{ minHeight: '48px' }}
                   />
                 </Field>
                 <Field label="Hora">
                   <input 
                     type="time" 
-                    className="input font-bold" 
+                    className={`${inputClass} font-bold`} 
                     value={time} 
                     onChange={(e) => setTime(e.target.value)} 
-                    style={{ colorScheme: 'light', minHeight: '48px', appearance: 'none', WebkitAppearance: 'none' }}
+                    style={{ minHeight: '48px' }}
                   />
                 </Field>
               </div>
 
               <div className="flex gap-3 mt-4">
-                <button onClick={() => setStep(1)} className="press-fx flex items-center justify-center rounded-2xl bg-line dark:bg-charcoal-line px-5 py-4 font-bold text-ink dark:text-white">
+                <button onClick={() => setStep(1)} className="press-fx flex items-center justify-center rounded-2xl bg-line dark:bg-charcoal-line px-5 py-4 font-bold text-ink dark:text-white shadow-card">
                   <ChevronLeft size={20} />
                 </button>
-                <button onClick={handleNext} className="press-fx flex-1 flex items-center justify-center gap-2 rounded-2xl bg-ink dark:bg-white text-white dark:text-ink py-4 font-display font-bold shadow-lg">
+                <button onClick={handleNext} className="press-fx flex-1 flex items-center justify-center gap-2 rounded-2xl bg-ink dark:bg-white text-white dark:text-ink py-4 font-display font-bold shadow-card">
                   Siguiente Paso <ChevronRight size={20} />
                 </button>
               </div>
@@ -380,21 +378,21 @@ function PublicarForm({
 
           {/* STEP 3: Confirmación y Ajustes */}
           {step === 3 && (
-            <div className="fade-slide-up space-y-5">
+            <div className="slide-up-sm space-y-5">
               {matchType === 'jugadores_sueltos' && (
                 <Field label="Jugadores faltantes">
-                  <div className="flex items-center gap-4 bg-white dark:bg-charcoal p-3 rounded-2xl border border-line dark:border-charcoal-line">
-                    <button type="button" onClick={() => setMissing((m: number) => Math.max(1, m - 1))} className="stepper-btn press-fx">−</button>
-                    <span className="font-display text-2xl font-extrabold flex-1 text-center dark:text-white">{missing}</span>
-                    <button type="button" onClick={() => setMissing((m: number) => Math.min(10, m + 1))} className="stepper-btn press-fx">+</button>
+                  <div className="flex items-center gap-4 bg-white dark:bg-charcoal p-3 rounded-2xl border border-line dark:border-charcoal-line shadow-card">
+                    <button type="button" onClick={() => setMissing((m: number) => Math.max(1, m - 1))} className="h-12 w-12 rounded-xl border border-line bg-white dark:bg-charcoal dark:border-charcoal-line flex items-center justify-center text-2xl font-bold text-brand press-fx shadow-sm">−</button>
+                    <span className="font-display text-xl font-bold flex-1 text-center dark:text-white">{missing}</span>
+                    <button type="button" onClick={() => setMissing((m: number) => Math.min(10, m + 1))} className="h-12 w-12 rounded-xl border border-line bg-white dark:bg-charcoal dark:border-charcoal-line flex items-center justify-center text-2xl font-bold text-brand press-fx shadow-sm">+</button>
                   </div>
                 </Field>
               )}
 
-              <div className="flex items-center justify-between rounded-2xl border border-line dark:border-charcoal-line bg-white dark:bg-charcoal p-4">
+              <div className="flex items-center justify-between rounded-2xl border border-line dark:border-charcoal-line bg-white dark:bg-charcoal p-4 shadow-card">
                 <div>
-                  <div className="font-bold text-ink dark:text-white">Solicitar Árbitro Oficial</div>
-                  <div className="text-xs text-inksoft mt-0.5">Se publicará en la bolsa de trabajo para árbitros.</div>
+                  <div className="font-bold text-ink dark:text-white text-sm">Solicitar Árbitro Oficial</div>
+                  <div className="text-xs text-inksoft dark:text-neutral-400 mt-0.5">Se publicará en la bolsa de trabajo para árbitros.</div>
                 </div>
                 <button
                   type="button"
@@ -407,71 +405,38 @@ function PublicarForm({
 
               <Field label="Descripción adicional (opcional)">
                 <textarea
-                  className="input h-24 resize-none"
+                  className={`${inputClass} h-24 resize-none`}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Ej: Cancha techada de sintético. Llevar pechera blanca y otra oscura."
                 />
               </Field>
 
-              {error && <p className="text-sm font-bold text-red-600 bg-red-50 p-3 rounded-xl">{error}</p>}
+              {error && <p className="text-sm font-bold text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 p-3 rounded-xl">{error}</p>}
 
               <div className="flex gap-3 mt-4">
-                <button onClick={() => setStep(2)} className="press-fx flex items-center justify-center rounded-2xl bg-line dark:bg-charcoal-line px-5 py-4 font-bold text-ink dark:text-white">
+                <button onClick={() => setStep(2)} className="press-fx flex items-center justify-center rounded-2xl bg-line dark:bg-charcoal-line px-5 py-4 font-bold text-ink dark:text-white shadow-card">
                   <ChevronLeft size={20} />
                 </button>
                 <button
                   onClick={publish}
                   disabled={submitting}
-                  className="press-fx flex-1 flex items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-display font-bold text-white shadow-lg shadow-brand/30 disabled:opacity-60"
+                  className="press-fx flex-1 flex items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-display font-bold text-white shadow-glow-brand disabled:opacity-80"
                 >
-                  {submitting ? 'Publicando…' : 'Publicar partido'} <Check size={20} strokeWidth={3} />
+                  {submitting ? (
+                    <>
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      Publicando…
+                    </>
+                  ) : (
+                    <>
+                      Publicar partido <Check size={20} strokeWidth={3} />
+                    </>
+                  )}
                 </button>
               </div>
             </div>
           )}
-
-      <style jsx global>{`
-        .input {
-          width: 100%;
-          border-radius: 16px;
-          border: 1.5px solid #e7e9ec;
-          padding: 14px 16px;
-          font-size: 15px;
-          background-color: #ffffff;
-          color: #1a1a2e;
-          -webkit-appearance: none;
-          transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .input:focus {
-          border-color: #00d65f;
-          outline: none;
-          box-shadow: 0 0 0 4px rgba(0, 214, 95, 0.1);
-        }
-        :global(.dark) .input {
-          background-color: #1a1a1a;
-          border-color: #2a2a2a;
-          color: #ffffff;
-        }
-        .stepper-btn {
-          width: 48px;
-          height: 48px;
-          border-radius: 14px;
-          border: 1.5px solid #e7e9ec;
-          background: #f8fafc;
-          font-size: 24px;
-          font-weight: 700;
-          color: #157135;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        :global(.dark) .stepper-btn {
-          background: #2a2a2a;
-          border-color: #333;
-          color: #00d65f;
-        }
-      `}</style>
         </div>
       </div>
     </div>
@@ -481,7 +446,7 @@ function PublicarForm({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-2 block text-[13px] font-bold text-ink dark:text-white/90">{label}</label>
+      <label className="mb-1.5 block text-sm font-semibold text-ink dark:text-white">{label}</label>
       {children}
     </div>
   );

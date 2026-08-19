@@ -94,10 +94,10 @@ export default function CrearEquipoPage() {
 
   if (!session) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-5 text-center bg-bg pb-24">
-        <h2 className="mb-2 font-display text-xl font-bold">Iniciá sesión</h2>
-        <p className="text-sm text-inksoft">Necesitás una cuenta para crear un equipo.</p>
-        <Link href="/auth?next=/equipos/crear" className="mt-6 rounded-xl bg-brand px-6 py-3 font-bold text-white shadow-lg">
+      <div className="flex min-h-screen flex-col items-center justify-center p-5 text-center bg-bg dark:bg-bg-dark pb-24">
+        <h2 className="mb-2 font-display text-xl font-bold dark:text-white">Iniciá sesión</h2>
+        <p className="text-sm text-inksoft dark:text-inksoft-dark">Necesitás una cuenta para crear un equipo.</p>
+        <Link href="/auth?next=/equipos/crear" className="mt-6 rounded-xl bg-brand px-6 py-3 font-bold text-white shadow-glow-brand press-fx">
           Iniciar sesión
         </Link>
       </div>
@@ -105,14 +105,14 @@ export default function CrearEquipoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg pb-10">
+    <div className="min-h-screen bg-bg dark:bg-bg-dark pb-10">
       {showSuccess && <SuccessCheck message="¡Equipo creado!" />}
       
-      <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-line bg-white px-5 py-4">
-        <button onClick={() => router.back()} className="press-fx text-ink">
+      <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-line dark:border-line-dark bg-white dark:bg-bg-dark px-5 py-4 shadow-card">
+        <button onClick={() => router.back()} className="press-fx text-ink dark:text-white">
           <ArrowLeft size={22} />
         </button>
-        <h1 className="font-display text-lg font-extrabold flex items-center gap-2">
+        <h1 className="font-display text-lg font-extrabold flex items-center gap-2 dark:text-white">
           Crear Equipo
         </h1>
       </header>
@@ -123,42 +123,42 @@ export default function CrearEquipoPage() {
             type="button"
             disabled={uploadingLogo}
             onClick={() => fileInputRef.current?.click()}
-            className="relative mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-neutral-200 border-4 border-white shadow-md overflow-hidden press-fx disabled:opacity-50"
+            className="relative mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-neutral-200 dark:bg-charcoal border-4 border-white dark:border-charcoal-soft shadow-md hover:shadow-glow-brand overflow-hidden press-fx disabled:opacity-50 transition-all border-dashed"
           >
             {logoUrl ? (
               <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" />
             ) : (
-              <Shield size={40} className="text-neutral-400" />
+              <Shield size={40} className="text-neutral-400 dark:text-neutral-500" />
             )}
-            <div className="absolute bottom-0 left-0 right-0 bg-black/40 py-1 text-center">
+            <div className="absolute bottom-0 left-0 right-0 bg-black/40 py-1 text-center backdrop-blur-sm">
               <Camera size={14} className="mx-auto text-white" />
             </div>
           </button>
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
-          {uploadingLogo && <p className="text-xs font-bold text-brand mt-1">Subiendo imagen...</p>}
-          <p className="text-xs text-inksoft text-center px-4 mt-2">
+          {uploadingLogo && <p className="text-xs font-bold text-brand mt-1 count-pulse">Subiendo imagen...</p>}
+          <p className="text-xs text-inksoft dark:text-inksoft-dark text-center px-4 mt-2">
             Tocá el escudo para subir una foto desde tu galería.
           </p>
         </div>
 
         <div className="flex flex-col gap-5">
           <div>
-            <label className="mb-1.5 block text-xs font-bold text-ink">Nombre del Equipo *</label>
+            <label className="mb-1.5 block text-xs font-bold text-ink dark:text-white">Nombre del Equipo *</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ej: Los Pumas FC"
-              className="w-full rounded-xl border border-line bg-white px-4 py-3.5 text-sm outline-none focus:border-brand"
+              className="w-full rounded-xl border border-line dark:border-line-dark bg-white dark:bg-charcoal px-4 py-3.5 text-sm outline-none focus:ring-2 focus:ring-brand dark:text-white transition-all"
             />
           </div>
 
-          {error && <p className="text-xs font-bold text-red-600">{error}</p>}
+          {error && <p className="text-xs font-bold text-red-600 dark:text-red-400 shake-error">{error}</p>}
 
           <button
             onClick={handleCreate}
             disabled={submitting}
-            className="press-fx mt-4 w-full rounded-xl bg-brand py-4 font-display font-bold text-white shadow-lg disabled:opacity-50"
+            className="press-fx mt-4 w-full rounded-xl bg-brand py-4 font-display font-bold text-white shadow-glow-brand disabled:opacity-50 transition-all"
           >
             {submitting ? 'Creando...' : 'Fundar Equipo'}
           </button>

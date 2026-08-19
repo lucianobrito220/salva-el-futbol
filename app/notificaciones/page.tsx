@@ -129,9 +129,9 @@ export default function NotificacionesPage() {
 
   return (
     <div className="min-h-screen bg-bg pb-24">
-      <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-line bg-white px-5 py-4">
-        <button onClick={() => router.back()} className="press-fx text-ink"><ArrowLeft size={22} /></button>
-        <h1 className="font-display text-lg font-extrabold text-ink">Notificaciones</h1>
+      <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-line dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-card px-5 py-4">
+        <button onClick={() => router.back()} className="press-fx text-ink dark:text-white"><ArrowLeft size={22} /></button>
+        <h1 className="font-display text-lg font-extrabold text-ink dark:text-white">Notificaciones</h1>
       </header>
 
       <div className="pt-4">
@@ -140,29 +140,29 @@ export default function NotificacionesPage() {
             <EmptyState icon="bell" title="Todavía no tenés notificaciones" subtitle="Te vamos a avisar cuando algo pase con tus partidos." />
           </div>
         )}
-        {items.map((n) => (
+        {items.map((n, index) => (
           <button
             key={n.id}
             onClick={() => openNotification(n)}
-            className={`press-fx mx-5 mb-2.5 flex w-[calc(100%-40px)] items-start gap-3 rounded-2xl border p-3.5 text-left transition-all ${
+            className={`press-fx mx-5 mb-2.5 flex w-[calc(100%-40px)] items-start gap-3 rounded-xl border p-3.5 text-left transition-all duration-300 slide-up-sm stagger-${Math.min(index + 1, 8)} ${
               !n.read
-                ? 'border-brand/40 bg-brand-pale ring-2 ring-brand/30 shadow-sm'
-                : 'border-line bg-white shadow-xs'
+                ? 'border-brand/30 bg-brand-pale dark:bg-brand/10 ring-2 ring-brand/30 shadow-card'
+                : 'border-line dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-card opacity-80 hover:opacity-100'
             }`}
           >
-            <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${
-              !n.read ? 'bg-white shadow-xs' : 'bg-brand-pale text-brand-dark'
+            <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl transition-all ${
+              !n.read ? 'bg-white dark:bg-neutral-800 shadow-sm' : 'bg-neutral-100 dark:bg-neutral-800 text-inksoft dark:text-neutral-400'
             }`}>
               {getNotificationIcon(n.body, n.title)}
             </div>
             <div className="flex-1 min-w-0">
-              <p className={`text-sm leading-snug ${!n.read ? 'font-bold text-ink' : 'font-medium text-ink'}`}>
+              <p className={`text-sm leading-snug transition-colors ${!n.read ? 'font-bold text-ink dark:text-white' : 'font-medium text-ink dark:text-neutral-300'}`}>
                 {n.body}
               </p>
               <div className="mt-1 flex items-center gap-1.5">
-                <small className="text-[11px] font-semibold text-inksoft">{getRelativeTime(n.created_at)}</small>
+                <small className="text-[11px] font-semibold text-inksoft dark:text-neutral-500">{getRelativeTime(n.created_at)}</small>
                 {!n.read && (
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand" />
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand shadow-glow-brand" />
                 )}
               </div>
             </div>

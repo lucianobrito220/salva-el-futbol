@@ -7,15 +7,15 @@ export default function TerminosPage() {
   const router = useRouter();
   return (
     <div className="pb-10">
-      <div className="flex items-center gap-2 border-b border-line bg-white px-5 py-4">
-        <button onClick={() => router.back()} className="press-fx text-ink">
+      <div className="flex items-center gap-2 border-b border-line dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm px-5 py-4">
+        <button onClick={() => router.back()} className="press-fx text-ink dark:text-white">
           <ChevronLeft size={24} />
         </button>
-        <h1 className="font-display text-base font-bold">Términos y condiciones</h1>
+        <h1 className="font-display text-base font-bold dark:text-white">Términos y condiciones</h1>
       </div>
 
-      <div className="space-y-4 px-5 py-5 text-sm text-inksoft">
-        <p className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
+      <div className="space-y-6 px-5 py-6 text-sm text-inksoft dark:text-neutral-400 dark:bg-neutral-950 min-h-screen">
+        <p className="rounded-2xl border border-amber-300 dark:border-amber-700/50 bg-amber-50 dark:bg-amber-900/10 p-4 text-xs font-medium leading-relaxed text-amber-800 dark:text-amber-500 shadow-card">
           Este texto es un punto de partida general y no reemplaza el asesoramiento de un abogado. Antes de
           publicar la app para el público en general, te recomendamos que lo revise un profesional.
         </p>
@@ -62,9 +62,9 @@ export default function TerminosPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div>
-      <h2 className="mb-1 font-display text-sm font-bold text-ink">{title}</h2>
-      <p>{children}</p>
+    <div className="slide-up-sm stagger-1">
+      <h2 className="mb-2 font-display text-sm font-extrabold text-ink dark:text-white uppercase tracking-wide">{title}</h2>
+      <p className="leading-relaxed">{children}</p>
     </div>
   );
 }
