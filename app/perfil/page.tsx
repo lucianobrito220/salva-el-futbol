@@ -12,6 +12,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { Bell, Camera, Pencil, LogOut, Check, Award, Shield, Moon, HelpCircle, FileText, ChevronRight, ChevronDown, ChevronUp, Activity, Trophy, Gift, Share2, AlertCircle } from 'lucide-react';
 import { showToast } from '@/lib/toast';
 import Link from 'next/link';
+import Avatar from '@/components/Avatar';
 
 export default function PerfilPage() {
   const router = useRouter();
