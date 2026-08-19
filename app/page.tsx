@@ -42,6 +42,8 @@ export default function HomePage() {
   const { session, profile, loading, unreadNotifications } = useAuth();
   const [selectedDate, setSelectedDate] = useState<string>(today());
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [isAvailable, setIsAvailable] = useState(true);
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
   const week = useMemo(buildWeek, []);
 
   const fetcher = async () => {
@@ -137,10 +139,40 @@ export default function HomePage() {
             <h2 className="font-display text-[22px] font-bold text-[#333333] leading-none tracking-tight mb-1.5">
               ¡Hola, <span className="text-[#1a1a1a]">{profile.name?.split(' ')[0] || 'Jugador'}</span>!
             </h2>
-            <div className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#00d65f] shadow-[0_0_8px_rgba(0,214,95,0.4)]" />
-              <span className="text-[14px] font-medium text-[#8a8a8a]">Listo para jugar</span>
-              <ChevronDown size={16} strokeWidth={2.5} className="text-[#8a8a8a] ml-0.5" />
+            <div className="relative">
+              <button 
+                onClick={() => setShowStatusMenu(!showStatusMenu)}
+                className="flex items-center gap-1.5 press-fx"
+              >
+                <span className={`h-2.5 w-2.5 rounded-full transition-colors ${isAvailable ? 'bg-[#00d65f] shadow-[0_0_8px_rgba(0,214,95,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]'}`} />
+                <span className="text-[14px] font-medium text-[#8a8a8a] transition-all">
+                  {isAvailable ? 'Listo para jugar' : 'No disponible'}
+                </span>
+                <ChevronDown size={16} strokeWidth={2.5} className={`text-[#8a8a8a] ml-0.5 transition-transform duration-300 ${showStatusMenu ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Status Dropdown Menu with fade-slide-up animation */}
+              {showStatusMenu && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowStatusMenu(false)} />
+                  <div className="absolute left-0 top-full mt-2 w-48 z-50 origin-top-left rounded-2xl border border-line bg-white p-1.5 shadow-lg fade-slide-up dark:border-charcoal-line dark:bg-charcoal">
+                    <button 
+                      onClick={() => { setIsAvailable(true); setShowStatusMenu(false); }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-sm font-bold transition-all ${isAvailable ? 'bg-brand/10 text-brand scale-[1.02]' : 'text-inksoft hover:bg-neutral-50 dark:hover:bg-charcoal-light'}`}
+                    >
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#00d65f] shadow-sm" />
+                      Listo para jugar
+                    </button>
+                    <button 
+                      onClick={() => { setIsAvailable(false); setShowStatusMenu(false); }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-sm font-bold transition-all mt-1 ${!isAvailable ? 'bg-red-50 text-red-600 scale-[1.02] dark:bg-red-500/10' : 'text-inksoft hover:bg-neutral-50 dark:hover:bg-charcoal-light'}`}
+                    >
+                      <span className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-sm" />
+                      No disponible
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
