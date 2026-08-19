@@ -1,42 +1,37 @@
 {
   "app\\page.tsx -> @/components/MapLayer": {
-    "id": 8855,
+    "id": "app\\page.tsx -> @/components/MapLayer",
     "files": [
-      "static/css/fc1c9daac70c093b.css",
-      "static/chunks/d0deef33-08e72c68cc07d6b8.js",
-      "static/chunks/855.ba17508ba6768d94.js"
+      "static/css/_app-pages-browser_components_MapLayer_tsx.css",
+      "static/chunks/_app-pages-browser_components_MapLayer_tsx.js"
     ]
   },
   "app\\partido\\[id]\\page.tsx -> @/components/AddressAutocomplete": {
-    "id": 7191,
+    "id": "app\\partido\\[id]\\page.tsx -> @/components/AddressAutocomplete",
     "files": [
-      "static/css/fc1c9daac70c093b.css",
-      "static/chunks/d0deef33-08e72c68cc07d6b8.js",
-      "static/chunks/191.dcc0e714f292876a.js"
+      "static/css/_app-pages-browser_components_AddressAutocomplete_tsx.css",
+      "static/chunks/_app-pages-browser_components_AddressAutocomplete_tsx.js"
     ]
   },
   "app\\partido\\[id]\\page.tsx -> @/components/MapModal": {
-    "id": 3870,
+    "id": "app\\partido\\[id]\\page.tsx -> @/components/MapModal",
     "files": [
-      "static/css/fc1c9daac70c093b.css",
-      "static/chunks/d0deef33-08e72c68cc07d6b8.js",
-      "static/chunks/870.5d484e87feb95819.js"
+      "static/css/_app-pages-browser_components_MapModal_tsx.css",
+      "static/chunks/_app-pages-browser_components_MapModal_tsx.js"
     ]
   },
   "app\\publicar\\page.tsx -> @/components/AddressAutocomplete": {
-    "id": 7191,
+    "id": "app\\publicar\\page.tsx -> @/components/AddressAutocomplete",
     "files": [
-      "static/css/fc1c9daac70c093b.css",
-      "static/chunks/d0deef33-08e72c68cc07d6b8.js",
-      "static/chunks/191.dcc0e714f292876a.js"
+      "static/css/_app-pages-browser_components_AddressAutocomplete_tsx.css",
+      "static/chunks/_app-pages-browser_components_AddressAutocomplete_tsx.js"
     ]
   },
   "app\\publicar\\page.tsx -> @/components/CourtPickerModal": {
-    "id": 9037,
+    "id": "app\\publicar\\page.tsx -> @/components/CourtPickerModal",
     "files": [
-      "static/css/fc1c9daac70c093b.css",
-      "static/chunks/d0deef33-08e72c68cc07d6b8.js",
-      "static/chunks/37.6e493ecd2ed91eb7.js"
+      "static/css/_app-pages-browser_components_CourtPickerModal_tsx.css",
+      "static/chunks/_app-pages-browser_components_CourtPickerModal_tsx.js"
     ]
   }
 }

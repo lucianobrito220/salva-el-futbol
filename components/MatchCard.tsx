@@ -92,7 +92,7 @@ export default function MatchCard({ match, isMine, asRefereeMode }: { match: Mat
     return (
       <Link
         href={href}
-        className="press-fx lift-fx mb-4 block overflow-hidden rounded-2xl border border-purple-200 bg-white shadow-sm"
+        className="press-fx lift-fx mb-4 block overflow-hidden rounded-2xl border border-purple-200 bg-white shadow-sm hover:shadow-md hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300"
       >
         <div 
           className="h-28 w-full relative bg-cover bg-center" 
@@ -161,7 +161,7 @@ export default function MatchCard({ match, isMine, asRefereeMode }: { match: Mat
   return (
     <Link
       href={href}
-      className={`press-fx lift-fx blur-in mb-4 block overflow-hidden rounded-[24px] border border-white/10 shadow-card hover:shadow-card-hover relative bg-black`}
+      className={`press-fx lift-fx blur-in mb-4 block overflow-hidden rounded-[24px] border border-white/10 shadow-card hover:shadow-card-hover hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 relative bg-black`}
     >
       <div className="absolute inset-0 z-0">
         <Image 
