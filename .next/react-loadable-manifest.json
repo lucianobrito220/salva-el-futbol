@@ -5,19 +5,5 @@
       "static/css/_app-pages-browser_components_MapLayer_tsx.css",
       "static/chunks/_app-pages-browser_components_MapLayer_tsx.js"
     ]
-  },
-  "app\\publicar\\page.tsx -> @/components/AddressAutocomplete": {
-    "id": "app\\publicar\\page.tsx -> @/components/AddressAutocomplete",
-    "files": [
-      "static/css/_app-pages-browser_components_AddressAutocomplete_tsx.css",
-      "static/chunks/_app-pages-browser_components_AddressAutocomplete_tsx.js"
-    ]
-  },
-  "app\\publicar\\page.tsx -> @/components/CourtPickerModal": {
-    "id": "app\\publicar\\page.tsx -> @/components/CourtPickerModal",
-    "files": [
-      "static/css/_app-pages-browser_components_CourtPickerModal_tsx.css",
-      "static/chunks/_app-pages-browser_components_CourtPickerModal_tsx.js"
-    ]
   }
 }
