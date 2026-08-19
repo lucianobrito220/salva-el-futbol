@@ -178,7 +178,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <div className="relative overflow-hidden px-5 pb-5 pt-4">
+      <div className="relative overflow-hidden px-5 pb-1 pt-3">
         <div className="relative">
           {profile?.is_referee ? (
             <div className="mb-4">
@@ -194,9 +194,9 @@ export default function HomePage() {
             </div>
           ) : (
             <>
-              <div>
-                <h1 className="mb-1 font-display text-[22px] font-extrabold text-ink dark:text-white">¿Qué necesitás hoy?</h1>
-                <p className="text-[13px] text-inksoft dark:text-white/60 mb-1">Conectamos partidos con jugadores en segundos.</p>
+              <div className="mb-2">
+                <h1 className="mb-0.5 font-display text-[20px] font-extrabold text-ink dark:text-white leading-tight">¿Qué necesitás hoy?</h1>
+                <p className="text-[12px] text-inksoft dark:text-white/60 mb-0">Conectamos partidos con jugadores en segundos.</p>
               </div>
               <div className="-mx-5">
                 <HomeCarousel3D />

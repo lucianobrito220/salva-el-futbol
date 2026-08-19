@@ -68,7 +68,8 @@ export default function HomeCarousel3D() {
           bulletActiveClass: 'swiper-bullet-active-custom'
         }}
         modules={[EffectCoverflow, Pagination]}
-        className="w-full h-[180px] flex items-center"
+        className="w-full h-[170px] flex items-center"
+        speed={500}
       >
         {slides.map((slide, i) => (
           <SwiperSlide key={i} className="!w-[140px] !h-[160px]" onClick={slide.action}>
@@ -99,7 +100,7 @@ export default function HomeCarousel3D() {
           </SwiperSlide>
         ))}
       </Swiper>
-      <div className="custom-pagination flex justify-center gap-2 mt-4"></div>
+      <div className="custom-pagination flex justify-center gap-2 mt-2 pb-2"></div>
       
       <style jsx global>{`
         .swiper-bullet-custom {
