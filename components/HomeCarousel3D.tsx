@@ -15,29 +15,33 @@ export default function HomeCarousel3D() {
     {
       title: 'Sumarme a uno',
       desc: 'Buscá partidos',
-      icon: <Search size={28} strokeWidth={2.5} />,
-      color: 'bg-brand text-white',
+      icon: <Search size={24} strokeWidth={2.5} />,
+      activeColor: 'bg-gradient-to-br from-[#1a2e22] to-[#0d1812] border-2 border-brand shadow-[0_0_25px_rgba(0,214,95,0.25)]',
+      inactiveColor: 'bg-gradient-to-br from-white to-neutral-50 border border-neutral-200 dark:from-charcoal dark:to-charcoal-dark dark:border-white/10',
       action: () => router.push('/buscar')
     },
     {
       title: 'Armar partido',
       desc: 'Armá y compartí',
-      icon: <Megaphone size={28} strokeWidth={2.5} />,
-      color: 'bg-brand text-white',
+      icon: <Megaphone size={24} strokeWidth={2.5} />,
+      activeColor: 'bg-gradient-to-br from-[#1a2e22] to-[#0d1812] border-2 border-brand shadow-[0_0_25px_rgba(0,214,95,0.25)]',
+      inactiveColor: 'bg-gradient-to-br from-white to-neutral-50 border border-neutral-200 dark:from-charcoal dark:to-charcoal-dark dark:border-white/10',
       action: () => router.push('/publicar')
     },
     {
       title: 'Buscar rival',
       desc: 'Para tu equipo',
-      icon: <Users size={28} strokeWidth={2.5} />,
-      color: 'bg-brand text-white',
+      icon: <Users size={24} strokeWidth={2.5} />,
+      activeColor: 'bg-gradient-to-br from-[#1a2e22] to-[#0d1812] border-2 border-brand shadow-[0_0_25px_rgba(0,214,95,0.25)]',
+      inactiveColor: 'bg-gradient-to-br from-white to-neutral-50 border border-neutral-200 dark:from-charcoal dark:to-charcoal-dark dark:border-white/10',
       action: () => router.push('/publicar?tipo=equipo_rival')
     },
     {
       title: 'Explorar',
       desc: 'Torneos locales',
-      icon: <Trophy size={28} strokeWidth={2.5} />,
-      color: 'bg-brand text-white',
+      icon: <Trophy size={24} strokeWidth={2.5} />,
+      activeColor: 'bg-gradient-to-br from-[#1a2e22] to-[#0d1812] border-2 border-brand shadow-[0_0_25px_rgba(0,214,95,0.25)]',
+      inactiveColor: 'bg-gradient-to-br from-white to-neutral-50 border border-neutral-200 dark:from-charcoal dark:to-charcoal-dark dark:border-white/10',
       action: () => router.push('/torneos')
     }
   ];
@@ -64,30 +68,30 @@ export default function HomeCarousel3D() {
           bulletActiveClass: 'swiper-bullet-active-custom'
         }}
         modules={[EffectCoverflow, Pagination]}
-        className="w-full h-[220px] flex items-center"
+        className="w-full h-[180px] flex items-center"
       >
         {slides.map((slide, i) => (
-          <SwiperSlide key={i} className="!w-[150px] !h-[180px]" onClick={slide.action}>
+          <SwiperSlide key={i} className="!w-[140px] !h-[160px]" onClick={slide.action}>
             {({ isActive }) => (
               <div 
-                className={`w-full h-full rounded-[24px] flex flex-col items-center justify-center p-4 text-white shadow-xl transition-all duration-300 border ${isActive ? slide.color + ' border-transparent' : 'bg-white/5 border-white/10 opacity-70 backdrop-blur-md dark:bg-charcoal-light/50'}`}
+                className={`w-full h-full rounded-[22px] flex flex-col items-center justify-center p-3 transition-all duration-300 ${isActive ? slide.activeColor : slide.inactiveColor + ' opacity-60 scale-95'}`}
               >
-                <div className="relative mb-3 flex h-[60px] w-[60px] items-center justify-center rounded-full">
-                  <div className={`absolute inset-0 rounded-full transition-all duration-500 ${isActive ? 'bg-white/20 shadow-inner' : 'border-2 border-white/20 bg-transparent'}`} />
-                  <div className={`relative z-10 ${isActive ? 'text-white' : 'text-white/60'}`}>
+                <div className="relative mb-3 flex h-[52px] w-[52px] items-center justify-center rounded-full">
+                  <div className={`absolute inset-0 rounded-full transition-all duration-500 ${isActive ? 'bg-brand/20 shadow-inner' : 'bg-neutral-100 dark:bg-white/5'}`} />
+                  <div className={`relative z-10 ${isActive ? 'text-brand' : 'text-inksoft dark:text-white/50'}`}>
                     {slide.icon}
                   </div>
                   {/* Plus badge like in the screenshot */}
                   {isActive && i === 1 && (
-                    <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-white text-brand flex items-center justify-center font-bold text-lg shadow-md leading-none pt-0.5">
+                    <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-brand text-white flex items-center justify-center font-bold text-sm shadow-md leading-none pt-0.5">
                       +
                     </div>
                   )}
                 </div>
-                <h3 className={`text-[15px] font-display font-extrabold text-center leading-tight mb-1 transition-all ${isActive ? 'text-white' : 'text-white/80'}`}>
+                <h3 className={`text-[14px] font-display font-extrabold text-center leading-tight mb-0.5 transition-all ${isActive ? 'text-white' : 'text-ink dark:text-white/80'}`}>
                   {slide.title}
                 </h3>
-                <p className={`text-[11.5px] font-medium text-center transition-all ${isActive ? 'text-white/90' : 'text-white/40'}`}>
+                <p className={`text-[11px] font-medium text-center transition-all ${isActive ? 'text-brand/80' : 'text-inksoft dark:text-white/40'}`}>
                   {slide.desc}
                 </p>
               </div>
@@ -99,9 +103,9 @@ export default function HomeCarousel3D() {
       
       <style jsx global>{`
         .swiper-bullet-custom {
-          width: 8px;
-          height: 8px;
-          background: rgba(255, 255, 255, 0.2);
+          width: 6px;
+          height: 6px;
+          background: rgba(138, 138, 138, 0.3);
           border-radius: 50%;
           cursor: pointer;
           transition: all 0.3s ease;

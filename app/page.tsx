@@ -9,7 +9,6 @@ import MatchCard from '@/components/MatchCard';
 import MatchCardSkeleton from '@/components/MatchCardSkeleton';
 import SplashLoading from '@/components/SplashLoading';
 import { Search, Megaphone, Gift, List, Map as MapIcon, RefreshCcw, Bell, ChevronDown } from 'lucide-react';
-import PhotoHero from '@/components/PhotoHero';
 import WeatherWidget from '@/components/WeatherWidget';
 import EmptyState from '@/components/EmptyState';
 import PullToRefresh from '@/components/PullToRefresh';
@@ -179,8 +178,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <div className="relative overflow-hidden px-5 pb-7 pt-0 text-white">
-        <PhotoHero />
+      <div className="relative overflow-hidden px-5 pb-5 pt-4">
         <div className="relative">
           {profile?.is_referee ? (
             <div className="mb-4">
@@ -197,8 +195,8 @@ export default function HomePage() {
           ) : (
             <>
               <div>
-                <h1 className="mt-2 mb-1 font-display text-[24px] font-extrabold shadow-black drop-shadow-md">¿Qué necesitás hoy?</h1>
-                <p className="text-[13.5px] text-white/90 shadow-black drop-shadow-md">Conectamos partidos con jugadores en segundos.</p>
+                <h1 className="mb-1 font-display text-[22px] font-extrabold text-ink dark:text-white">¿Qué necesitás hoy?</h1>
+                <p className="text-[13px] text-inksoft dark:text-white/60 mb-1">Conectamos partidos con jugadores en segundos.</p>
               </div>
               <div className="-mx-5">
                 <HomeCarousel3D />
