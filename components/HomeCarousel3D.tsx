@@ -15,29 +15,29 @@ export default function HomeCarousel3D() {
     {
       title: 'Sumarme a uno',
       desc: 'Buscá partidos',
-      icon: <Search size={36} strokeWidth={2} />,
-      color: 'bg-[#6d5dfc]',
+      icon: <Search size={28} strokeWidth={2.5} />,
+      color: 'bg-brand text-white',
       action: () => router.push('/buscar')
     },
     {
       title: 'Armar partido',
       desc: 'Armá y compartí',
-      icon: <Megaphone size={36} strokeWidth={2} />,
-      color: 'bg-[#6d5dfc]', // Match the user's image purple
+      icon: <Megaphone size={28} strokeWidth={2.5} />,
+      color: 'bg-brand text-white',
       action: () => router.push('/publicar')
     },
     {
       title: 'Buscar rival',
       desc: 'Para tu equipo',
-      icon: <Users size={36} strokeWidth={2} />,
-      color: 'bg-[#6d5dfc]',
+      icon: <Users size={28} strokeWidth={2.5} />,
+      color: 'bg-brand text-white',
       action: () => router.push('/publicar?tipo=equipo_rival')
     },
     {
-      title: 'Explorar torneos',
-      desc: 'Anotá a tu equipo',
-      icon: <Trophy size={36} strokeWidth={2} />,
-      color: 'bg-[#6d5dfc]',
+      title: 'Explorar',
+      desc: 'Torneos locales',
+      icon: <Trophy size={28} strokeWidth={2.5} />,
+      color: 'bg-brand text-white',
       action: () => router.push('/torneos')
     }
   ];
@@ -64,30 +64,30 @@ export default function HomeCarousel3D() {
           bulletActiveClass: 'swiper-bullet-active-custom'
         }}
         modules={[EffectCoverflow, Pagination]}
-        className="w-full h-[320px] flex items-center"
+        className="w-full h-[220px] flex items-center"
       >
         {slides.map((slide, i) => (
-          <SwiperSlide key={i} className="!w-[230px] !h-[280px]" onClick={slide.action}>
+          <SwiperSlide key={i} className="!w-[150px] !h-[180px]" onClick={slide.action}>
             {({ isActive }) => (
               <div 
-                className={`w-full h-full rounded-[28px] flex flex-col items-center justify-center p-6 text-white shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-all duration-300 ${isActive ? slide.color : 'bg-[#1a1a2e] border border-white/5 opacity-80'}`}
+                className={`w-full h-full rounded-[24px] flex flex-col items-center justify-center p-4 text-white shadow-xl transition-all duration-300 border ${isActive ? slide.color + ' border-transparent' : 'bg-white/5 border-white/10 opacity-70 backdrop-blur-md dark:bg-charcoal-light/50'}`}
               >
-                <div className="relative mb-5 flex h-[86px] w-[86px] items-center justify-center rounded-full">
-                  <div className={`absolute inset-0 rounded-full transition-all duration-500 ${isActive ? 'bg-white/20 shadow-inner' : 'border-2 border-white/10 bg-transparent'}`} />
-                  <div className={`relative z-10 ${isActive ? 'text-white' : 'text-white/50'}`}>
+                <div className="relative mb-3 flex h-[60px] w-[60px] items-center justify-center rounded-full">
+                  <div className={`absolute inset-0 rounded-full transition-all duration-500 ${isActive ? 'bg-white/20 shadow-inner' : 'border-2 border-white/20 bg-transparent'}`} />
+                  <div className={`relative z-10 ${isActive ? 'text-white' : 'text-white/60'}`}>
                     {slide.icon}
                   </div>
                   {/* Plus badge like in the screenshot */}
                   {isActive && i === 1 && (
-                    <div className="absolute top-0 right-0 h-7 w-7 rounded-full bg-white text-[#6d5dfc] flex items-center justify-center font-bold text-xl shadow-lg leading-none pt-0.5">
+                    <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-white text-brand flex items-center justify-center font-bold text-lg shadow-md leading-none pt-0.5">
                       +
                     </div>
                   )}
                 </div>
-                <h3 className={`text-[20px] font-display font-extrabold text-center leading-tight mb-1.5 transition-all ${isActive ? 'text-white' : 'text-white/60'}`}>
+                <h3 className={`text-[15px] font-display font-extrabold text-center leading-tight mb-1 transition-all ${isActive ? 'text-white' : 'text-white/80'}`}>
                   {slide.title}
                 </h3>
-                <p className={`text-[14px] font-medium text-center transition-all ${isActive ? 'text-white/80' : 'text-white/30'}`}>
+                <p className={`text-[11.5px] font-medium text-center transition-all ${isActive ? 'text-white/90' : 'text-white/40'}`}>
                   {slide.desc}
                 </p>
               </div>
@@ -107,7 +107,7 @@ export default function HomeCarousel3D() {
           transition: all 0.3s ease;
         }
         .swiper-bullet-active-custom {
-          background: #6d5dfc;
+          background: #00d65f; /* brand color */
           width: 24px;
           border-radius: 10px;
         }
