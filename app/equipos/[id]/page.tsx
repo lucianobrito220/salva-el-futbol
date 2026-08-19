@@ -7,7 +7,8 @@ import { useAuth } from '@/context/AuthContext';
 import SplashLoading from '@/components/SplashLoading';
 import Link from 'next/link';
 import { ArrowLeft, Shield, Users, Trophy, Settings, Share2 } from 'lucide-react';
-import { Team, TeamMember } from '@/lib/types';
+import { Profile, Team, TeamMember } from '@/lib/types';
+import { showToast } from '@/lib/toast';
 
 export default function TeamProfilePage() {
   const params = useParams();
@@ -80,7 +81,7 @@ export default function TeamProfilePage() {
   async function handleSaveSettings() {
     if (!team) return;
     if (!editName.trim()) {
-      alert("El nombre del equipo no puede estar vacío.");
+      showToast.error("El nombre del equipo no puede estar vacío.");
       return;
     }
     setSaving(true);
@@ -100,7 +101,7 @@ export default function TeamProfilePage() {
       await fetchTeam();
       setShowSettings(false);
     } else {
-      alert("Error al actualizar: " + error.message);
+      showToast.error("Error al actualizar: " + error.message);
     }
     setSaving(false);
   }
@@ -124,7 +125,7 @@ export default function TeamProfilePage() {
       const { data } = supabase.storage.from('avatars').getPublicUrl(path);
       setUrl(data.publicUrl);
     } else {
-      alert("Error al subir imagen");
+      showToast.error("Error al subir imagen");
     }
     setUploading(false);
   }
@@ -167,7 +168,7 @@ export default function TeamProfilePage() {
                 }).catch(console.error);
               } else {
                 navigator.clipboard.writeText(window.location.href);
-                alert('Enlace copiado al portapapeles');
+                showToast.success('Enlace copiado al portapapeles');
               }
             }} className="rounded-full bg-black/30 p-2 text-white backdrop-blur-md press-fx">
               <Share2 size={20} />

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { Message } from '@/lib/types';
 import { Send, MessageCircle } from 'lucide-react';
+import { showToast } from '@/lib/toast';
 import Avatar from '@/components/Avatar';
 
 export default function MatchChat({ 
@@ -59,7 +60,7 @@ export default function MatchChat({
   async function loadWhatsApp() {
     const { data, error } = await supabase.rpc('get_contact_phone', { p_match_id: matchId });
     if (error || !data) {
-      alert('El contacto se habilita cuando el organizador acepta al jugador.');
+      showToast.error('El contacto se habilita cuando el organizador acepta al jugador.');
       return;
     }
     setContactPhone(data as string);

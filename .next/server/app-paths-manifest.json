@@ -1,7 +1,7 @@
 {
-  "/partido/[id]/page": "app/partido/[id]/page.js",
-  "/publicar/page": "app/publicar/page.js",
   "/page": "app/page.js",
+  "/publicar/page": "app/publicar/page.js",
   "/torneos/page": "app/torneos/page.js",
-  "/mis-partidos/page": "app/mis-partidos/page.js"
+  "/mis-partidos/page": "app/mis-partidos/page.js",
+  "/partido/[id]/page": "app/partido/[id]/page.js"
 }

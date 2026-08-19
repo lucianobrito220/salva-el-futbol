@@ -6,6 +6,7 @@ import BottomNav from '@/components/BottomNav';
 import Sidebar from '@/components/Sidebar';
 import AppSplash from '@/components/AppSplash';
 import PageTransition from '@/components/PageTransition';
+import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
   title: 'Salvá el Fútbol',
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Sidebar />
                 <PageTransition>{children}</PageTransition>
                 <BottomNav />
+                <Toaster position="bottom-center" />
               </div>
             </AppSplash>
           </ThemeProvider>

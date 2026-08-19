@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { X, MapPin, Search, Loader2 } from 'lucide-react';
+import { showToast } from '@/lib/toast';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -89,7 +90,7 @@ export default function CourtPickerModal({ onSelect, onClose, cityHint }: Props)
         },
         () => {
           setLoading(false);
-          alert("No se pudo obtener la ubicación. Verifica los permisos de tu navegador.");
+          showToast.error("No se pudo obtener la ubicación. Verifica los permisos de tu navegador.");
         },
         { enableHighAccuracy: false, timeout: 5000 }
       );

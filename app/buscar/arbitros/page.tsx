@@ -6,6 +6,7 @@ import { Profile } from '@/lib/types';
 import { ChevronLeft, MessageCircle, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Avatar from '@/components/Avatar';
+import { showToast } from '@/lib/toast';
 import SplashLoading from '@/components/SplashLoading';
 
 export default function BuscarArbitrosPage() {
@@ -71,7 +72,7 @@ export default function BuscarArbitrosPage() {
                       if (referee.phone) {
                         window.open(`https://wa.me/${referee.phone.replace(/[^0-9]/g, '')}`, '_blank');
                       } else {
-                        alert('Este árbitro no tiene un número de teléfono público.');
+                        showToast.error('Este árbitro no tiene un número de teléfono público.');
                       }
                     }}
                     className="press-fx flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#25D366] py-2.5 text-xs font-bold text-white shadow-sm"

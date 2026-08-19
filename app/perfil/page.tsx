@@ -10,6 +10,7 @@ import SplashLoading from '@/components/SplashLoading';
 import InstallAppButton from '@/components/InstallAppButton';
 import { useTheme } from '@/context/ThemeContext';
 import { Bell, Camera, Pencil, LogOut, Check, Award, Shield, Moon, HelpCircle, FileText, ChevronRight, ChevronDown, ChevronUp, Activity, Trophy, Gift, Share2, AlertCircle } from 'lucide-react';
+import { showToast } from '@/lib/toast';
 import Link from 'next/link';
 
 export default function PerfilPage() {
@@ -158,7 +159,7 @@ export default function PerfilPage() {
       await refreshProfile();
     } else {
       console.error("Referee toggle error:", error);
-      alert(`Error al actualizar estado: ${error.message || 'Desconocido'}`);
+      showToast.error(`Error al actualizar estado: ${error.message || 'Desconocido'}`);
     }
     setTogglingReferee(false);
   }
@@ -209,23 +210,50 @@ export default function PerfilPage() {
         </button>
         <div className="relative mx-auto mb-3 h-[76px] w-[76px]">
           {profile.avatar_url ? (
-            <img
-              src={profile.avatar_url}
-              alt={profile.name}
-              className="h-[76px] w-[76px] rounded-full object-cover ring-2 ring-white/30"
-            />
-          ) : (
-            <div className="flex h-[76px] w-[76px] items-center justify-center rounded-full bg-white/15 font-display text-3xl font-extrabold text-white ring-2 ring-white/30">
-              {profile.name.charAt(0)}
+      {/* Top Background & Gamified Avatar */}
+      <div className="relative rounded-b-[40px] bg-gradient-to-b from-brand-dark to-brand pb-8 pt-10 text-center shadow-lg">
+        {(() => {
+          const points = profile.salvapuntos || 0;
+          let rank = 'Amateur';
+          let nextLevel = 10;
+          if (points >= 50) { rank = 'Leyenda'; nextLevel = 100; }
+          else if (points >= 10) { rank = 'Titular'; nextLevel = 50; }
+          
+          const progress = Math.min((points / nextLevel) * 100, 100);
+          const strokeDashoffset = 283 - (283 * progress) / 100; // 2 * PI * R (r=45) = ~283
+
+          return (
+            <div className="relative mx-auto mb-4 h-28 w-28">
+              {/* Circular Progress Ring */}
+              <svg className="absolute -inset-1 h-[120px] w-[120px] -rotate-90 drop-shadow-md">
+                <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="6" />
+                <circle cx="60" cy="60" r="45" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" 
+                  strokeDasharray="283" strokeDashoffset={strokeDashoffset} 
+                  className="transition-all duration-1000 ease-out" />
+              </svg>
+
+              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-brand-dark p-1">
+                <Avatar url={profile.avatar_url} name={profile.name} size={92} />
+              </div>
+
+              {/* Rank Badge */}
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-3 py-1 shadow-md border border-brand/20">
+                <span className="font-display text-[10px] font-extrabold uppercase text-brand-dark flex items-center gap-1">
+                  {rank === 'Leyenda' ? '👑' : rank === 'Titular' ? '⭐' : '🌱'} {rank}
+                </span>
+              </div>
+              
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute bottom-3 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white text-brand shadow-lg press-fx transition-transform hover:scale-110 border border-neutral-100"
+              >
+                <Camera size={15} strokeWidth={2.5} />
+              </button>
             </div>
-          )}
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadingPhoto}
-            className="press-fx absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-brand-dark bg-brand text-white"
-          >
-            <Camera size={13} />
-          </button>
+          );
+        })()}
+
+        <div className="hidden">
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
         </div>
         {uploadingPhoto && <p className="mb-1 text-[11px] text-white/70">Subiendo foto…</p>}
@@ -259,7 +287,15 @@ export default function PerfilPage() {
           </h2>
         )}
 
-        <p className="mb-4 text-[13px] text-white/70">{profile.position || 'Jugador'} · {profile.city || 'Sin ciudad'}</p>
+        )}
+
+        <div className="mt-2 text-[12px] font-bold text-white/90">
+          <Link href="/perfil/salvapuntos" className="hover:underline flex items-center justify-center gap-1.5">
+            <Shield size={14} className="text-white" />
+            SalvaPuntos: <span className="text-white font-extrabold bg-white/20 px-2 py-0.5 rounded-full">{profile.salvapuntos || 0}</span>
+          </Link>
+        </div>
+        <p className="mb-5 mt-3 text-[13px] text-white/70">{profile.position || 'Jugador'} · {profile.city || 'Sin ciudad'}</p>
         <div className="flex justify-center">
           <Stat label="Jugados" value={profile.played_count} />
           <Stat label="Calificación" value={profile.rating || '—'} />

@@ -8,7 +8,8 @@ import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import SuccessCheck from '@/components/SuccessCheck';
 import SplashLoading from '@/components/SplashLoading';
-import { ArrowLeft, Shield, Camera } from 'lucide-react';
+import { Upload, ArrowLeft, Shield, Camera } from 'lucide-react';
+import { showToast } from '@/lib/toast';
 
 export default function CrearEquipoPage() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function CrearEquipoPage() {
       const { data } = supabase.storage.from('avatars').getPublicUrl(path);
       setLogoUrl(data.publicUrl);
     } else {
-      alert("Error al subir imagen");
+      showToast.error("Error al subir imagen");
     }
     setUploadingLogo(false);
   }
