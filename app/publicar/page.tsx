@@ -9,6 +9,7 @@ import { Level, MatchType, TeamFormat, Gender } from '@/lib/types';
 import SuccessCheck from '@/components/SuccessCheck';
 import SplashLoading from '@/components/SplashLoading';
 import PitchPattern from '@/components/PitchPattern';
+import { getLocalISODate } from '@/lib/dateUtils';
 import { MapPin, Check, ArrowLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
@@ -29,7 +30,7 @@ export default function PublicarPage() {
   const [court, setCourt] = useState('');
   const [locationAddress, setLocationAddress] = useState('');
   const [locationCoords, setLocationCoords] = useState<{lat: number, lng: number} | null>(null);
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(getLocalISODate());
   const [time, setTime] = useState('21:00');
   const [matchType, setMatchType] = useState<MatchType>('jugadores_sueltos');
   const [teamFormat, setTeamFormat] = useState<TeamFormat>('F5');

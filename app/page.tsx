@@ -16,13 +16,14 @@ import PullToRefresh from '@/components/PullToRefresh';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import useSWR from 'swr';
+import { getLocalISODate } from '@/lib/dateUtils';
 
 const FeedMap = dynamic(() => import('@/components/MapLayer'), { ssr: false });
 
 const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  return getLocalISODate();
 }
 function addDays(n: number) {
   const d = new Date();
@@ -32,7 +33,7 @@ function addDays(n: number) {
 function buildWeek() {
   return Array.from({ length: 7 }).map((_, i) => {
     const d = addDays(i);
-    return { iso: d.toISOString().slice(0, 10), label: DAY_NAMES[d.getDay()], num: d.getDate() };
+    return { iso: getLocalISODate(d), label: DAY_NAMES[d.getDay()], num: d.getDate() };
   });
 }
 

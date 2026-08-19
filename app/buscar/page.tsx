@@ -14,6 +14,7 @@ import BottomNav from '@/components/BottomNav';
 import { MapPin, Search, SlidersHorizontal, X, Loader2, Users, Trophy } from 'lucide-react';
 import useSWRInfinite from 'swr/infinite';
 import Link from 'next/link';
+import { getLocalISODate } from '@/lib/dateUtils';
 
 const PAGE_SIZE = 15;
 
@@ -62,7 +63,7 @@ export default function BuscarPage() {
     if (city) query = query.ilike('city', `%${city}%`);
     if (zn) query = query.ilike('zone', `%${zn}%`);
     if (dt) query = query.eq('match_date', dt);
-    else query = query.gte('match_date', new Date().toISOString().slice(0, 10)); // Solo hoy en adelante
+    else query = query.gte('match_date', getLocalISODate()); // Solo hoy en adelante
     
     if (lvl) query = query.eq('level', lvl);
     if (gen) query = query.eq('gender', gen);

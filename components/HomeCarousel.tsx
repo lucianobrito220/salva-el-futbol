@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import { Match } from '@/lib/types';
+import { getLocalISODate } from '@/lib/dateUtils';
 import { AlertCircle, TrendingUp, MapPin, Trophy } from 'lucide-react';
 import CountUp from '@/components/CountUp';
 
@@ -25,7 +26,7 @@ export default function HomeCarousel() {
   const [topOrganizers, setTopOrganizers] = useState<TopOrganizer[]>([]);
 
   useEffect(() => {
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = getLocalISODate();
 
     supabase
       .from('matches')

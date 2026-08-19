@@ -12,6 +12,7 @@ import {
   ChevronLeft, Check, X, Send, MessageCircle, Pencil,
   Flag, Star, UserPlus, Repeat, MapPin, Gift
 } from 'lucide-react';
+import { getLocalISODate } from '@/lib/dateUtils';
 import QRCode from 'react-qr-code';
 import Avatar from '@/components/Avatar';
 import WeatherWidget from '@/components/WeatherWidget';
@@ -322,7 +323,7 @@ ${torneoData.descrExtra}`.trim();
     const totalNeeded = match.missing_players + accepted.length;
     const newDate = new Date(`${match.match_date}T00:00:00`);
     newDate.setDate(newDate.getDate() + 7);
-    const newDateStr = newDate.toISOString().slice(0, 10);
+    const newDateStr = getLocalISODate(newDate);
 
     const { data, error } = await supabase
       .from('matches')

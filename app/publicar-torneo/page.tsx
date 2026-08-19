@@ -7,7 +7,8 @@ import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import SuccessCheck from '@/components/SuccessCheck';
 import SplashLoading from '@/components/SplashLoading';
-import { ArrowLeft, Phone, Trophy, CheckSquare, AlertCircle } from 'lucide-react';
+import { Trophy, Calendar, MapPin, Search, ArrowLeft, Users, DollarSign, Upload, Info, Phone, CheckSquare, AlertCircle } from 'lucide-react';
+import { getLocalISODate } from '@/lib/dateUtils';
 
 export default function PublicarTorneoPage() {
   const router = useRouter();
@@ -120,7 +121,7 @@ ${descripcion.trim()}
         city: ubicacion.trim(),
         zone: 'Torneo',
         court: ubicacion.trim(),
-        match_date: new Date().toISOString().slice(0, 10), // Guardamos hoy por defecto
+        match_date: getLocalISODate(), // Guardamos hoy por defecto
         match_time: '00:00', 
         match_type: 'equipo_rival', // Guardamos como equipo rival temporalmente hasta que haya match_type='torneo'
         missing_players: 0,
